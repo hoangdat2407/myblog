@@ -1,6 +1,7 @@
 site_name: PortSwigger Writeups
-site_description: My PortSwigger Web Security Academy writeups
 site_author: Thanh Dat Hoang
+site_description: My PortSwigger Web Security Academy writeups
+site_url: https://hoangdat2407.github.io/myblog/
 
 theme:
   name: material
@@ -11,6 +12,9 @@ theme:
     - search.suggest
     - content.code.copy
 
+plugins:
+  - search
+
 nav:
   - Home: Portswigger.md
   - Server-side:
@@ -18,11 +22,15 @@ nav:
       - Authentication: Portswigger/Authentication vulnerabilities.md
       - Business Logic: Portswigger/Business logic vulnerabilities.md
       - File Upload: Portswigger/File upload vulnerabilities.md
+      - GraphQL: Portswigger/GraphQL.md
       - Information Disclosure: Portswigger/Information disclosure.md
       - Insecure Deserialization: Portswigger/Insecure deserialize.md
+      - JWT Attack: Portswigger/JWT attack.md
       - NoSQL Injection: Portswigger/NoSQL injection.md
+      - OAuth: Portswigger/Oauth.md
       - OS Command Injection: Portswigger/OS command injection.md
       - Path Traversal: Portswigger/Path traversal.md
+      - Prototype Pollution: Portswigger/Prototype polution.md
       - Race Condition: Portswigger/Race condition.md
       - SSTI: Portswigger/Server side template injection.md
       - SQL Injection: Portswigger/SQL injection.md
@@ -35,12 +43,7 @@ nav:
       - CORS: Portswigger/CORS.md
       - CSRF: Portswigger/CSRF.md
       - DOM-based Vulnerabilities: Portswigger/DOM-based vulnerabilities.md
-      - JWT Attack: Portswigger/JWT attack.md
-      - OAuth: Portswigger/Oauth.md
-      - Prototype Pollution: Portswigger/Prototype polution.md
       - XSS: Portswigger/XSS.md
-  - API:
-      - GraphQL: Portswigger/GraphQL.md
 
 markdown_extensions:
   - admonition
@@ -52,6 +55,3 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.details
-
-plugins:
-  - search
