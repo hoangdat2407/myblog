@@ -1,6 +1,6 @@
 # SSRF
 
-# **Lab: Basic SSRF against the local server**
+## **Lab: Basic SSRF against the local server**
 
 [Lab: Basic SSRF against the local server | Web Security Academy](https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-localhost)
 
@@ -77,7 +77,7 @@
     ![image.png](SSRF/image%205.png)
     
 
-# **Lab: Basic SSRF against another back-end system**
+## **Lab: Basic SSRF against another back-end system**
 
 [Lab: Basic SSRF against another back-end system | Web Security Academy](https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-backend-system)
 
@@ -134,7 +134,7 @@
     ![image.png](SSRF/image%2012.png)
     
 
-# **Lab: Blind SSRF with out-of-band detection**
+## **Lab: Blind SSRF with out-of-band detection**
 
 [Lab: Blind SSRF with out-of-band detection | Web Security Academy](https://portswigger.net/web-security/ssrf/blind/lab-out-of-band-detection)
 
@@ -173,7 +173,7 @@
     ![image.png](SSRF/image%2015.png)
     
 
-# **Lab: SSRF with blacklist-based input filter**
+## **Lab: SSRF with blacklist-based input filter**
 
 [Lab: SSRF with blacklist-based input filter | Web Security Academy](https://portswigger.net/web-security/ssrf/lab-ssrf-with-blacklist-filter)
 
@@ -211,7 +211,7 @@
         ![image.png](SSRF/image%2022.png)
         
 
-# **Lab: SSRF with filter bypass via open redirection vulnerability**
+## **Lab: SSRF with filter bypass via open redirection vulnerability**
 
 [Lab: SSRF with filter bypass via open redirection vulnerability | Web Security Academy](https://portswigger.net/web-security/ssrf/lab-ssrf-filter-bypass-via-open-redirection)
 
@@ -272,7 +272,7 @@
     ![image.png](SSRF/image%2030.png)
     
 
-# **Lab: Blind SSRF with Shellshock exploitation**
+## **Lab: Blind SSRF with Shellshock exploitation**
 
 [Lab: Blind SSRF with Shellshock exploitation | Web Security Academy](https://portswigger.net/web-security/ssrf/blind/lab-shellshock-exploitation)
 
@@ -379,7 +379,7 @@
     ![image.png](SSRF/image%2035.png)
     
 
-# **Lab: SSRF with whitelist-based input filter**
+## **Lab: SSRF with whitelist-based input filter**
 
 [Lab: SSRF with whitelist-based input filter | Web Security Academy](https://portswigger.net/web-security/ssrf/lab-ssrf-with-whitelist-filter)
 

@@ -1,6 +1,6 @@
 # Web socket
 
-# **Lab: Manipulating WebSocket messages to exploit vulnerabilities**
+## **Lab: Manipulating WebSocket messages to exploit vulnerabilities**
 
 [Lab: Manipulating WebSocket messages to exploit vulnerabilities | Web Security Academy](https://portswigger.net/web-security/websockets/lab-manipulating-messages-to-exploit-vulnerabilities)
 
@@ -34,7 +34,7 @@
         ![image.png](Web%20socket/image%203.png)
         
 
-# **Lab: Cross-site WebSocket hijacking**
+## **Lab: Cross-site WebSocket hijacking**
 
 [Lab: Cross-site WebSocket hijacking | Web Security Academy](https://portswigger.net/web-security/websockets/cross-site-websocket-hijacking/lab)
 
@@ -80,7 +80,7 @@
         ![image.png](Web%20socket/image%209.png)
         
 
-# **Lab: Manipulating the WebSocket handshake to exploit vulnerabilities**
+## **Lab: Manipulating the WebSocket handshake to exploit vulnerabilities**
 
 [Lab: Manipulating the WebSocket handshake to exploit vulnerabilities | Web Security Academy](https://portswigger.net/web-security/websockets/lab-manipulating-handshake-to-exploit-vulnerabilities)
 

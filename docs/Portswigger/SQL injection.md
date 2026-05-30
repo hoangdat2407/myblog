@@ -1,6 +1,6 @@
 # SQL injection
 
-# **Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data**
+## **Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data**
 
 [Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data | Web Security Academy](https://portswigger.net/web-security/sql-injection/lab-retrieve-hidden-data)
 
@@ -13,7 +13,7 @@
     ![image.png](SQL%20injection/image%201.png)
     
 
-# **Lab: SQL injection vulnerability allowing login bypass**
+## **Lab: SQL injection vulnerability allowing login bypass**
 
 [Lab: SQL injection vulnerability allowing login bypass | Web Security Academy](https://portswigger.net/web-security/sql-injection/lab-login-bypass)
 
@@ -30,7 +30,7 @@
     ![image.png](SQL%20injection/image%205.png)
     
 
-# **Lab: SQL injection attack, querying the database type and version on Oracle**
+## **Lab: SQL injection attack, querying the database type and version on Oracle**
 
 [Lab: SQL injection attack, querying the database type and version on Oracle | Web Security Academy](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-oracle)
 
@@ -51,7 +51,7 @@
     ![image.png](SQL%20injection/image%2010.png)
     
 
-# **Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft**
+## **Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft**
 
 [Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft | Web Security Academy](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-querying-database-version-mysql-microsoft)
 
@@ -84,7 +84,7 @@
     ![image.png](SQL%20injection/image%2019.png)
     
 
-# **Lab: SQL injection attack, listing the database contents on non-Oracle databases**
+## **Lab: SQL injection attack, listing the database contents on non-Oracle databases**
 
 [Lab: SQL injection attack, listing the database contents on non-Oracle databases | Web Security Academy](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-non-oracle)
 
@@ -140,7 +140,7 @@
     ![image.png](SQL%20injection/image%2030.png)
     
 
-# **Lab: SQL injection attack, listing the database contents on Oracle**
+## **Lab: SQL injection attack, listing the database contents on Oracle**
 
 [Lab: SQL injection attack, listing the database contents on Oracle | Web Security Academy](https://portswigger.net/web-security/sql-injection/examining-the-database/lab-listing-database-contents-oracle)
 
@@ -182,7 +182,7 @@
     ![image.png](SQL%20injection/image%2039.png)
     
 
-# **Lab: SQL injection UNION attack, determining the number of columns returned by the query**
+## **Lab: SQL injection UNION attack, determining the number of columns returned by the query**
 
 [Lab: SQL injection UNION attack, determining the number of columns returned by the query | Web Security Academy](https://portswigger.net/web-security/sql-injection/union-attacks/lab-determine-number-of-columns)
 
@@ -207,7 +207,7 @@
     ![image.png](SQL%20injection/image%2046.png)
     
 
-# **Lab: SQL injection UNION attack, finding a column containing text**
+## **Lab: SQL injection UNION attack, finding a column containing text**
 
 [Lab: SQL injection UNION attack, finding a column containing text | Web Security Academy](https://portswigger.net/web-security/sql-injection/union-attacks/lab-find-column-containing-text)
 
@@ -238,7 +238,7 @@
     ![image.png](SQL%20injection/image%2053.png)
     
 
-# **Lab: SQL injection UNION attack, retrieving data from other tables**
+## **Lab: SQL injection UNION attack, retrieving data from other tables**
 
 [Lab: SQL injection UNION attack, retrieving data from other tables | Web Security Academy](https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-data-from-other-tables)
 
@@ -263,7 +263,7 @@
     ![image.png](SQL%20injection/image%2059.png)
     
 
-# **Lab: SQL injection UNION attack, retrieving multiple values in a single column**
+## **Lab: SQL injection UNION attack, retrieving multiple values in a single column**
 
 [Lab: SQL injection UNION attack, retrieving multiple values in a single column | Web Security Academy](https://portswigger.net/web-security/sql-injection/union-attacks/lab-retrieve-multiple-values-in-single-column)
 
@@ -292,7 +292,7 @@
     ![image.png](SQL%20injection/image%2067.png)
     
 
-# **Lab: Blind SQL injection with conditional responses**
+## **Lab: Blind SQL injection with conditional responses**
 
 [Lab: Blind SQL injection with conditional responses | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-conditional-responses)
 
@@ -350,7 +350,7 @@
     ![image.png](SQL%20injection/image%2078.png)
     
 
-# **Lab: Blind SQL injection with conditional errors**
+## **Lab: Blind SQL injection with conditional errors**
 
 [Lab: Blind SQL injection with conditional errors | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-conditional-errors)
 
@@ -419,7 +419,7 @@
     ![image.png](SQL%20injection/image%2091.png)
     
 
-# **Lab: Visible error-based SQL injection**
+## **Lab: Visible error-based SQL injection**
 
 [Lab: Visible error-based SQL injection | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-sql-injection-visible-error-based)
 
@@ -457,7 +457,7 @@
     ![image.png](SQL%20injection/image%2097.png)
     
 
-# **Lab: Blind SQL injection with time delays**
+## **Lab: Blind SQL injection with time delays**
 
 [Lab: Blind SQL injection with time delays | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-time-delays)
 
@@ -470,7 +470,7 @@
     ![image.png](SQL%20injection/image%2099.png)
     
 
-# **Lab: Blind SQL injection with time delays and information retrieval**
+## **Lab: Blind SQL injection with time delays and information retrieval**
 
 [Lab: Blind SQL injection with time delays and information retrieval | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-time-delays-info-retrieval)
 
@@ -521,7 +521,7 @@
     ![image.png](SQL%20injection/image%20109.png)
     
 
-# **Lab: Blind SQL injection with out-of-band interaction**
+## **Lab: Blind SQL injection with out-of-band interaction**
 
 [Lab: Blind SQL injection with out-of-band interaction | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band)
 
@@ -547,7 +547,7 @@
             ![image.png](SQL%20injection/image%20112.png)
             
 
-# **Lab: Blind SQL injection with out-of-band data exfiltration**
+## **Lab: Blind SQL injection with out-of-band data exfiltration**
 
 [Lab: Blind SQL injection with out-of-band data exfiltration | Web Security Academy](https://portswigger.net/web-security/sql-injection/blind/lab-out-of-band-data-exfiltration)
 
@@ -586,7 +586,7 @@
     ![image.png](SQL%20injection/image%20117.png)
     
 
-# **Lab: SQL injection with filter bypass via XML encoding**
+## **Lab: SQL injection with filter bypass via XML encoding**
 
 [Lab: SQL injection with filter bypass via XML encoding | Web Security Academy](https://portswigger.net/web-security/sql-injection/lab-sql-injection-with-filter-bypass-via-xml-encoding)
 

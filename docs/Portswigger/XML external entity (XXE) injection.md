@@ -1,6 +1,6 @@
 # XML external entity (XXE) injection
 
-# **Lab: Exploiting XXE using external entities to retrieve files**
+## **Lab: Exploiting XXE using external entities to retrieve files**
 
 [Lab: Exploiting XXE using external entities to retrieve files | Web Security Academy](https://portswigger.net/web-security/xxe/lab-exploiting-xxe-to-retrieve-files)
 
@@ -93,7 +93,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%203.png)
     
 
-# **Lab: Exploiting XXE to perform SSRF attacks**
+## **Lab: Exploiting XXE to perform SSRF attacks**
 
 [Lab: Exploiting XXE to perform SSRF attacks | Web Security Academy](https://portswigger.net/web-security/xxe/lab-exploiting-xxe-to-perform-ssrf)
 
@@ -181,7 +181,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%208.png)
     
 
-# **Lab: Blind XXE with out-of-band interaction**
+## **Lab: Blind XXE with out-of-band interaction**
 
 [Lab: Blind XXE with out-of-band interaction | Web Security Academy](https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-interaction)
 
@@ -228,7 +228,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2011.png)
     
 
-# **Lab: Blind XXE with out-of-band interaction via XML parameter entities**
+## **Lab: Blind XXE with out-of-band interaction via XML parameter entities**
 
 [Lab: Blind XXE with out-of-band interaction via XML parameter entities | Web Security Academy](https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-interaction-using-parameter-entities)
 
@@ -301,7 +301,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2015.png)
     
 
-# **Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD**
+## **Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD**
 
 [Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD | Web Security Academy](https://portswigger.net/web-security/xxe/blind/lab-xxe-with-out-of-band-exfiltration)
 
@@ -405,7 +405,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2020.png)
     
 
-# **Lab: Exploiting blind XXE to retrieve data via error messages**
+## **Lab: Exploiting blind XXE to retrieve data via error messages**
 
 [Lab: Exploiting blind XXE to retrieve data via error messages | Web Security Academy](https://portswigger.net/web-security/xxe/blind/lab-xxe-with-data-retrieval-via-error-messages)
 
@@ -506,7 +506,7 @@
         ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2025.png)
         
 
-# **Lab: Exploiting XInclude to retrieve files**
+## **Lab: Exploiting XInclude to retrieve files**
 
 [Lab: Exploiting XInclude to retrieve files | Web Security Academy](https://portswigger.net/web-security/xxe/lab-xinclude-attack)
 
@@ -583,7 +583,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2029.png)
     
 
-# **Lab: Exploiting XXE via image file upload**
+## **Lab: Exploiting XXE via image file upload**
 
 [Lab: Exploiting XXE via image file upload | Web Security Academy](https://portswigger.net/web-security/xxe/lab-xxe-via-file-upload)
 
@@ -767,7 +767,7 @@
     ![image.png](XML%20external%20entity%20(XXE)%20injection/image%2035.png)
     
 
-# **Lab: Exploiting XXE to retrieve data by repurposing a local DTD**
+## **Lab: Exploiting XXE to retrieve data by repurposing a local DTD**
 
 [Lab: Exploiting XXE to retrieve data by repurposing a local DTD | Web Security Academy](https://portswigger.net/web-security/xxe/blind/lab-xxe-trigger-error-message-by-repurposing-local-dtd)
 

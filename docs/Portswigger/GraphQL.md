@@ -1,6 +1,6 @@
 # GraphQL
 
-# **Lab: Accessing private GraphQL posts**
+## **Lab: Accessing private GraphQL posts**
 
 [Lab: Accessing private GraphQL posts | Web Security Academy](https://portswigger.net/web-security/graphql/lab-graphql-reading-private-posts)
 
@@ -36,7 +36,7 @@
     ![image.png](GraphQL/image%202.png)
     
 
-# **Lab: Accidental exposure of private GraphQL fields**
+## **Lab: Accidental exposure of private GraphQL fields**
 
 [Lab: Accidental exposure of private GraphQL fields | Web Security Academy](https://portswigger.net/web-security/graphql/lab-graphql-accidental-field-exposure)
 
@@ -97,7 +97,7 @@
         ![image.png](GraphQL/image%208.png)
         
 
-# **Lab: Finding a hidden GraphQL endpoint**
+## **Lab: Finding a hidden GraphQL endpoint**
 
 [Lab: Finding a hidden GraphQL endpoint | Web Security Academy](https://portswigger.net/web-security/graphql/lab-graphql-find-the-endpoint)
 
@@ -228,7 +228,7 @@
         ![image.png](GraphQL/image%2015.png)
         
 
-# **Lab: Bypassing GraphQL brute force protections**
+## **Lab: Bypassing GraphQL brute force protections**
 
 [Lab: Bypassing GraphQL brute force protections | Web Security Academy](https://portswigger.net/web-security/graphql/lab-graphql-brute-force-protection-bypass)
 
@@ -309,7 +309,7 @@
         ![image.png](GraphQL/image%2021.png)
         
 
-# **Lab: Performing CSRF exploits over GraphQL**
+## **Lab: Performing CSRF exploits over GraphQL**
 
 [Lab: Performing CSRF exploits over GraphQL | Web Security Academy](https://portswigger.net/web-security/graphql/lab-graphql-csrf-via-graphql-api)
 

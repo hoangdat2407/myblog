@@ -1,6 +1,6 @@
 # File upload vulnerabilities
 
-# **Lab: Remote code execution via web shell upload**
+## **Lab: Remote code execution via web shell upload**
 
 [Lab: Remote code execution via web shell upload | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-remote-code-execution-via-web-shell-upload)
 
@@ -100,7 +100,7 @@
         ![image.png](File%20upload%20vulnerabilities/image%203.png)
         
 
-# **Lab: Web shell upload via Content-Type restriction bypass**
+## **Lab: Web shell upload via Content-Type restriction bypass**
 
 [Lab: Web shell upload via Content-Type restriction bypass | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-content-type-restriction-bypass)
 
@@ -160,7 +160,7 @@
     ![image.png](File%20upload%20vulnerabilities/image%208.png)
     
 
-# **Lab: Web shell upload via path traversal**
+## **Lab: Web shell upload via path traversal**
 
 [Lab: Web shell upload via path traversal | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-path-traversal)
 
@@ -257,7 +257,7 @@
     ![image.png](File%20upload%20vulnerabilities/image%2011.png)
     
 
-# **Lab: Web shell upload via extension blacklist bypass**
+## **Lab: Web shell upload via extension blacklist bypass**
 
 [Lab: Web shell upload via extension blacklist bypass | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-extension-blacklist-bypass)
 
@@ -388,7 +388,7 @@
     ![image.png](File%20upload%20vulnerabilities/image%2015.png)
     
 
-# **Lab: Web shell upload via obfuscated file extension**
+## **Lab: Web shell upload via obfuscated file extension**
 
 [Lab: Web shell upload via obfuscated file extension | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-obfuscated-file-extension)
 
@@ -482,7 +482,7 @@
     ![image.png](File%20upload%20vulnerabilities/image%2018.png)
     
 
-# **Lab: Remote code execution via polyglot web shell upload**
+## **Lab: Remote code execution via polyglot web shell upload**
 
 [Lab: Remote code execution via polyglot web shell upload | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-remote-code-execution-via-polyglot-web-shell-upload)
 
@@ -534,7 +534,7 @@
     ![image.png](File%20upload%20vulnerabilities/image%2022.png)
     
 
-# **Lab: Web shell upload via race condition**
+## **Lab: Web shell upload via race condition**
 
 [Lab: Web shell upload via race condition | Web Security Academy](https://portswigger.net/web-security/file-upload/lab-file-upload-web-shell-upload-via-race-condition)
 

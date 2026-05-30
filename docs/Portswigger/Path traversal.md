@@ -1,6 +1,6 @@
 # Path traversal
 
-# **Lab: File path traversal, simple case**
+## **Lab: File path traversal, simple case**
 
 [Lab: File path traversal, simple case | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-simple)
 
@@ -20,7 +20,7 @@
     ![image.png](Path%20traversal/image%202.png)
     
 
-# **Lab: File path traversal, traversal sequences blocked with absolute path bypass**
+## **Lab: File path traversal, traversal sequences blocked with absolute path bypass**
 
 [Lab: File path traversal, traversal sequences blocked with absolute path bypass | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass)
 
@@ -53,7 +53,7 @@
     ![image.png](Path%20traversal/image%206.png)
     
 
-# **Lab: File path traversal, traversal sequences stripped non-recursively**
+## **Lab: File path traversal, traversal sequences stripped non-recursively**
 
 [Lab: File path traversal, traversal sequences stripped non-recursively | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively)
 
@@ -106,7 +106,7 @@
     ![image.png](Path%20traversal/image%2010.png)
     
 
-# **Lab: File path traversal, traversal sequences stripped with superfluous URL-decode**
+## **Lab: File path traversal, traversal sequences stripped with superfluous URL-decode**
 
 [Lab: File path traversal, traversal sequences stripped with superfluous URL-decode | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-superfluous-url-decode)
 
@@ -131,7 +131,7 @@
     ![image.png](Path%20traversal/image%2013.png)
     
 
-# **Lab: File path traversal, validation of start of path**
+## **Lab: File path traversal, validation of start of path**
 
 [Lab: File path traversal, validation of start of path | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-validate-start-of-path)
 
@@ -179,7 +179,7 @@
     ![image.png](Path%20traversal/image%2016.png)
     
 
-# **Lab: File path traversal, validation of file extension with null byte bypass**
+## **Lab: File path traversal, validation of file extension with null byte bypass**
 
 [Lab: File path traversal, validation of file extension with null byte bypass | Web Security Academy](https://portswigger.net/web-security/file-path-traversal/lab-validate-file-extension-null-byte-bypass)
 

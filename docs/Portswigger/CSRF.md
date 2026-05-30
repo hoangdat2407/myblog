@@ -1,6 +1,6 @@
 # CSRF
 
-# **Lab: CSRF vulnerability with no defenses**
+## **Lab: CSRF vulnerability with no defenses**
 
 [Lab: CSRF vulnerability with no defenses | Web Security Academy](https://portswigger.net/web-security/csrf/lab-no-defenses)
 
@@ -56,7 +56,7 @@
         ![image.png](CSRF/image%204.png)
         
 
-# **Lab: CSRF where token validation depends on request method**
+## **Lab: CSRF where token validation depends on request method**
 
 [Lab: CSRF where token validation depends on request method | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-validation-depends-on-request-method)
 
@@ -114,7 +114,7 @@
         ![image.png](CSRF/image%2010.png)
         
 
-# **Lab: CSRF where token validation depends on token being present**
+## **Lab: CSRF where token validation depends on token being present**
 
 [Lab: CSRF where token validation depends on token being present | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-validation-depends-on-token-being-present)
 
@@ -165,7 +165,7 @@
         ![image.png](CSRF/image%2014.png)
         
 
-# **Lab: CSRF where token is not tied to user session**
+## **Lab: CSRF where token is not tied to user session**
 
 [Lab: CSRF where token is not tied to user session | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-not-tied-to-user-session)
 
@@ -254,7 +254,7 @@
         ![image.png](CSRF/image%2019.png)
         
 
-# **Lab: CSRF where token is tied to non-session cookie**
+## **Lab: CSRF where token is tied to non-session cookie**
 
 [Lab: CSRF where token is tied to non-session cookie | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-tied-to-non-session-cookie)
 
@@ -339,7 +339,7 @@
         ![image.png](CSRF/image%2023.png)
         
 
-# **Lab: CSRF where token is duplicated in cookie**
+## **Lab: CSRF where token is duplicated in cookie**
 
 [Lab: CSRF where token is duplicated in cookie | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-token-validation/lab-token-duplicated-in-cookie)
 
@@ -422,7 +422,7 @@
     ![image.png](CSRF/image%2028.png)
     
 
-# **Lab: SameSite Lax bypass via method override**
+## **Lab: SameSite Lax bypass via method override**
 
 [Lab: SameSite Lax bypass via method override | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-lax-bypass-via-method-override)
 
@@ -470,7 +470,7 @@
         ![image.png](CSRF/image%2031.png)
         
 
-# **Lab: SameSite Strict bypass via client-side redirect**
+## **Lab: SameSite Strict bypass via client-side redirect**
 
 [Lab: SameSite Strict bypass via client-side redirect | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-client-side-redirect)
 
@@ -504,7 +504,7 @@
         ![image.png](CSRF/image%2036.png)
         
 
-# **Lab: SameSite Strict bypass via sibling domain**
+## **Lab: SameSite Strict bypass via sibling domain**
 
 [Lab: SameSite Strict bypass via sibling domain | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-sibling-domain)
 
@@ -584,7 +584,7 @@
         ![image.png](CSRF/image%2044.png)
         
 
-# **Lab: SameSite Lax bypass via cookie refresh**
+## **Lab: SameSite Lax bypass via cookie refresh**
 
 [Lab: SameSite Lax bypass via cookie refresh | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions/lab-samesite-strict-bypass-via-cookie-refresh)
 
@@ -636,7 +636,7 @@
         ![image.png](CSRF/image%2045.png)
         
 
-# **Lab: CSRF where Referer validation depends on header being present**
+## **Lab: CSRF where Referer validation depends on header being present**
 
 [Lab: CSRF where Referer validation depends on header being present | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-referer-based-defenses/lab-referer-validation-depends-on-header-being-present)
 
@@ -677,7 +677,7 @@
         ![image.png](CSRF/image%2048.png)
         
 
-# **Lab: CSRF with broken Referer validation**
+## **Lab: CSRF with broken Referer validation**
 
 [Lab: CSRF with broken Referer validation | Web Security Academy](https://portswigger.net/web-security/csrf/bypassing-referer-based-defenses/lab-referer-validation-broken)
 

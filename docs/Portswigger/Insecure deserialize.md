@@ -1,6 +1,6 @@
 # Insecure deserialize
 
-# **Lab: Exploiting Java deserialization with Apache Commons**
+## **Lab: Exploiting Java deserialization with Apache Commons**
 
 [Lab: Exploiting Java deserialization with Apache Commons | Web Security Academy](https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-exploiting-java-deserialization-with-apache-commons)
 
@@ -37,7 +37,7 @@
         ![image.png](Insecure%20deserialize/image%203.png)
         
 
-# **Lab: Exploiting PHP deserialization with a pre-built gadget chain**
+## **Lab: Exploiting PHP deserialization with a pre-built gadget chain**
 
 [Lab: Exploiting PHP deserialization with a pre-built gadget chain | Web Security Academy](https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-exploiting-php-deserialization-with-a-pre-built-gadget-chain)
 
@@ -103,7 +103,7 @@
         ![image.png](Insecure%20deserialize/image%2011.png)
         
 
-# **Lab: Exploiting Ruby deserialization using a documented gadget chain**
+## **Lab: Exploiting Ruby deserialization using a documented gadget chain**
 
 [Lab: Exploiting Ruby deserialization using a documented gadget chain | Web Security Academy](https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-exploiting-ruby-deserialization-using-a-documented-gadget-chain)
 
@@ -168,7 +168,7 @@
         ![image.png](Insecure%20deserialize/image%2014.png)
         
 
-# **Lab: Developing a custom gadget chain for Java deserialization**
+## **Lab: Developing a custom gadget chain for Java deserialization**
 
 [Lab: Developing a custom gadget chain for Java deserialization | Web Security Academy](https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-developing-a-custom-gadget-chain-for-java-deserialization)
 
@@ -261,6 +261,6 @@
         ![image.png](Insecure%20deserialize/image%2020.png)
         
 
-# **Lab: Developing a custom gadget chain for PHP deserialization**
+## **Lab: Developing a custom gadget chain for PHP deserialization**
 
 [Lab: Developing a custom gadget chain for PHP deserialization | Web Security Academy](https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-developing-a-custom-gadget-chain-for-php-deserialization)

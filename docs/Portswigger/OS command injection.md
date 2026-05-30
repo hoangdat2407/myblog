@@ -1,6 +1,6 @@
 # OS command injection
 
-# **Lab: OS command injection, simple case**
+## **Lab: OS command injection, simple case**
 
 [Lab: OS command injection, simple case | Web Security Academy](https://portswigger.net/web-security/os-command-injection/lab-simple)
 
@@ -28,7 +28,7 @@
     ![image.png](OS%20command%20injection/image%203.png)
     
 
-# **Lab: Blind OS command injection with time delays**
+## **Lab: Blind OS command injection with time delays**
 
 [Lab: Blind OS command injection with time delays | Web Security Academy](https://portswigger.net/web-security/os-command-injection/lab-blind-time-delays)
 
@@ -69,7 +69,7 @@
     ![image.png](OS%20command%20injection/image%206.png)
     
 
-# **Lab: Blind OS command injection with output redirection**
+## **Lab: Blind OS command injection with output redirection**
 
 [Lab: Blind OS command injection with output redirection | Web Security Academy](https://portswigger.net/web-security/os-command-injection/lab-blind-output-redirection)
 
@@ -97,7 +97,7 @@
     ![image.png](OS%20command%20injection/image%2010.png)
     
 
-# **Lab: Blind OS command injection with out-of-band interaction**
+## **Lab: Blind OS command injection with out-of-band interaction**
 
 [Lab: Blind OS command injection with out-of-band interaction | Web Security Academy](https://portswigger.net/web-security/os-command-injection/lab-blind-out-of-band)
 
@@ -121,7 +121,7 @@
     ![image.png](OS%20command%20injection/image%2013.png)
     
 
-# **Lab: Blind OS command injection with out-of-band data exfiltration**
+## **Lab: Blind OS command injection with out-of-band data exfiltration**
 
 [Lab: Blind OS command injection with out-of-band data exfiltration | Web Security Academy](https://portswigger.net/web-security/os-command-injection/lab-blind-out-of-band-data-exfiltration)
 

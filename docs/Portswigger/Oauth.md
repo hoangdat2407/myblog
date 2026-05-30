@@ -1,6 +1,6 @@
 # Oauth
 
-# **Lab: Authentication bypass via OAuth implicit flow**
+## **Lab: Authentication bypass via OAuth implicit flow**
 
 [Lab: Authentication bypass via OAuth implicit flow | Web Security Academy](https://portswigger.net/web-security/oauth/lab-oauth-authentication-bypass-via-oauth-implicit-flow)
 

@@ -1,6 +1,6 @@
 # Information disclosure
 
-# **Lab: Information disclosure in error messages**
+## **Lab: Information disclosure in error messages**
 
 [Lab: Information disclosure in error messages | Web Security Academy](https://portswigger.net/web-security/information-disclosure/exploiting/lab-infoleak-in-error-messages)
 
@@ -34,7 +34,7 @@
     ![image.png](Information%20disclosure/image%201.png)
     
 
-# **Lab: Information disclosure on debug page**
+## **Lab: Information disclosure on debug page**
 
 [Lab: Information disclosure on debug page | Web Security Academy](https://portswigger.net/web-security/information-disclosure/exploiting/lab-infoleak-on-debug-page)
 
@@ -51,7 +51,7 @@
     ![image.png](Information%20disclosure/image%204.png)
     
 
-# **Lab: Source code disclosure via backup files**
+## **Lab: Source code disclosure via backup files**
 
 [Lab: Source code disclosure via backup files | Web Security Academy](https://portswigger.net/web-security/information-disclosure/exploiting/lab-infoleak-via-backup-files)
 
@@ -70,7 +70,7 @@
     ![image.png](Information%20disclosure/image%208.png)
     
 
-# **Lab: Authentication bypass via information disclosure**
+## **Lab: Authentication bypass via information disclosure**
 
 [Lab: Authentication bypass via information disclosure | Web Security Academy](https://portswigger.net/web-security/information-disclosure/exploiting/lab-infoleak-authentication-bypass)
 
@@ -114,7 +114,7 @@
     ![image.png](Information%20disclosure/image%2012.png)
     
 
-# **Lab: Information disclosure in version control history**
+## **Lab: Information disclosure in version control history**
 
 [Lab: Information disclosure in version control history | Web Security Academy](https://portswigger.net/web-security/information-disclosure/exploiting/lab-infoleak-in-version-control-history)
 

@@ -1,6 +1,6 @@
 # Access control vulnerabilities
 
-# **Lab: Unprotected admin functionality**
+## **Lab: Unprotected admin functionality**
 
 [Lab: Unprotected admin functionality | Web Security Academy](https://portswigger.net/web-security/access-control/lab-unprotected-admin-functionality)
 
@@ -17,7 +17,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%202.png)
     
 
-# **Lab: Unprotected admin functionality with unpredictable URL**
+## **Lab: Unprotected admin functionality with unpredictable URL**
 
 [Lab: Unprotected admin functionality with unpredictable URL | Web Security Academy](https://portswigger.net/web-security/access-control/lab-unprotected-admin-functionality-with-unpredictable-url)
 
@@ -34,7 +34,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%205.png)
     
 
-# **Lab: User role controlled by request parameter**
+## **Lab: User role controlled by request parameter**
 
 [Lab: User role controlled by request parameter | Web Security Academy](https://portswigger.net/web-security/access-control/lab-user-role-controlled-by-request-parameter)
 
@@ -55,7 +55,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%209.png)
     
 
-# **Lab: User role can be modified in user profile**
+## **Lab: User role can be modified in user profile**
 
 [Lab: User role can be modified in user profile | Web Security Academy](https://portswigger.net/web-security/access-control/lab-user-role-can-be-modified-in-user-profile)
 
@@ -81,7 +81,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2014.png)
     
 
-# **Lab: User ID controlled by request parameter**
+## **Lab: User ID controlled by request parameter**
 
 [Lab: User ID controlled by request parameter | Web Security Academy](https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter)
 
@@ -94,7 +94,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2016.png)
     
 
-# **Lab: User ID controlled by request parameter, with unpredictable user IDs**
+## **Lab: User ID controlled by request parameter, with unpredictable user IDs**
 
 [Lab: User ID controlled by request parameter, with unpredictable user IDs | Web Security Academy](https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter-with-unpredictable-user-ids)
 
@@ -115,7 +115,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2020.png)
     
 
-# **Lab: User ID controlled by request parameter with data leakage in redirect**
+## **Lab: User ID controlled by request parameter with data leakage in redirect**
 
 [Lab: User ID controlled by request parameter with data leakage in redirect | Web Security Academy](https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter-with-data-leakage-in-redirect)
 
@@ -133,7 +133,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2023.png)
     
 
-# **Lab: Insecure direct object references**
+## **Lab: Insecure direct object references**
 
 [Lab: Insecure direct object references | Web Security Academy](https://portswigger.net/web-security/access-control/lab-insecure-direct-object-references)
 
@@ -158,7 +158,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2028.png)
     
 
-# **Lab: URL-based access control can be circumvented**
+## **Lab: URL-based access control can be circumvented**
 
 [Lab: URL-based access control can be circumvented | Web Security Academy](https://portswigger.net/web-security/access-control/lab-url-based-access-control-can-be-circumvented)
 
@@ -180,7 +180,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2032.png)
     
 
-# **Lab: Multi-step process with no access control on one step**
+## **Lab: Multi-step process with no access control on one step**
 
 [Lab: Multi-step process with no access control on one step | Web Security Academy](https://portswigger.net/web-security/access-control/lab-multi-step-process-with-no-access-control-on-one-step)
 
@@ -202,7 +202,7 @@
     ![image.png](Access%20control%20vulnerabilities/image%2037.png)
     
 
-# **Lab: Referer-based access control**
+## **Lab: Referer-based access control**
 
 [Lab: Referer-based access control | Web Security Academy](https://portswigger.net/web-security/access-control/lab-referer-based-access-control)
 

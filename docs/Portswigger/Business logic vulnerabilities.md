@@ -1,6 +1,6 @@
 # Business logic vulnerabilities
 
-# **Lab: Excessive trust in client-side controls**
+## **Lab: Excessive trust in client-side controls**
 
 [Lab: Excessive trust in client-side controls | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-excessive-trust-in-client-side-controls)
 
@@ -29,7 +29,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%204.png)
     
 
-# **Lab: High-level logic vulnerability**
+## **Lab: High-level logic vulnerability**
 
 [Lab: High-level logic vulnerability | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-high-level)
 
@@ -67,7 +67,7 @@
         ![image.png](Business%20logic%20vulnerabilities/image%2011.png)
         
 
-# **Lab: Inconsistent security controls**
+## **Lab: Inconsistent security controls**
 
 [Lab: Inconsistent security controls | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-inconsistent-security-controls)
 
@@ -87,7 +87,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2014.png)
     
 
-# **Lab: Flawed enforcement of business rules**
+## **Lab: Flawed enforcement of business rules**
 
 [Lab: Flawed enforcement of business rules | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-flawed-enforcement-of-business-rules)
 
@@ -140,7 +140,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2019.png)
     
 
-# **Lab: Low-level logic flaw**
+## **Lab: Low-level logic flaw**
 
 [Lab: Low-level logic flaw | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-low-level)
 
@@ -170,7 +170,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2024.png)
     
 
-# **Lab: Inconsistent handling of exceptional input**
+## **Lab: Inconsistent handling of exceptional input**
 
 [Lab: Inconsistent handling of exceptional input | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-inconsistent-handling-of-exceptional-input)
 
@@ -249,7 +249,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2028.png)
     
 
-# **Lab: Weak isolation on dual-use endpoint**
+## **Lab: Weak isolation on dual-use endpoint**
 
 [Lab: Weak isolation on dual-use endpoint | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-weak-isolation-on-dual-use-endpoint)
 
@@ -308,7 +308,7 @@
     ```
     
 
-# **Lab: Insufficient workflow validation**
+## **Lab: Insufficient workflow validation**
 
 [Lab: Insufficient workflow validation | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-insufficient-workflow-validation)
 
@@ -359,7 +359,7 @@
     ```
     
 
-# **Lab: Authentication bypass via flawed state machine**
+## **Lab: Authentication bypass via flawed state machine**
 
 [Lab: Authentication bypass via flawed state machine | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-authentication-bypass-via-flawed-state-machine)
 
@@ -388,7 +388,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2037.png)
     
 
-# **Lab: Infinite money logic flaw**
+## **Lab: Infinite money logic flaw**
 
 [Lab: Infinite money logic flaw | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-infinite-money)
 
@@ -456,7 +456,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2045.png)
     
 
-# **Lab: Authentication bypass via encryption oracle**
+## **Lab: Authentication bypass via encryption oracle**
 
 [Lab: Authentication bypass via encryption oracle | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-authentication-bypass-via-encryption-oracle)
 
@@ -522,7 +522,7 @@
     ![image.png](Business%20logic%20vulnerabilities/image%2053.png)
     
 
-# **Lab: Bypassing access controls using email address parsing discrepancies**
+## **Lab: Bypassing access controls using email address parsing discrepancies**
 
 [Lab: Bypassing access controls using email address parsing discrepancies | Web Security Academy](https://portswigger.net/web-security/logic-flaws/examples/lab-logic-flaws-bypassing-access-controls-using-email-address-parsing-discrepancies)
 

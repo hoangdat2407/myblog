@@ -1,6 +1,6 @@
 # NoSQL injection
 
-# **Lab: Detecting NoSQL injection**
+## **Lab: Detecting NoSQL injection**
 
 [Lab: Detecting NoSQL injection | Web Security Academy](https://portswigger.net/web-security/nosql-injection/lab-nosql-injection-detection)
 
@@ -39,7 +39,7 @@
         ![image.png](NoSQL%20injection/image%203.png)
         
 
-# **Lab: Exploiting NoSQL operator injection to bypass authentication**
+## **Lab: Exploiting NoSQL operator injection to bypass authentication**
 
 [Lab: Exploiting NoSQL operator injection to bypass authentication | Web Security Academy](https://portswigger.net/web-security/nosql-injection/lab-nosql-injection-bypass-authentication)
 
@@ -74,7 +74,7 @@
     ![image.png](NoSQL%20injection/image%207.png)
     
 
-# **Lab: Exploiting NoSQL injection to extract data**
+## **Lab: Exploiting NoSQL injection to extract data**
 
 [Lab: Exploiting NoSQL injection to extract data | Web Security Academy](https://portswigger.net/web-security/nosql-injection/lab-nosql-injection-extract-data)
 
@@ -111,7 +111,7 @@
         ![image.png](NoSQL%20injection/image%2014.png)
         
 
-# **Lab: Exploiting NoSQL operator injection to extract unknown fields**
+## **Lab: Exploiting NoSQL operator injection to extract unknown fields**
 
 [Lab: Exploiting NoSQL operator injection to extract unknown fields | Web Security Academy](https://portswigger.net/web-security/nosql-injection/lab-nosql-injection-extract-unknown-fields)
 

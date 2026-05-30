@@ -1,6 +1,6 @@
 # CORS
 
-# **Lab: CORS vulnerability with basic origin reflection**
+## **Lab: CORS vulnerability with basic origin reflection**
 
 [Lab: CORS vulnerability with basic origin reflection | Web Security Academy](https://portswigger.net/web-security/cors/lab-basic-origin-reflection-attack)
 
@@ -43,7 +43,7 @@
     ![image.png](CORS/image%202.png)
     
 
-# **Lab: CORS vulnerability with trusted null origin**
+## **Lab: CORS vulnerability with trusted null origin**
 
 [Lab: CORS vulnerability with trusted null origin | Web Security Academy](https://portswigger.net/web-security/cors/lab-null-origin-whitelisted-attack)
 
@@ -90,7 +90,7 @@
         ![image.png](CORS/image%206.png)
         
 
-# **Lab: CORS vulnerability with trusted insecure protocols**
+## **Lab: CORS vulnerability with trusted insecure protocols**
 
 [Lab: CORS vulnerability with trusted insecure protocols | Web Security Academy](https://portswigger.net/web-security/cors/lab-breaking-https-attack)
 

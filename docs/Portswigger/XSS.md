@@ -1,6 +1,6 @@
 # XSS
 
-# **Lab: Reflected XSS into HTML context with nothing encoded**
+## **Lab: Reflected XSS into HTML context with nothing encoded**
 
 [Lab: Reflected XSS into HTML context with nothing encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/reflected/lab-html-context-nothing-encoded)
 
@@ -20,7 +20,7 @@
         ![image.png](XSS/image%201.png)
         
 
-# **Lab: Stored XSS into HTML context with nothing encoded**
+## **Lab: Stored XSS into HTML context with nothing encoded**
 
 [Lab: Stored XSS into HTML context with nothing encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/stored/lab-html-context-nothing-encoded)
 
@@ -41,7 +41,7 @@
         ![image.png](XSS/image%203.png)
         
 
-# **Lab: DOM XSS in `document.write` sink using source `location.search`**
+## **Lab: DOM XSS in `document.write` sink using source `location.search`**
 
 [Lab: DOM XSS in document.write sink using source location.search | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-document-write-sink)
 
@@ -83,7 +83,7 @@
         
     - Em đã thử dùng onerror nhưng không được, tuy nhiên onload thì được em nghĩ là src kia không bị lỗi ạ.
 
-# **Lab: DOM XSS in `innerHTML` sink using source `location.search`**
+## **Lab: DOM XSS in `innerHTML` sink using source `location.search`**
 
 [Lab: DOM XSS in innerHTML sink using source location.search | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-innerhtml-sink)
 
@@ -119,7 +119,7 @@
     ```
     
 
-# **Lab: DOM XSS in jQuery anchor `href` attribute sink using `location.search` source**
+## **Lab: DOM XSS in jQuery anchor `href` attribute sink using `location.search` source**
 
 [Lab: DOM XSS in jQuery anchor href attribute sink using location.search source | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-href-attribute-sink)
 
@@ -144,7 +144,7 @@
     ![image.png](XSS/image%2012.png)
     
 
-# **Lab: DOM XSS in jQuery selector sink using a hashchange event**
+## **Lab: DOM XSS in jQuery selector sink using a hashchange event**
 
 [Lab: DOM XSS in jQuery selector sink using a hashchange event | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-jquery-selector-hash-change-event)
 
@@ -196,7 +196,7 @@
     ![image.png](XSS/image%2015.png)
     
 
-# **Lab: Reflected XSS into attribute with angle brackets HTML-encoded**
+## **Lab: Reflected XSS into attribute with angle brackets HTML-encoded**
 
 [Lab: Reflected XSS into attribute with angle brackets HTML-encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-attribute-angle-brackets-html-encoded)
 
@@ -227,7 +227,7 @@
     ![image.png](XSS/image%2018.png)
     
 
-# **Lab: Stored XSS into anchor `href` attribute with double quotes HTML-encoded**
+## **Lab: Stored XSS into anchor `href` attribute with double quotes HTML-encoded**
 
 [Lab: Stored XSS into anchor href attribute with double quotes HTML-encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-href-attribute-double-quotes-html-encoded)
 
@@ -274,7 +274,7 @@
     ![image.png](XSS/image%2021.png)
     
 
-# **Lab: Reflected XSS into a JavaScript string with angle brackets HTML encoded**
+## **Lab: Reflected XSS into a JavaScript string with angle brackets HTML encoded**
 
 [Lab: Reflected XSS into a JavaScript string with angle brackets HTML encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-angle-brackets-html-encoded)
 
@@ -309,7 +309,7 @@
     ![image.png](XSS/image%2025.png)
     
 
-# **Lab: DOM XSS in `document.write` sink using source `location.search` inside a select element**
+## **Lab: DOM XSS in `document.write` sink using source `location.search` inside a select element**
 
 [Lab: DOM XSS in document.write sink using source location.search inside a select element | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-document-write-sink-inside-select-element)
 
@@ -356,7 +356,7 @@
     ![image.png](XSS/image%2027.png)
     
 
-# **Lab: DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded**
+## **Lab: DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded**
 
 [Lab: DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-angularjs-expression)
 
@@ -416,7 +416,7 @@
         ![image.png](XSS/image%2033.png)
         
 
-# **Lab: Reflected DOM XSS**
+## **Lab: Reflected DOM XSS**
 
 [Lab: Reflected DOM XSS | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-dom-xss-reflected)
 
@@ -474,7 +474,7 @@
     ![image.png](XSS/image%2040.png)
     
 
-# **Lab: Stored DOM XSS**
+## **Lab: Stored DOM XSS**
 
 [Lab: Stored DOM XSS | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/dom-based/lab-dom-xss-stored)
 
@@ -517,7 +517,7 @@
         ![image.png](XSS/image%2043.png)
         
 
-# **Lab: Reflected XSS into HTML context with most tags and attributes blocked**
+## **Lab: Reflected XSS into HTML context with most tags and attributes blocked**
 
 [Lab: Reflected XSS into HTML context with most tags and attributes blocked | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-html-context-with-most-tags-and-attributes-blocked)
 
@@ -558,7 +558,7 @@
     ![image.png](XSS/image%2046.png)
     
 
-# **Lab: Reflected XSS into HTML context with all tags blocked except custom ones**
+## **Lab: Reflected XSS into HTML context with all tags blocked except custom ones**
 
 [Lab: Reflected XSS into HTML context with all tags blocked except custom ones | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-html-context-with-all-standard-tags-blocked)
 
@@ -606,7 +606,7 @@
     ![image.png](XSS/image%2049.png)
     
 
-# **Lab: Reflected XSS with some SVG markup allowed**
+## **Lab: Reflected XSS with some SVG markup allowed**
 
 [Lab: Reflected XSS with some SVG markup allowed | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-some-svg-markup-allowed)
 
@@ -646,7 +646,7 @@
     ![image.png](XSS/image%2051.png)
     
 
-# **Lab: Reflected XSS in canonical link tag**
+## **Lab: Reflected XSS in canonical link tag**
 
 [Lab: Reflected XSS in canonical link tag | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-canonical-link-tag)
 
@@ -676,7 +676,7 @@
     ![image.png](XSS/image%2054.png)
     
 
-# **Lab: Reflected XSS into a JavaScript string with single quote and backslash escaped**
+## **Lab: Reflected XSS into a JavaScript string with single quote and backslash escaped**
 
 [Lab: Reflected XSS into a JavaScript string with single quote and backslash escaped | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-single-quote-backslash-escaped)
 
@@ -703,7 +703,7 @@
         ![image.png](XSS/image%2056.png)
         
 
-# **Lab: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped**
+## **Lab: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped**
 
 [Lab: Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-string-angle-brackets-double-quotes-encoded-single-quotes-escaped)
 
@@ -740,7 +740,7 @@
     ![image.png](XSS/image%2061.png)
     
 
-# **Lab: Stored XSS into `onclick` event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped**
+## **Lab: Stored XSS into `onclick` event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped**
 
 [Lab: Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-onclick-event-angle-brackets-double-quotes-html-encoded-single-quotes-backslash-escaped)
 
@@ -780,7 +780,7 @@
     ![image.png](XSS/image%2064.png)
     
 
-# **Lab: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped**
+## **Lab: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped**
 
 [Lab: Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-template-literal-angle-brackets-single-double-quotes-backslash-backticks-escaped)
 
@@ -807,7 +807,7 @@
     ![image.png](XSS/image%2067.png)
     
 
-# **Lab: Exploiting cross-site scripting to steal cookies**
+## **Lab: Exploiting cross-site scripting to steal cookies**
 
 [Lab: Exploiting cross-site scripting to steal cookies | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-stealing-cookies)
 
@@ -848,7 +848,7 @@
         ![image.png](XSS/image%2071.png)
         
 
-# **Lab: Exploiting cross-site scripting to capture passwords**
+## **Lab: Exploiting cross-site scripting to capture passwords**
 
 [Lab: Exploiting cross-site scripting to capture passwords | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-capturing-passwords)
 
@@ -877,7 +877,7 @@
     - Khi victim nhập uname, pwd thì vì ô pwd thay đổi nên sẽ tự động gửi cred
     - Tiếp theo, chúng ta cần thêm mode cors vì sop ngăn ko được gửi request đến domain khác????
 
-# **Lab: Exploiting XSS to bypass CSRF defenses**
+## **Lab: Exploiting XSS to bypass CSRF defenses**
 
 [Lab: Exploiting XSS to bypass CSRF defenses | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/exploiting/lab-perform-csrf)
 
@@ -930,7 +930,7 @@
     ![image.png](XSS/image%2077.png)
     
 
-# **Lab: Reflected XSS with AngularJS sandbox escape without strings**
+## **Lab: Reflected XSS with AngularJS sandbox escape without strings**
 
 [Lab: Reflected XSS with AngularJS sandbox escape without strings | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/client-side-template-injection/lab-angular-sandbox-escape-without-strings)
 
@@ -961,7 +961,7 @@
     ![image.png](XSS/image%2080.png)
     
 
-# **Lab: Reflected XSS with AngularJS sandbox escape and CSP**
+## **Lab: Reflected XSS with AngularJS sandbox escape and CSP**
 
 [Lab: Reflected XSS with AngularJS sandbox escape and CSP | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/client-side-template-injection/lab-angular-sandbox-escape-and-csp)
 
@@ -1031,7 +1031,7 @@
         ![image.png](XSS/image%2084.png)
         
 
-# **Lab: Reflected XSS with event handlers and `href` attributes blocked**
+## **Lab: Reflected XSS with event handlers and `href` attributes blocked**
 
 [Lab: Reflected XSS with event handlers and href attributes blocked | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-event-handlers-and-href-attributes-blocked)
 
@@ -1052,7 +1052,7 @@
     ![image.png](XSS/image%2086.png)
     
 
-# **Lab: Reflected XSS in a JavaScript URL with some characters blocked**
+## **Lab: Reflected XSS in a JavaScript URL with some characters blocked**
 
 [Lab: Reflected XSS in a JavaScript URL with some characters blocked | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/contexts/lab-javascript-url-some-characters-blocked)
 
@@ -1114,7 +1114,7 @@
         ![image.png](XSS/image%2090.png)
         
 
-# **Lab: Reflected XSS protected by very strict CSP, with dangling markup attack**
+## **Lab: Reflected XSS protected by very strict CSP, with dangling markup attack**
 
 [Lab: Reflected XSS protected by very strict CSP, with dangling markup attack | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-very-strict-csp-with-dangling-markup-attack)
 
@@ -1240,7 +1240,7 @@
     ![image.png](XSS/image%20104.png)
     
 
-# **Lab: Reflected XSS protected by CSP, with CSP bypass**
+## **Lab: Reflected XSS protected by CSP, with CSP bypass**
 
 [Lab: Reflected XSS protected by CSP, with CSP bypass | Web Security Academy](https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-csp-bypass)
 

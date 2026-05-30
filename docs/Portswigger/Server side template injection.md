@@ -1,6 +1,6 @@
 # Server side template injection
 
-# **Lab: Server-side template injection in an unknown language with a documented exploit**
+## **Lab: Server-side template injection in an unknown language with a documented exploit**
 
 [Lab: Server-side template injection in an unknown language with a documented exploit | Web Security Academy](https://portswigger.net/web-security/server-side-template-injection/exploiting/lab-server-side-template-injection-in-an-unknown-language-with-a-documented-exploit)
 
@@ -47,7 +47,7 @@
     ![image.png](Server%20side%20template%20injection/image%204.png)
     
 
-# **Lab: Server-side template injection with information disclosure via user-supplied objects**
+## **Lab: Server-side template injection with information disclosure via user-supplied objects**
 
 [Lab: Server-side template injection with information disclosure via user-supplied objects | Web Security Academy](https://portswigger.net/web-security/server-side-template-injection/exploiting/lab-server-side-template-injection-with-information-disclosure-via-user-supplied-objects)
 
@@ -69,6 +69,6 @@
     ![image.png](Server%20side%20template%20injection/image%208.png)
     
 
-# **Lab: Server-side template injection in a sandboxed environment**
+## **Lab: Server-side template injection in a sandboxed environment**
 
 [Lab: Server-side template injection in a sandboxed environment | Web Security Academy](https://portswigger.net/web-security/server-side-template-injection/exploiting/lab-server-side-template-injection-in-a-sandboxed-environment)

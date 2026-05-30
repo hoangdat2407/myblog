@@ -1,6 +1,6 @@
 # DOM-based vulnerabilities
 
-# **Lab: DOM XSS using web messages**
+## **Lab: DOM XSS using web messages**
 
 [Lab: DOM XSS using web messages | Web Security Academy](https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages)
 
@@ -42,7 +42,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%203.png)
         
 
-# **Lab: DOM XSS using web messages and a JavaScript URL**
+## **Lab: DOM XSS using web messages and a JavaScript URL**
 
 [Lab: DOM XSS using web messages and a JavaScript URL | Web Security Academy](https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages-and-a-javascript-url)
 
@@ -83,7 +83,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%206.png)
         
 
-# **Lab: DOM XSS using web messages and `JSON.parse`**
+## **Lab: DOM XSS using web messages and `JSON.parse`**
 
 [Lab: DOM XSS using web messages and JSON.parse | Web Security Academy](https://portswigger.net/web-security/dom-based/controlling-the-web-message-source/lab-dom-xss-using-web-messages-and-json-parse)
 
@@ -125,7 +125,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%209.png)
         
 
-# **Lab: DOM-based open redirection**
+## **Lab: DOM-based open redirection**
 
 [Lab: DOM-based open redirection | Web Security Academy](https://portswigger.net/web-security/dom-based/open-redirection/lab-dom-open-redirection)
 
@@ -147,7 +147,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%2011.png)
         
 
-# **Lab: DOM-based cookie manipulation**
+## **Lab: DOM-based cookie manipulation**
 
 [Lab: DOM-based cookie manipulation | Web Security Academy](https://portswigger.net/web-security/dom-based/cookie-manipulation/lab-dom-cookie-manipulation)
 
@@ -193,7 +193,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%2016.png)
         
 
-# **Lab: Exploiting DOM clobbering to enable XSS**
+## **Lab: Exploiting DOM clobbering to enable XSS**
 
 [Lab: Exploiting DOM clobbering to enable XSS | Web Security Academy](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-xss-exploiting-dom-clobbering)
 
@@ -261,7 +261,7 @@
         ![image.png](DOM-based%20vulnerabilities/image%2024.png)
         
 
-# **Lab: Clobbering DOM attributes to bypass HTML filters**
+## **Lab: Clobbering DOM attributes to bypass HTML filters**
 
 [Lab: Clobbering DOM attributes to bypass HTML filters | Web Security Academy](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-clobbering-attributes-to-bypass-html-filters)
 

@@ -1,6 +1,6 @@
 # Clickjacking
 
-# **Lab: Basic clickjacking with CSRF token protection**
+## **Lab: Basic clickjacking with CSRF token protection**
 
 - Thực hiện login với credential `wiener:peter` .
 - Điều hướng đến chức năng `My account > Delete account`
@@ -121,7 +121,7 @@
     ![image.png](Clickjacking/image%202.png)
     
 
-# **Lab: Clickjacking with form input data prefilled from a URL parameter**
+## **Lab: Clickjacking with form input data prefilled from a URL parameter**
 
 - Thực hiện login bằng credential `wiener:peter`
 - Tại đây, điều hướng đến chức năng `My account` và quan sát thấy rằng input value của email được lấy từ param trên URL
@@ -192,7 +192,7 @@
         ![image.png](Clickjacking/image%205.png)
         
 
-# **Lab: Clickjacking with a frame buster script**
+## **Lab: Clickjacking with a frame buster script**
 
 - Thực hiện login với credential `wiener:peter`
 - Điều hướng đến chức năng `My account` . Quan sát rằng input value của email được lấy từ param `email`
@@ -319,7 +319,7 @@
     ![image.png](Clickjacking/image%209.png)
     
 
-# **Lab: Exploiting clickjacking vulnerability to trigger DOM-based XSS**
+## **Lab: Exploiting clickjacking vulnerability to trigger DOM-based XSS**
 
 - Thực hiện điều hướng đến chức năng `Submit feedback`. Tại đây, thực hiện submit feedback
     
@@ -388,7 +388,7 @@
     ![image.png](Clickjacking/image%2012.png)
     
 
-# **Lab: Multistep clickjacking**
+## **Lab: Multistep clickjacking**
 
 - Thực hiện login với tài khoản `wiener:peter`  . Điều hướng đến chức năng `My account > Delete account`
     

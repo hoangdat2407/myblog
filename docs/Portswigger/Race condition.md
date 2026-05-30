@@ -1,6 +1,6 @@
 # Race condition
 
-# **Lab: Limit overrun race conditions**
+## **Lab: Limit overrun race conditions**
 
 [Lab: Limit overrun race conditions | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-limit-overrun)
 
@@ -58,7 +58,7 @@
     ![image.png](Race%20condition/image%206.png)
     
 
-# **Lab: Bypassing rate limits via race conditions**
+## **Lab: Bypassing rate limits via race conditions**
 
 [Lab: Bypassing rate limits via race conditions | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-bypassing-rate-limits)
 
@@ -119,7 +119,7 @@
     ![image.png](Race%20condition/image%2012.png)
     
 
-# **Lab: Multi-endpoint race conditions**
+## **Lab: Multi-endpoint race conditions**
 
 [Lab: Multi-endpoint race conditions | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-multi-endpoint)
 
@@ -224,7 +224,7 @@
     
 - Về bước check thời gian trong lý thuyết, có thể dùng send sequence request (one connection). Nếu như chỉ gói đầu vượt thời gian → có thể test race bình thường vì nếu gửi cùng 1 packet thì tất cả cùng đến chậm do cùng độ trễ hạ tầng mạng không phải do be xử lý
 
-# **Lab: Single-endpoint race conditions**
+## **Lab: Single-endpoint race conditions**
 
 [Lab: Single-endpoint race conditions | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-single-endpoint)
 
@@ -306,7 +306,7 @@
     ```
     
 
-# **Lab: Exploiting time-sensitive vulnerabilities**
+## **Lab: Exploiting time-sensitive vulnerabilities**
 
 [Lab: Exploiting time-sensitive vulnerabilities | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-exploiting-time-sensitive-vulnerabilities)
 
@@ -448,7 +448,7 @@
     ![image.png](Race%20condition/image%2031.png)
     
 
-# **Lab: Partial construction race conditions**
+## **Lab: Partial construction race conditions**
 
 [Lab: Partial construction race conditions | Web Security Academy](https://portswigger.net/web-security/race-conditions/lab-race-conditions-partial-construction)
 

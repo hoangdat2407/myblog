@@ -1,6 +1,6 @@
 # Authentication vulnerabilities
 
-# Lab: **Username enumeration via different responses**
+## Lab: **Username enumeration via different responses**
 
 [https://portswigger.net/web-security/authentication/password-based/lab-username-enumeration-via-different-responses](https://portswigger.net/web-security/authentication/password-based/lab-username-enumeration-via-different-responses)
 
@@ -22,7 +22,7 @@
     ![image.png](Authentication%20vulnerabilities/image%203.png)
     
 
-# **Lab: 2FA simple bypass**
+## **Lab: 2FA simple bypass**
 
 [Lab: 2FA simple bypass | Web Security Academy](https://portswigger.net/web-security/authentication/multi-factor/lab-2fa-simple-bypass)
 
@@ -36,7 +36,7 @@
     ![image.png](Authentication%20vulnerabilities/image%205.png)
     
 
-# **Lab: Password reset broken logic**
+## **Lab: Password reset broken logic**
 
 [Lab: Password reset broken logic | Web Security Academy](https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-broken-logic)
 
@@ -60,7 +60,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2010.png)
     
 
-# **Lab: Username enumeration via subtly different responses**
+## **Lab: Username enumeration via subtly different responses**
 
 - Thực hiện truy cập chức năng login. Nhập username và password. Thực hiện submit
 - Trong burpsuite, chuyển request gửi tới API `POST /login` sang tab `Intruder`.
@@ -84,7 +84,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2015.png)
     
 
-# **Lab: Username enumeration via response timing**
+## **Lab: Username enumeration via response timing**
 
 - Thực hiện đăng nhập với username đúng là `wiener` nhưng với mật khẩu dài khiến cho câu lệnh query load chậm dẫn đến response chậm
     
@@ -98,7 +98,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2018.png)
     
 
-# **Lab: Broken brute-force protection, IP block**
+## **Lab: Broken brute-force protection, IP block**
 
 - Lab có cơ chế chặn brute-force sau khi đăng nhập sai account 3 lần
     
@@ -135,7 +135,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2021.png)
     
 
-# **Lab: Username enumeration via account lock**
+## **Lab: Username enumeration via account lock**
 
 [Lab: Username enumeration via account lock | Web Security Academy](https://portswigger.net/web-security/authentication/password-based/lab-username-enumeration-via-account-lock)
 
@@ -189,7 +189,7 @@
     ```
     
 
-# **Lab: 2FA broken logic**
+## **Lab: 2FA broken logic**
 
 [Lab: 2FA broken logic | Web Security Academy](https://portswigger.net/web-security/authentication/multi-factor/lab-2fa-broken-logic)
 
@@ -217,7 +217,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2029.png)
     
 
-# **Lab: Brute-forcing a stay-logged-in cookie**
+## **Lab: Brute-forcing a stay-logged-in cookie**
 
 [Lab: Brute-forcing a stay-logged-in cookie | Web Security Academy](https://portswigger.net/web-security/authentication/other-mechanisms/lab-brute-forcing-a-stay-logged-in-cookie)
 
@@ -304,7 +304,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2033.png)
     
 
-# **Lab: Offline password cracking**
+## **Lab: Offline password cracking**
 
 [Lab: Offline password cracking | Web Security Academy](https://portswigger.net/web-security/authentication/other-mechanisms/lab-offline-password-cracking)
 
@@ -335,7 +335,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2039.png)
     
 
-# **Lab: Password reset poisoning via middleware**
+## **Lab: Password reset poisoning via middleware**
 
 [Lab: Password reset poisoning via middleware | Web Security Academy](https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-reset-poisoning-via-middleware)
 
@@ -355,7 +355,7 @@
     ![image.png](Authentication%20vulnerabilities/image%2043.png)
     
 
-# **Lab: Password brute-force via password change**
+## **Lab: Password brute-force via password change**
 
 [Lab: Password brute-force via password change | Web Security Academy](https://portswigger.net/web-security/authentication/other-mechanisms/lab-password-brute-force-via-password-change)
 
@@ -373,7 +373,7 @@
     
 - Lấy được tài khoản là `carlos:thomas` .
 
-# **Lab: Broken brute-force protection, multiple credentials per request**
+## **Lab: Broken brute-force protection, multiple credentials per request**
 
 [Lab: Broken brute-force protection, multiple credentials per request | Web Security Academy](https://portswigger.net/web-security/authentication/password-based/lab-broken-brute-force-protection-multiple-credentials-per-request)
 
@@ -391,7 +391,7 @@
     
 - Ngoài ra trong một số trường hợp còn có thể truyền object như `"password": {"password": "123"}`
 
-# **Lab: 2FA bypass using a brute-force attack**
+## **Lab: 2FA bypass using a brute-force attack**
 
 [Lab: 2FA bypass using a brute-force attack | Web Security Academy](https://portswigger.net/web-security/authentication/multi-factor/lab-2fa-bypass-using-a-brute-force-attack)
 
