@@ -55,3 +55,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.details
+
+extra_css:
+  - assets/css/image-zoom.css
+
+extra_javascript:
+  - assets/js/image-zoom.js
